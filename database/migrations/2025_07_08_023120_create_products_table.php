@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('name')->index();
             $table->string('slug')->index();
             $table->text('description')->nullable();
+            $table->enum('condition', ['new', 'used'])->default('new');
             $table->decimal('review_avg', 5)->nullable();
             $table->unsignedInteger('review_count')->default(0);
-            $table->unsignedInteger('sales_count')->default(0);
+            $table->unsignedInteger('sold_count')->default(0);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

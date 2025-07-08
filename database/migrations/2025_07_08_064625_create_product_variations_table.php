@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('sku')->nullable();
             $table->decimal('price', 10);
             $table->decimal('discount_price', 10)->nullable();
-            $table->enum('condition', ['new', 'used'])->default('new');
             $table->unsignedInteger('stock')->default(0);
             $table->timestamps();
         });

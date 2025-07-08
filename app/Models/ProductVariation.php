@@ -15,6 +15,4 @@ class ProductVariation extends Model {
     'sku'
   ];
 
-  public $timestamps = false;
-
 }
