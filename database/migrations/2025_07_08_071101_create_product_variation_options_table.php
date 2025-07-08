@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('product_variation_options', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('product_variation_id');
             $table->unsignedBigInteger('variation_option_id');
+
+            // Composite Primary Key
+            $table->primary(['product_variation_id', 'variation_option_id']);
         });
     }
 
