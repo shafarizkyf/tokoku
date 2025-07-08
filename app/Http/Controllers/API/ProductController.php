@@ -11,13 +11,50 @@ use App\Models\ProductVariationOption;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller {
 
-  public function store() {
+  public function saveProductsFromJSON() {
+    $file = Storage::disk('local')->get('list_sample.json');
+    $productsRequest = json_decode($file);
+
+    $response = null;
+    DB::transaction(function() use ($productsRequest, &$response){
+      foreach($productsRequest->data as $productRequest) {
+        $product = Product::create([
+          'store_id' => 1,
+          'name' => $productRequest->name,
+          'slug' => Str::slug($productRequest->name),
+          'review_avg' => $productRequest->ratingAvg,
+          'sold_count' => $productRequest->soldCount,
+          'created_by' => 1,
+        ]);
+
+        ProductVariation::create([
+          'product_id' => $product->id,
+          'sku' => Str::slug($productRequest->name),
+          'price' => $productRequest->normalPrice,
+          'discount_price' => $productRequest->discountPrice,
+        ]);
+
+        if (request('import_image')) {
+          $savePath = "products/{$product->id}";
+          $path = Image::saveImageFromUrl($productRequest->url, savePath: $savePath);
+
+          ProductImage::create([
+            'product_id' => $product->id,
+            'path' => $path,
+          ]);
+        }
+      }
+    });
+
+    return response($response);
+  }
+
+  public function saveProductDetailFromJSON() {
     $file = Storage::disk('local')->get('sample2.json');
     $productRequest = json_decode($file);
 
