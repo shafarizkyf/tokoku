@@ -18,11 +18,17 @@ use Illuminate\Support\Str;
 class ProductController extends Controller {
 
   public function saveProductsFromJSON() {
-    $file = Storage::disk('local')->get('list_sample.json');
+    $filePath = $this->saveImportFile();
+    $file = Storage::get($filePath);
     $productsRequest = json_decode($file);
 
-    $response = null;
+    $response = [
+      'success' => false,
+      'message' => 'Unexpected Error',
+    ];
+
     DB::transaction(function() use ($productsRequest, &$response){
+      $productIds = [];
       foreach($productsRequest->data as $productRequest) {
         $product = Product::create([
           'store_id' => 1,
@@ -49,10 +55,20 @@ class ProductController extends Controller {
             'path' => $path,
           ]);
         }
+
+        $productIds[] = $product->id;
       }
+
+      $response = [
+        'success' => true,
+        'message' => '',
+        'data' => [
+          'product_ids' => $productIds,
+        ]
+      ];
     });
 
-    return response($response);
+    return response($response, $response['success'] ? 200 : 500);
   }
 
   public function saveProductDetailFromJSON() {
@@ -170,6 +186,13 @@ class ProductController extends Controller {
     });
 
     return response($response);
+  }
+
+  private function saveImportFile() {
+    $file = request()->file('file');
+    $ext = $file->getClientOriginalExtension();
+    $filename = Str::uuid() . ".{$ext}";
+    return $file->storeAs('import', $filename);
   }
 
 }
