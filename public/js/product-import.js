@@ -59,6 +59,15 @@
       document.getElementById('import-information').classList.add('alert-dark');
       document.getElementById('import-information').classList.remove('alert-warning');
       document.getElementById('btn-view-unselected').classList.add('d-none');
+
+      // make sure all cards visible when `view unselected` still on but no longer has unselected card
+      document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
+        el.closest('.card').classList.remove('d-none');
+      });
+
+      // same reason as above, the case is, when 99/100 cards were visible, then user click selected so -> 100/100
+      document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
+      document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
     }
 
     e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
@@ -107,6 +116,7 @@
     document.getElementById('btn-import').classList.add('d-none');
     document.getElementById('import-information').classList.add('d-none');
 
+    // reset btn-view-unselected state
     document.getElementById('btn-view-unselected').classList.add('d-none');
     document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
     document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
