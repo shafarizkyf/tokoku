@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
+use App\Models\ImageDownloadQueue;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
@@ -44,6 +45,12 @@ class ProductController extends Controller {
           'sku' => Str::slug($productRequest->name),
           'price' => $productRequest->normalPrice,
           'discount_price' => $productRequest->discountPrice,
+        ]);
+
+        ImageDownloadQueue::create([
+          'url' => $productRequest->imageUrl,
+          'options' => json_encode(['product_id' => $product->id]),
+          'save_path' => "products/{$product->id}",
         ]);
 
         if (request('import_image')) {
