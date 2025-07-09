@@ -9,10 +9,11 @@
   @yield('css')
 </head>
 <body>
-  <div class="container">
-    @yield('container')
-  </div>
+  <main>
+    @yield('content')
+  </main>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+  <script src="{{ asset('js/init.js') }}"></script>
   <script src="{{ asset('js/elements.js') }}"></script>
   @yield('js')
 </body>

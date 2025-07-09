@@ -16,9 +16,14 @@
         }))
         .join('');
 
+      document.getElementById('item-selected-count').innerHTML = fileContent.data.length;
+      document.getElementById('item-total-count').innerHTML = fileContent.data.length;
+      document.getElementById('import-information').classList.remove('d-none');
+
       document.getElementById('preview-container').innerHTML = previewCards;
       document.getElementById('btn-import').classList.remove('d-none');
       document.getElementById('btn-reset').classList.remove('d-none');
+      document.getElementById('dropzone').classList.add('d-none');
     };
     reader.readAsText(file);
   }
@@ -42,6 +47,22 @@
     document.querySelector('#dropzone p').classList.add('d-none');
   });
 
+  on(document, 'click', 'input[type="checkbox"]', function(e){
+    const selectedCount = document.querySelectorAll('#preview-container input[type="checkbox"]:checked').length;
+    document.getElementById('item-selected-count').innerText = selectedCount;
+
+    if (selectedCount !== fileContent.data.length) {
+      document.getElementById('import-information').classList.remove('alert-dark');
+      document.getElementById('import-information').classList.add('alert-warning');
+    } else {
+      document.getElementById('import-information').classList.add('alert-dark');
+      document.getElementById('import-information').classList.remove('alert-warning');
+    }
+
+    e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
+  });
+
+  // reset
   document.getElementById('btn-reset').addEventListener('click', function(e){
     if (file) {
       myDropzone.removeFile(file);
@@ -51,9 +72,12 @@
 
     document.getElementById('preview-container').innerHTML = "";
     document.getElementById('btn-import').classList.add('d-none');
+    document.getElementById('import-information').classList.add('d-none');
+    document.getElementById('dropzone').classList.remove('d-none');
     this.classList.add('d-none');
   });
 
+  // import
   document.getElementById('btn-import').addEventListener('click', function(e){
     e.preventDefault();
     const selectedProducts = [];
