@@ -13,7 +13,7 @@
   <div class="container">
     <div class="row py-5 bg-light" style="min-height: 100vh">
       <div class="col-md-2 mb-3">
-        <div class="import-container">
+        <div class="import-container pt-3">
           <div class="mb-3" id="dropzone">
             <p>Select/Drop JSON file to import your products</p>
           </div>
@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="col-md-10">
-        <div class="d-grid mb-3 position-sticky-top d-none">
+        <div class="d-grid mb-3 position-sticky-top bg-light py-3 d-none">
           <input type="text" class="form-control" name="search" id="search" placeholder="Search">
           <div class="d-flex gap-3 mt-3">
             <div class="form-check">
