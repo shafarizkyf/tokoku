@@ -15,4 +15,9 @@ class ProductVariation extends Model {
     'sku'
   ];
 
+  protected $hidden = [
+    'created_at',
+    'updated_at'
+  ];
+
 }
