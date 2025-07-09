@@ -12,6 +12,43 @@ class ImportCardElement {
     document.getElementById('preview-container').innerHTML = previewCards;
   }
 
+  static updateSelectionCounter() {
+    const selectedCount = this.checkedCount();
+    // update selected counter
+    document.getElementById('item-selected-count').innerText = selectedCount;
+    // toggle radio select all
+    document.getElementById('radio-select-all').checked = selectedCount === this.count();
+    // toggle radio deselect all
+    document.getElementById('radio-deselect-all').checked = selectedCount === 0;
+
+    if (selectedCount !== this.count()) {
+      // toggle counter bg color
+      document.getElementById('import-information').classList.remove('alert-dark');
+      document.getElementById('import-information').classList.add('alert-warning');
+
+      document.getElementById('btn-view-unselected').classList.remove('d-none');
+    } else {
+      // toggle counter bg color
+      document.getElementById('import-information').classList.add('alert-dark');
+      document.getElementById('import-information').classList.remove('alert-warning');
+
+      document.getElementById('btn-view-unselected').classList.add('d-none');
+
+      // make sure all cards visible when `view unselected` still on but no longer has unselected card
+      document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
+        el.closest('.card').classList.remove('d-none');
+      });
+
+      // same reason as above, the case is, when 99/100 cards were visible, then user click selected so -> 100/100
+      document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
+      document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
+    }
+  }
+
+  static count() {
+    return document.querySelectorAll('#preview-container .card').length;
+  }
+
   static checkedCount() {
     return document.querySelectorAll('#preview-container input[type="checkbox"]:checked').length;
   }
@@ -65,30 +102,7 @@ class ImportCardElement {
   });
 
   on(document, 'click', 'input[type="checkbox"]', function(e){
-    const selectedCount = ImportCardElement.checkedCount();
-    document.getElementById('item-selected-count').innerText = selectedCount;
-    document.getElementById('radio-select-all').checked = selectedCount === fileContent.data.length;
-    document.getElementById('radio-deselect-all').checked = selectedCount === 0;
-
-    if (selectedCount !== fileContent.data.length) {
-      document.getElementById('import-information').classList.remove('alert-dark');
-      document.getElementById('import-information').classList.add('alert-warning');
-      document.getElementById('btn-view-unselected').classList.remove('d-none');
-    } else {
-      document.getElementById('import-information').classList.add('alert-dark');
-      document.getElementById('import-information').classList.remove('alert-warning');
-      document.getElementById('btn-view-unselected').classList.add('d-none');
-
-      // make sure all cards visible when `view unselected` still on but no longer has unselected card
-      document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
-        el.closest('.card').classList.remove('d-none');
-      });
-
-      // same reason as above, the case is, when 99/100 cards were visible, then user click selected so -> 100/100
-      document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
-      document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
-    }
-
+    ImportCardElement.updateSelectionCounter();
     e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
   });
 
@@ -99,6 +113,8 @@ class ImportCardElement {
         el.checked = shouldSelectAll;
         el.parentElement.querySelector('label').innerText = shouldSelectAll ? 'Selected' : 'Skipped';
       });
+
+      ImportCardElement.updateSelectionCounter();
     });
   });
 
