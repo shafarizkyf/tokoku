@@ -1,26 +1,33 @@
 (function(){
   let file = null;
   let fileContent = null;
+
+  const renderCards = (data) => {
+    const previewCards = data
+      .map((product, i) => ImportProductCardEl({
+        imageUrl: product.imageUrl,
+        price: product.discountPrice || product.normalPrice,
+        title: product.name,
+        index: i
+      }))
+      .join('');
+
+    document.getElementById('preview-container').innerHTML = previewCards;
+  }
+
   const readFile = (file) => {
     const reader = new FileReader();
     reader.onload = function(e) {
       const text = e.target.result;
       fileContent = JSON.parse(text);
 
-      const previewCards = fileContent.data
-        .map((product, i) => ImportProductCardEl({
-          imageUrl: product.imageUrl,
-          price: product.discountPrice || product.normalPrice,
-          title: product.name,
-          index: i
-        }))
-        .join('');
+      renderCards(fileContent.data);
 
       document.getElementById('item-selected-count').innerHTML = fileContent.data.length;
       document.getElementById('item-total-count').innerHTML = fileContent.data.length;
       document.getElementById('import-information').classList.remove('d-none');
 
-      document.getElementById('preview-container').innerHTML = previewCards;
+      document.getElementById('search').parentElement.classList.remove('d-none');
       document.getElementById('btn-import').classList.remove('d-none');
       document.getElementById('btn-reset').classList.remove('d-none');
       document.getElementById('dropzone').classList.add('d-none');
@@ -94,6 +101,19 @@
     });
   });
 
+  // search
+  document.getElementById('search').addEventListener('keyup', function(e){
+    const keyword = e.target.value;
+    document.querySelectorAll('#preview-container .card h5').forEach(el => {
+      const shouldHide = !el.textContent.toLowerCase().includes(keyword);
+      if (shouldHide) {
+        el.closest('.card').classList.add('d-none');
+      } else {
+        el.closest('.card').classList.remove('d-none');
+      }
+    });
+  });
+
   // reset
   document.getElementById('btn-reset').addEventListener('click', function(e){
     const unselectedCount = document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length;
@@ -115,6 +135,7 @@
     document.getElementById('preview-container').innerHTML = "";
     document.getElementById('btn-import').classList.add('d-none');
     document.getElementById('import-information').classList.add('d-none');
+    document.getElementById('search').parentElement.classList.add('d-none');
 
     // reset btn-view-unselected state
     document.getElementById('btn-view-unselected').classList.add('d-none');

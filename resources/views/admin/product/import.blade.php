@@ -28,6 +28,9 @@
         </div>
       </div>
       <div class="col-md-10">
+        <div class="d-grid mb-3 position-sticky-top d-none">
+          <input type="text" class="form-control" name="search" id="search" placeholder="Search">
+        </div>
         <div class="d-flex flex-wrap gap-3" id="preview-container"></div>
       </div>
     </div>
