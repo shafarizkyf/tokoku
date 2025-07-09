@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Helpers\Image;
+use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -55,16 +56,18 @@ class ProductController extends Controller {
   }
 
   public function saveProductDetailFromJSON() {
-    $file = Storage::disk('local')->get('sample2.json');
+    $file = Storage::disk('local')->get('shopee_product_detail.json');
     $productRequest = json_decode($file);
 
     $response = null;
     DB::transaction(function() use ($productRequest, &$response) {
+      $source = Utils::getDomainFromUrl($productRequest->origin);
+
       $product = new Product;
       $product->store_id = 1;
       $product->name = substr($productRequest->name, 0, 191);
       $product->slug = Str::slug($productRequest->name);
-      $product->description = $productRequest->description;
+      $product->description = strip_tags($productRequest->description);
       $product->review_avg = $productRequest->reviewAvg;
       $product->review_count = $productRequest->reviewCount;
       $product->sold_count = $productRequest->soldCount;
@@ -85,7 +88,9 @@ class ProductController extends Controller {
             'value' => $option->name,
           ]);
 
-          if ($option->status == "selected") {
+          if ($source == 'tokopedia' && $option->status == "selected") {
+            $activeSelection[] = $variationOption->id;
+          } else if ($source == 'shopee' && $option->isSelected) {
             $activeSelection[] = $variationOption->id;
           }
 
