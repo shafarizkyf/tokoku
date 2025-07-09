@@ -5,3 +5,38 @@ const on = (element, type, selector, handler) => {
     }
   });
 };
+
+$.ajaxSetup({
+  beforeSend: function (xhr) {
+    // xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+  },
+  success: function (x, status, error) {
+  },
+  error: function (x, status, error) {
+    let message = 'Unexpected Error';
+    if (x.status === 401) {
+      message = 'You don\'t have permission for this action';
+    } else if (x.status === 404) {
+      message = 'Data not found';
+    } else if (x.status === 403) {
+      message = 'Access Forbidden';
+    } else if (x.status === 422) {
+      const errors = x.responseJSON?.errors;
+      message = x.responseJSON?.message || '';
+      if (errors) {
+        message = '';
+        Object.keys(errors).map((key) => {
+          message += errors[key].join() + '\n';
+        });
+      }
+    } else if (status === 'abort') {
+      message = null;
+    } else if (x.responseJSON?.message) {
+      message = x.responseJSON.message
+    }
+
+    if (message) {
+      alert(message, 'error');
+    }
+  }
+});

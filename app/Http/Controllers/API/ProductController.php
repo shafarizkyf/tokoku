@@ -68,7 +68,7 @@ class ProductController extends Controller {
 
       $response = [
         'success' => true,
-        'message' => '',
+        'message' => 'Success',
         'data' => [
           'product_ids' => $productIds,
         ]

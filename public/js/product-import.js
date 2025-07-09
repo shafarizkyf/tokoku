@@ -128,27 +128,46 @@
   // import
   document.getElementById('btn-import').addEventListener('click', function(e){
     e.preventDefault();
-    const selectedProducts = [];
-    const unselectedIndex = []
-    document.querySelectorAll('#preview-container input[type="checkbox"]').forEach((el, i) => {
-      if (!el.checked) {
-        unselectedIndex.push(i);
-      }
+    const hasUnchecked = document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length > 0;
+
+    let fileToUpload = file;
+
+    // when has unchecked product, this will create new json file
+    if (hasUnchecked) {
+      const selectedProducts = [];
+      const unselectedIndex = []
+      document.querySelectorAll('#preview-container input[type="checkbox"]').forEach((el, i) => {
+        if (!el.checked) {
+          unselectedIndex.push(i);
+        }
+      });
+
+      fileContent.data.forEach((product, index) => {
+        if (unselectedIndex.indexOf(index) === -1) {
+          selectedProducts.push(product);
+        }
+      });
+
+      const updatedFileContent = { ...fileContent }
+      updatedFileContent.data = selectedProducts;
+
+      fileToUpload = new File([JSON.stringify(updatedFileContent)], "products.json", {
+        type: 'application/json'
+      });
+    }
+
+    const formData = new FormData;
+    formData.append('file', fileToUpload);
+
+    $.ajax({
+      url: '/api/products/import',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+    }).then(response => {
+      console.log(response);
+      alert(response.message);
     });
-
-    fileContent.data.forEach((product, index) => {
-      if (unselectedIndex.indexOf(index) === -1) {
-        selectedProducts.push(product);
-      }
-    });
-
-    const updatedFileContent = { ...fileContent }
-    updatedFileContent.data = selectedProducts;
-
-    const updatedFile = new File([updatedFileContent], "products.json", {
-      type: 'application/json'
-    });
-
-    console.log(updatedFileContent, updatedFile);
   });
 })();
