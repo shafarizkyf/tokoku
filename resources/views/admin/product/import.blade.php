@@ -10,5 +10,20 @@
 @endsection
 
 @section('container')
-  <div id="dropzone"></div>
+  <div class="row">
+    <div class="col-md-2 mb-3">
+      <div class="import-container">
+        <div class="mb-3" id="dropzone">
+          <p>Select/Drop JSON file to import your products</p>
+        </div>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary btn-block d-none" id="btn-import">Import</button>
+          <button class="btn btn-outline-secondary btn-block d-none" id="btn-reset">Reset</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-10">
+      <div class="d-flex flex-wrap gap-3" id="preview-container"></div>
+    </div>
+  </div>
 @endsection
