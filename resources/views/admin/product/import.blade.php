@@ -22,6 +22,7 @@
           </div>
           <div class="d-grid gap-2">
             <button class="btn btn-primary btn-block d-none" id="btn-import">Import</button>
+            <button class="btn btn-xs btn-outline-secondary d-none" id="btn-view-unselected">View Unselected</button>
             <button class="btn btn-outline-secondary btn-block d-none" id="btn-reset">Reset</button>
           </div>
         </div>

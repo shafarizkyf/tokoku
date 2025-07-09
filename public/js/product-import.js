@@ -54,16 +54,49 @@
     if (selectedCount !== fileContent.data.length) {
       document.getElementById('import-information').classList.remove('alert-dark');
       document.getElementById('import-information').classList.add('alert-warning');
+      document.getElementById('btn-view-unselected').classList.remove('d-none');
     } else {
       document.getElementById('import-information').classList.add('alert-dark');
       document.getElementById('import-information').classList.remove('alert-warning');
+      document.getElementById('btn-view-unselected').classList.add('d-none');
     }
 
     e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
   });
 
+  // toggle view selected/unselected
+  document.getElementById('btn-view-unselected').addEventListener('click', function(){
+    const isActive = this.classList.contains('btn-secondary')
+
+    if (isActive) {
+      this.classList.remove('btn-secondary');
+      this.classList.add('btn-outline-secondary');
+    } else {
+      this.classList.remove('btn-outline-secondary');
+      this.classList.add('btn-secondary');
+    }
+
+    document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
+      if (isActive) {
+        el.closest('.card').classList.remove('d-none');
+      } else {
+        el.closest('.card').classList.add('d-none');
+      }
+    });
+  });
+
   // reset
   document.getElementById('btn-reset').addEventListener('click', function(e){
+    const unselectedCount = document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length;
+
+    if (unselectedCount) {
+      const isConfirmed = confirm('Are you sure?');
+
+      if (!isConfirmed) {
+        return;
+      }
+    }
+
     if (file) {
       myDropzone.removeFile(file);
       document.querySelector('#dropzone p').classList.remove('d-none');
@@ -73,6 +106,11 @@
     document.getElementById('preview-container').innerHTML = "";
     document.getElementById('btn-import').classList.add('d-none');
     document.getElementById('import-information').classList.add('d-none');
+
+    document.getElementById('btn-view-unselected').classList.add('d-none');
+    document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
+    document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
+
     document.getElementById('dropzone').classList.remove('d-none');
     this.classList.add('d-none');
   });
