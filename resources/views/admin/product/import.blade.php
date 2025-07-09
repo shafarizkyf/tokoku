@@ -21,15 +21,29 @@
             <span id="item-selected-count">1</span>/<span id="item-total-count">100</span> Selected
           </div>
           <div class="d-grid gap-2">
-            <button class="btn btn-primary btn-block d-none" id="btn-import">Import</button>
+            <button class="btn btn-primary d-none" id="btn-import">Import</button>
             <button class="btn btn-xs btn-outline-secondary d-none" id="btn-view-unselected">View Unselected</button>
-            <button class="btn btn-outline-secondary btn-block d-none" id="btn-reset">Reset</button>
+            <button class="btn btn-outline-secondary d-none" id="btn-reset">Reset</button>
           </div>
         </div>
       </div>
       <div class="col-md-10">
         <div class="d-grid mb-3 position-sticky-top d-none">
           <input type="text" class="form-control" name="search" id="search" placeholder="Search">
+          <div class="d-flex gap-3 mt-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" value="1" name="radio-selection" id="radio-select-all" checked>
+              <label class="form-check-label" for="radio-select-all">
+                Select All
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" value="0" name="radio-selection" id="radio-deselect-all">
+              <label class="form-check-label" for="radio-deselect-all">
+                Deselect All
+              </label>
+            </div>
+          </div>
         </div>
         <div class="d-flex flex-wrap gap-3" id="preview-container"></div>
       </div>

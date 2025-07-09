@@ -1,8 +1,5 @@
-(function(){
-  let file = null;
-  let fileContent = null;
-
-  const renderCards = (data) => {
+class ImportCardElement {
+  static renderCards(data) {
     const previewCards = data
       .map((product, i) => ImportProductCardEl({
         imageUrl: product.imageUrl,
@@ -15,13 +12,26 @@
     document.getElementById('preview-container').innerHTML = previewCards;
   }
 
+  static checkedCount() {
+    return document.querySelectorAll('#preview-container input[type="checkbox"]:checked').length;
+  }
+
+  static uncheckedCount() {
+    return document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length;
+  }
+}
+
+(function(){
+  let file = null;
+  let fileContent = null;
+
   const readFile = (file) => {
     const reader = new FileReader();
     reader.onload = function(e) {
       const text = e.target.result;
       fileContent = JSON.parse(text);
 
-      renderCards(fileContent.data);
+      ImportCardElement.renderCards(fileContent.data);
 
       document.getElementById('item-selected-count').innerHTML = fileContent.data.length;
       document.getElementById('item-total-count').innerHTML = fileContent.data.length;
@@ -55,8 +65,10 @@
   });
 
   on(document, 'click', 'input[type="checkbox"]', function(e){
-    const selectedCount = document.querySelectorAll('#preview-container input[type="checkbox"]:checked').length;
+    const selectedCount = ImportCardElement.checkedCount();
     document.getElementById('item-selected-count').innerText = selectedCount;
+    document.getElementById('radio-select-all').checked = selectedCount === fileContent.data.length;
+    document.getElementById('radio-deselect-all').checked = selectedCount === 0;
 
     if (selectedCount !== fileContent.data.length) {
       document.getElementById('import-information').classList.remove('alert-dark');
@@ -78,6 +90,16 @@
     }
 
     e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
+  });
+
+  document.getElementsByName('radio-selection').forEach(radioSelectionEl => {
+    radioSelectionEl.addEventListener('click', function(e){
+      const shouldSelectAll = e.target.value === '1';
+      document.querySelectorAll('#preview-container input[type="checkbox"]').forEach((el, i) => {
+        el.checked = shouldSelectAll;
+        el.parentElement.querySelector('label').innerText = shouldSelectAll ? 'Selected' : 'Skipped';
+      });
+    });
   });
 
   // toggle view selected/unselected
@@ -149,12 +171,11 @@
   // import
   document.getElementById('btn-import').addEventListener('click', function(e){
     e.preventDefault();
-    const hasUnchecked = document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length > 0;
 
     let fileToUpload = file;
 
     // when has unchecked product, this will create new json file
-    if (hasUnchecked) {
+    if (ImportCardElement.uncheckedCount()) {
       const selectedProducts = [];
       const unselectedIndex = []
       document.querySelectorAll('#preview-container input[type="checkbox"]').forEach((el, i) => {
