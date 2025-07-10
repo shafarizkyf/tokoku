@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use App\Models\ProductVariationOption;
+use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
 use Illuminate\Support\Facades\DB;
@@ -29,10 +30,18 @@ class ProductController extends Controller {
     ];
 
     DB::transaction(function() use ($productsRequest, &$response){
+      $path = Image::saveImageFromUrl($productsRequest->store->imageUrl, 'store');
+
+      $store = Shop::create([
+        'name' => $productsRequest->store->name,
+        'description' => $productsRequest->store->meta->description,
+        'image_path' => $path,
+      ]);
+
       $productIds = [];
       foreach($productsRequest->data as $productRequest) {
         $product = Product::create([
-          'store_id' => 1,
+          'store_id' => $store->id,
           'name' => $productRequest->name,
           'slug' => Str::slug($productRequest->name),
           'review_avg' => $productRequest->ratingAvg,

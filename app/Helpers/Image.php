@@ -32,8 +32,13 @@ class Image {
     // Save the image data to the desired path
     $filename = Str::uuid();
     $ext = self::getExtensionFromUrl($url);
+
+    if (strlen($ext) > 3) {
+      $ext = "png";
+    }
+
     $path = "{$savePath}/{$filename}.{$ext}";
-    $saved = Storage::disk('local')->put($path, $imageData);
+    $saved = Storage::disk('public')->put($path, $imageData);
 
     if ($saved) {
       return $path;
