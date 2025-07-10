@@ -13,6 +13,7 @@ class Product extends Model {
     'review_avg',
     'sold_count',
     'created_by',
+    'source',
   ];
 
   public function images() {

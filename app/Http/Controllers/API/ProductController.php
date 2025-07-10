@@ -46,6 +46,7 @@ class ProductController extends Controller {
           'slug' => Str::slug($productRequest->name),
           'review_avg' => $productRequest->ratingAvg,
           'sold_count' => $productRequest->soldCount,
+          'source' => $productRequest->url,
           'created_by' => 1,
         ]);
 

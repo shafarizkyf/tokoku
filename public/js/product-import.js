@@ -240,6 +240,9 @@ class ImportCardElement {
       processData: false,
       contentType: false,
     }).then(response => {
+      myDropzone.removeFile(file);
+      document.querySelector('#dropzone p').classList.add('d-none');
+
       ImportCardElement.resetInput();
       alert(response.message);
     });
