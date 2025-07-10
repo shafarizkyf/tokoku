@@ -20,19 +20,17 @@ class ImportCardElement {
     document.getElementById('radio-select-all').checked = selectedCount === this.count();
     // toggle radio deselect all
     document.getElementById('radio-deselect-all').checked = selectedCount === 0;
+    // toggle visibility of view unselected
+    document.getElementById('cb-view-unselected').parentElement.classList.toggle('d-none', selectedCount === this.count());
 
     if (selectedCount !== this.count()) {
       // toggle counter bg color
       document.getElementById('import-information').classList.remove('alert-dark');
       document.getElementById('import-information').classList.add('alert-warning');
-
-      document.getElementById('btn-view-unselected').classList.remove('d-none');
     } else {
       // toggle counter bg color
       document.getElementById('import-information').classList.add('alert-dark');
       document.getElementById('import-information').classList.remove('alert-warning');
-
-      document.getElementById('btn-view-unselected').classList.add('d-none');
 
       // make sure all cards visible when `view unselected` still on but no longer has unselected card
       document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
@@ -40,8 +38,7 @@ class ImportCardElement {
       });
 
       // same reason as above, the case is, when 99/100 cards were visible, then user click selected so -> 100/100
-      document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
-      document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
+      document.getElementById('cb-view-unselected').checked = false;
     }
   }
 
@@ -55,6 +52,24 @@ class ImportCardElement {
 
   static uncheckedCount() {
     return document.querySelectorAll('#preview-container input[type="checkbox"]:not(:checked)').length;
+  }
+
+  static resetInput() {
+    // clear previews
+    document.getElementById('preview-container').innerHTML = "";
+
+    // hide input/buttons
+    document.getElementById('btn-import').classList.add('d-none');
+    document.getElementById('btn-reset').classList.add('d-none');
+    document.getElementById('import-information').classList.add('d-none');
+    document.getElementById('search').parentElement.classList.add('d-none');
+
+    // reset input to default state
+    document.getElementById('cb-view-unselected').checked = false;
+    document.getElementById('radio-select-all').checked = true;
+    document.getElementById('search').value = "";
+
+    document.getElementById('dropzone').classList.remove('d-none');
   }
 }
 
@@ -101,7 +116,7 @@ class ImportCardElement {
     document.querySelector('#dropzone p').classList.add('d-none');
   });
 
-  on(document, 'click', 'input[type="checkbox"]', function(e){
+  on(document, 'click', '.card input[type="checkbox"]', function(e){
     ImportCardElement.updateSelectionCounter();
     e.target.nextSibling.nextSibling.innerText = e.target.checked ? 'Selected' : 'Skipped';
   });
@@ -119,22 +134,13 @@ class ImportCardElement {
   });
 
   // toggle view selected/unselected
-  document.getElementById('btn-view-unselected').addEventListener('click', function(){
-    const isActive = this.classList.contains('btn-secondary')
-
-    if (isActive) {
-      this.classList.remove('btn-secondary');
-      this.classList.add('btn-outline-secondary');
-    } else {
-      this.classList.remove('btn-outline-secondary');
-      this.classList.add('btn-secondary');
-    }
-
+  document.getElementById('cb-view-unselected').addEventListener('click', function(){
+    const isActive = this.checked;
     document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
       if (isActive) {
-        el.closest('.card').classList.remove('d-none');
-      } else {
         el.closest('.card').classList.add('d-none');
+      } else {
+        el.closest('.card').classList.remove('d-none');
       }
     });
   });
@@ -170,18 +176,7 @@ class ImportCardElement {
       file = null;
     }
 
-    document.getElementById('preview-container').innerHTML = "";
-    document.getElementById('btn-import').classList.add('d-none');
-    document.getElementById('import-information').classList.add('d-none');
-    document.getElementById('search').parentElement.classList.add('d-none');
-
-    // reset btn-view-unselected state
-    document.getElementById('btn-view-unselected').classList.add('d-none');
-    document.getElementById('btn-view-unselected').classList.remove('btn-secondary');
-    document.getElementById('btn-view-unselected').classList.add('btn-outline-secondary');
-
-    document.getElementById('dropzone').classList.remove('d-none');
-    this.classList.add('d-none');
+    ImportCardElement.resetInput();
   });
 
   // import
@@ -224,7 +219,7 @@ class ImportCardElement {
       processData: false,
       contentType: false,
     }).then(response => {
-      console.log(response);
+      ImportCardElement.resetInput();
       alert(response.message);
     });
   });

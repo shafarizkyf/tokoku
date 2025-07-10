@@ -22,7 +22,6 @@
           </div>
           <div class="d-grid gap-2">
             <button class="btn btn-primary d-none" id="btn-import">Import</button>
-            <button class="btn btn-xs btn-outline-secondary d-none" id="btn-view-unselected">View Unselected</button>
             <button class="btn btn-outline-secondary d-none" id="btn-reset">Reset</button>
           </div>
         </div>
@@ -41,6 +40,12 @@
               <input class="form-check-input" type="radio" value="0" name="radio-selection" id="radio-deselect-all">
               <label class="form-check-label" for="radio-deselect-all">
                 Deselect All
+              </label>
+            </div>
+            <div class="form-check d-none">
+              <input class="form-check-input" type="checkbox" value="" id="cb-view-unselected">
+              <label class="form-check-label" for="cb-view-unselected">
+                View Unselected
               </label>
             </div>
           </div>
