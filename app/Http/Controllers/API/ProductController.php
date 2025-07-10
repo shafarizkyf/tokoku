@@ -39,7 +39,7 @@ class ProductController extends Controller {
       ]);
 
       $productIds = [];
-      foreach($productsRequest->data as $productRequest) {
+      foreach($productsRequest->data as $index => $productRequest) {
         $product = Product::create([
           'store_id' => $store->id,
           'name' => $productRequest->name,
@@ -57,19 +57,19 @@ class ProductController extends Controller {
           'discount_price' => $productRequest->discountPrice,
         ]);
 
-        ImageDownloadQueue::create([
-          'url' => $productRequest->imageUrl,
-          'options' => json_encode(['product_id' => $product->id]),
-          'save_path' => "products/{$product->id}",
-        ]);
-
-        if (request('import_image')) {
+        if ($index < 15) {
           $savePath = "products/{$product->id}";
           $path = Image::saveImageFromUrl($productRequest->url, savePath: $savePath);
 
           ProductImage::create([
             'product_id' => $product->id,
             'path' => $path,
+          ]);
+        } else {
+          ImageDownloadQueue::create([
+            'url' => $productRequest->imageUrl,
+            'options' => json_encode(['product_id' => $product->id]),
+            'save_path' => "products/{$product->id}",
           ]);
         }
 
