@@ -3,9 +3,10 @@ class ImportCardElement {
     const previewCards = data
       .map((product, i) => ImportProductCardEl({
         imageUrl: product.imageUrl,
-        discountPrice: currencyFormat.format(product.discountPrice),
+        discountPrice: product.discountPrice ? currencyFormat.format(product.discountPrice) : null,
         normalPrice: currencyFormat.format(product.normalPrice),
         title: product.name,
+        viewUrl: product.url,
         index: i
       }))
       .join('');

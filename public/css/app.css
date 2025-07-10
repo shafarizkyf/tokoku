@@ -37,3 +37,17 @@
 #brand-container img {
   width: 120px;
 }
+
+.product.card h5 > a {
+  font-size: 16px;
+  color: var(--bs-card-title-color);
+  text-decoration: none;
+}
+
+.product.card p.fs-6 {
+  font-size: 10px !important;
+}
+
+.product.card .card-title {
+  height: 50px;
+}
