@@ -3,7 +3,8 @@ class ImportCardElement {
     const previewCards = data
       .map((product, i) => ImportProductCardEl({
         imageUrl: product.imageUrl,
-        price: currencyFormat.format(product.discountPrice) || currencyFormat.format(product.normalPrice),
+        discountPrice: currencyFormat.format(product.discountPrice),
+        normalPrice: currencyFormat.format(product.normalPrice),
         title: product.name,
         index: i
       }))
