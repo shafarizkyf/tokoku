@@ -1,3 +1,11 @@
+const currencyFormat = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+// mimic jQuery $(element).on(event, selector, handler)
 const on = (element, type, selector, handler) => {
   element.addEventListener(type, (event) => {
     if (event.target.closest(selector)) {

@@ -3,7 +3,7 @@ class ImportCardElement {
     const previewCards = data
       .map((product, i) => ImportProductCardEl({
         imageUrl: product.imageUrl,
-        price: product.discountPrice || product.normalPrice,
+        price: currencyFormat.format(product.discountPrice) || currencyFormat.format(product.normalPrice),
         title: product.name,
         index: i
       }))
@@ -215,6 +215,9 @@ class ImportCardElement {
 
     const formData = new FormData;
     formData.append('file', fileToUpload);
+
+    const isConfirm = confirm(`You will import ${ImportCardElement.checkedCount()}/${ImportCardElement.count()} item(s)?`);
+    if (!isConfirm) return;
 
     $.ajax({
       url: '/api/products/import',
