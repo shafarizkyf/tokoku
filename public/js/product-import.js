@@ -148,12 +148,16 @@ class ImportCardElement {
   // search
   document.getElementById('search').addEventListener('keyup', function(e){
     const keyword = e.target.value;
+    const isViewUnselected = document.getElementById('cb-view-unselected').checked;
     document.querySelectorAll('#preview-container .card h5').forEach(el => {
-      const shouldHide = !el.textContent.toLowerCase().includes(keyword);
-      if (shouldHide) {
-        el.closest('.card').classList.add('d-none');
-      } else {
+      const textMatch = el.textContent.toLowerCase().includes(keyword);
+      const isSelected = el.parentElement.querySelector('input[type="checkbox"]').checked;
+      const shouldShow = isViewUnselected ? !isSelected && textMatch : textMatch;
+
+      if (shouldShow) {
         el.closest('.card').classList.remove('d-none');
+      } else {
+        el.closest('.card').classList.add('d-none');
       }
     });
   });
