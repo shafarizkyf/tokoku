@@ -59,7 +59,7 @@ class ProductController extends Controller {
 
         if ($index < 15) {
           $savePath = "products/{$product->id}";
-          $path = Image::saveImageFromUrl($productRequest->url, savePath: $savePath);
+          $path = Image::saveImageFromUrl($productRequest->imageUrl, savePath: $savePath);
 
           ProductImage::create([
             'product_id' => $product->id,
