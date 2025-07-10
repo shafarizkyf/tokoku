@@ -27,12 +27,12 @@ class ImportCardElement {
 
     if (selectedCount !== this.count()) {
       // toggle counter bg color
-      document.getElementById('import-information').classList.remove('alert-dark');
-      document.getElementById('import-information').classList.add('alert-warning');
+      document.getElementById('import-information').classList.remove('bg-primary');
+      document.getElementById('import-information').classList.add('bg-dark');
     } else {
       // toggle counter bg color
-      document.getElementById('import-information').classList.add('alert-dark');
-      document.getElementById('import-information').classList.remove('alert-warning');
+      document.getElementById('import-information').classList.add('bg-primary');
+      document.getElementById('import-information').classList.remove('bg-dark');
 
       // make sure all cards visible when `view unselected` still on but no longer has unselected card
       document.querySelectorAll('#preview-container input[type="checkbox"]:checked').forEach(el => {
