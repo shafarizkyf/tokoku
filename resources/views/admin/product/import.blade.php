@@ -11,6 +11,7 @@
 
 @section('content')
   <div class="container">
+    <div class="loader-full-container"><span class="loader"></span></div>
     <div class="row py-5 bg-light" style="min-height: 100vh">
       <div class="col-md-12">
         <div id="brand-container" class="text-center">
