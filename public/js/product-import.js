@@ -241,7 +241,7 @@ class ImportCardElement {
       contentType: false,
     }).then(response => {
       myDropzone.removeFile(file);
-      document.querySelector('#dropzone p').classList.add('d-none');
+      document.querySelector('#dropzone p').classList.remove('d-none');
 
       ImportCardElement.resetInput();
       alert(response.message);
