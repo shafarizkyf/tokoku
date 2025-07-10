@@ -70,6 +70,10 @@ class ImportCardElement {
     document.getElementById('radio-select-all').checked = true;
     document.getElementById('search').value = "";
 
+    document.querySelector('#brand-container > img').setAttribute('src', 'https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg');
+    document.querySelector('#brand-container > h1').textContent = 'Your Store Name';
+    document.querySelector('#brand-container p').textContent = 'This section will be generated once you import your JSON file';
+
     document.getElementById('dropzone').classList.remove('d-none');
   }
 }
@@ -85,6 +89,14 @@ class ImportCardElement {
       fileContent = JSON.parse(text);
 
       ImportCardElement.renderCards(fileContent.data);
+
+      document.querySelector('#brand-container > img').setAttribute('src', fileContent.store.imageUrl);
+      document.querySelector('#brand-container > h1').textContent = fileContent.store.name;
+      document.querySelector('#brand-container p').textContent = fileContent.store.meta.description;
+
+      // getShopInfo(fileContent.storeName).then(response => {
+      //   console.log(response);
+      // });
 
       document.getElementById('item-selected-count').innerHTML = fileContent.data.length;
       document.getElementById('item-total-count').innerHTML = fileContent.data.length;

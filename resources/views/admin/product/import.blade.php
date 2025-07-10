@@ -27,6 +27,13 @@
         </div>
       </div>
       <div class="col-md-10">
+        <div id="brand-container" class="text-center">
+          <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg">
+          <h1 class="display-5 fw-bold">Your Store Name</h1>
+          <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">This section will be generated once you import your JSON file</p>
+          </div>
+        </div>
         <div class="d-grid mb-3 position-sticky-top bg-light py-3 d-none">
           <input type="text" class="form-control" name="search" id="search" placeholder="Search">
           <div class="d-flex gap-3 mt-3">

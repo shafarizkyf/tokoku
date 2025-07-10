@@ -33,3 +33,7 @@
   position: sticky;
   top: 0;
 }
+
+#brand-container img {
+  width: 120px;
+}
