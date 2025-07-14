@@ -47,8 +47,29 @@ $(function(){
         });
       });
 
-      // generate table
+      // generate all possible attribute combination (e.g: color + size)
       const variantCombinations = getVariantCombinations(product.variants);
+
+      // generate table head
+      const tableAttributeHeadEl = variantAttributes.map(item => `<th scope="col">${item.text}</th>`).join('');
+      const tableVariantHeadEl = `
+        <tr>
+          <th scope="col"></th>
+          ${tableAttributeHeadEl}
+          <th scope="col">Harga</th>
+          <th scope="col">Stok</th>
+          <th scope="col">Berat</th>
+        </tr>
+      `;
+
+      // generate table rows
+      const tableRowsEl = variantCombinations.map(item => TableRowVariantEditForm({
+        attributeLength: variantCombinations.length ? variantCombinations[0].split('+').length : 0,
+        combination: item.split('+')
+      })).join('');
+
+      $('#table-variants thead').empty().append(tableVariantHeadEl);
+      $('#table-variants tbody').empty().append(tableRowsEl);
       console.log(variantCombinations);
     });
   };

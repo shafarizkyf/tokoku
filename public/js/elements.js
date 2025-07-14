@@ -39,3 +39,31 @@ const ProductVariantOptionEl = ({ index, attributes }) => {
     </div>
   `
 }
+
+const TableRowVariantEditForm = ({ attributeLength, combination }) => {
+  return `
+    <tr>
+      <td>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="1">
+        </div>
+      </td>
+      ${(new Array(attributeLength)).fill('').map((_, i) => `<td scope="row">${combination[i]}</td>`).join('')}
+      <td>
+        <div class="input-group">
+          <span class="input-group-text">Rp</span>
+          <input type="text" class="form-control" placeholder="Harga">
+        </div>
+      </td>
+      <td>
+        <input type="text" class="form-control" placeholder="Stok">
+      </td>
+      <td>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Berat">
+          <span class="input-group-text">g</span>
+        </div>
+      </td>
+    </tr>
+  `
+}

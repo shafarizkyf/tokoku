@@ -95,7 +95,7 @@
         </div>
         <div class="row gap-3 mb-5" id="variant-options"></div>
         <div class="table-responsive">
-          <table class="table table-hover table-bordered">
+          <table class="table table-hover table-bordered" id="table-variants">
             <thead>
               <tr>
                 <th scope="col"></th>
