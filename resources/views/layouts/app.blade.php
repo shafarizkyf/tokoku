@@ -24,6 +24,7 @@
   <script src="{{ asset('js/init.js') }}"></script>
   <script src="{{ asset('js/elements.js') }}"></script>
   <script src="{{ asset('js/fetcher.js') }}"></script>
+  <script src="{{ asset('js/importer.js') }}"></script>
   @yield('js')
 </body>
 </html>

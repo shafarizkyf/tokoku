@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
 @section('css')
-  <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 @endsection
 
 @section('js')
-  <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+  <script src="{{ asset('js/product/form.js') }}"></script>
 @endsection
 
 @section('content')
   <div class="container py-5">
+    <input type="file" class="d-none" name="imported-file" id="imported-file" accept="application/json">
     <div class="d-flex align-items-center justify-content-between">
       <h5>Ubah Produk</h5>
-      <button class="btn btn-outline-secondary">Import</button>
+      <button class="btn btn-outline-secondary" id="btn-import">Import</button>
     </div>
     <div class="card my-3">
       <div class="card-body">
@@ -51,7 +51,7 @@
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="product-condition" id="condition-owned" checked>
+                    <input class="form-check-input" type="radio" name="product-condition" id="condition-owned">
                     <label class="form-check-label" for="condition-owned">
                       Bekas
                     </label>
@@ -93,21 +93,7 @@
           </div>
           <hr />
         </div>
-        <div class="row mb-5">
-          <div class="row">
-            <div class="col-md-3">
-              <select class="form-control" name="variant-attribute" id="variant-attribute">
-                <option value="">Pilih Varian 1</option>
-              </select>
-            </div>
-            <div class="col-md-9">
-              <div class="d-flex align-items-center gap-3">
-                <input type="text" class="form-control">
-                <button class="btn btn-outline-secondary">Hapus</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="row gap-3 mb-5" id="variant-options"></div>
         <div class="table-responsive">
           <table class="table table-hover table-bordered">
             <thead>
