@@ -32,7 +32,7 @@ const ProductVariantOptionEl = ({ index, attributes }) => {
       </div>
       <div class="col-md-9">
         <div class="d-flex align-items-center gap-3">
-          <select id="attribute-options-${index}" class="w-100" multiple placeholder=""></select>
+          <select id="attribute-options-${index}" name="variant-options" class="w-100" multiple placeholder=""></select>
           <button type="button" name="btn-remove-variant" class="btn btn-outline-secondary">Hapus</button>
         </div>
       </div>
@@ -41,6 +41,7 @@ const ProductVariantOptionEl = ({ index, attributes }) => {
 }
 
 const TableRowVariantEditForm = ({ attributeLength, combination }) => {
+  const key = combination.join('').replace(/\s/g, '').toLocaleLowerCase();
   return `
     <tr>
       <td>
@@ -52,15 +53,15 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
       <td>
         <div class="input-group">
           <span class="input-group-text">Rp</span>
-          <input type="text" class="form-control" placeholder="Harga">
+          <input type="text" class="form-control" placeholder="Harga" name="price-${key}">
         </div>
       </td>
       <td>
-        <input type="text" class="form-control" placeholder="Stok">
+        <input type="text" class="form-control" placeholder="Stok" name="stock-${key}">
       </td>
       <td>
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Berat">
+          <input type="text" class="form-control" placeholder="Berat" name="weight-${key}">
           <span class="input-group-text">g</span>
         </div>
       </td>

@@ -9,6 +9,24 @@ $(function(){
     })).join('');
   }
 
+  const generateTableRowsCombination = () => {
+    const variants = [];
+    $('#variant-options .row').each((i, el) => {
+      const attributeName = $(el).find('select[name="variant-attribute"] option:selected').text();
+      const attributeOptions = $(el).find('select[name="variant-options"]').val();
+
+      variants.push({
+        name: attributeName,
+        options: attributeOptions.map(name => ({ name }))
+      });
+    });
+
+    const updatedCombinations = getVariantCombinations(variants);
+    const updatedRows = generateTableVariantRows(updatedCombinations);
+
+    $('#table-variants tbody').empty().append(updatedRows);
+  }
+
   const toggleParentPriceAndStock = (isVisible) => {
     $('#product-price').closest('.row').toggleClass('d-none', isVisible);
     $('#product-stock').closest('.row').toggleClass('d-none', isVisible);
@@ -102,9 +120,6 @@ $(function(){
         selection[0].selectize.setValue(variant.options.map(option => option.name));
       });
 
-      // generate all possible attribute combination (e.g: color + size)
-      const variantCombinations = getVariantCombinations(product.variants);
-
       // generate table head
       const tableAttributeHeadEl = variantAttributes.map(item => `<th scope="col">${item.text}</th>`).join('');
       const tableVariantHeadEl = `
@@ -117,11 +132,9 @@ $(function(){
         </tr>
       `;
 
-      // generate table rows
-      const tableRowsEl = generateTableVariantRows(variantCombinations);
-
       $('#table-variants thead').empty().append(tableVariantHeadEl);
-      $('#table-variants tbody').empty().append(tableRowsEl);
+
+      generateTableRowsCombination();
     });
   };
 
@@ -145,8 +158,6 @@ $(function(){
       if ($(el).text() === attributeName) {
         // remove attribute from table header
         $(el).remove();
-        // remove all row in respective attribute column
-        $(`tr > td:nth-child(${i + 1})`).remove();
       }
     });
 
@@ -156,6 +167,8 @@ $(function(){
     $('#table-variants').parent().toggleClass('d-none', noLongerHasVariant);
     if (noLongerHasVariant) {
       $('#table-variants tbody').empty();
+    } else {
+      generateTableRowsCombination();
     }
   });
 
