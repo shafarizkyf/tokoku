@@ -48,7 +48,7 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
           <input class="form-check-input" type="checkbox" value="1">
         </div>
       </td>
-      ${(new Array(attributeLength)).fill('').map((_, i) => `<td scope="row">${combination[i]}</td>`).join('')}
+      ${(new Array(attributeLength)).fill('').map((_, i) => `<td scope="row">${combination[i].trim()}</td>`).join('')}
       <td>
         <div class="input-group">
           <span class="input-group-text">Rp</span>

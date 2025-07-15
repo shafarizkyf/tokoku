@@ -1,5 +1,26 @@
 $(function(){
 
+  let productVariants = [];
+
+  const toggleParentPriceAndStock = (isVisible) => {
+    $('#product-price').closest('.row').toggleClass('d-none', isVisible);
+    $('#product-stock').closest('.row').toggleClass('d-none', isVisible);
+  }
+
+  const onSelectItemRemoved = (value) => {
+    productVariants.forEach((attribute, attributeIndex) => {
+      const optionIndex = attribute.options.findIndex(option => option.name === value);
+      if (optionIndex !== -1) {
+        // remove combination rows
+        $(`tr > td:nth-child(${attributeIndex + 2})`).each((i, el) => {
+          if ($(el).text() === value) {
+            $(el).closest('tr').remove();
+          }
+        });
+      }
+    });
+  }
+
   const getVariantCombinations = (attributes) => {
     // Step 1: Extract all option names, regardless of status
     const allOptions = attributes.map(attr =>
@@ -26,6 +47,10 @@ $(function(){
       $('#product-price').val(product.originalPrice);
       $('#product-stock').val(product.stock);
 
+      productVariants = product.variants;
+      // parent price and stock section will not visible when has variants
+      toggleParentPriceAndStock(Boolean(product.variants.length));
+
       // generate variant attributes and options section
       $('#variant-options').empty();
       const variantAttributes = product.variants.map(item => ({ value: item.name, text: item.name }));
@@ -37,14 +62,18 @@ $(function(){
 
         $('#variant-options').append(variantOptionEl);
 
-        $(`#attribute-options-${index}`).selectize({
+        const selection = $(`#attribute-options-${index}`).selectize({
           maxItems: null,
           valueField: 'id',
           labelField: 'title',
           searchField: 'title',
-          options: variant.options.map(option => ({ id: option.name, title: option.name })),
-          create: true
+          options: variant.options.map(option => ({ id: option.name, title: option.name, variant })),
+          create: true,
+          onItemRemove: onSelectItemRemoved
         });
+
+        // select all by option
+        selection[0].selectize.setValue(variant.options.map(option => option.name));
       });
 
       // generate all possible attribute combination (e.g: color + size)
@@ -64,13 +93,12 @@ $(function(){
 
       // generate table rows
       const tableRowsEl = variantCombinations.map(item => TableRowVariantEditForm({
-        attributeLength: variantCombinations.length ? variantCombinations[0].split('+').length : 0,
-        combination: item.split('+')
+        attributeLength: variantCombinations.length ? variantCombinations[0].split(' + ').length : 0,
+        combination: item.split(' + ')
       })).join('');
 
       $('#table-variants thead').empty().append(tableVariantHeadEl);
       $('#table-variants tbody').empty().append(tableRowsEl);
-      console.log(variantCombinations);
     });
   };
 
