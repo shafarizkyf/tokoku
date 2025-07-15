@@ -137,7 +137,26 @@ $(function(){
   });
 
   $('#variant-options').on('click', 'button[name="btn-remove-variant"]', function(e){
-    $(this).closest('.row').remove();
+    const row = $(this).closest('.row');
+    const attributeIndex = row.data('index');
+    const attributeName = $(`#variant-attribute-${attributeIndex} option:selected`).text();
+
+    $('th').each((i, el) => {
+      if ($(el).text() === attributeName) {
+        // remove attribute from table header
+        $(el).remove();
+        // remove all row in respective attribute column
+        $(`tr > td:nth-child(${i + 1})`).remove();
+      }
+    });
+
+    row.remove();
+
+    const noLongerHasVariant = $('th').length === 4;
+    $('#table-variants').parent().toggleClass('d-none', noLongerHasVariant);
+    if (noLongerHasVariant) {
+      $('#table-variants tbody').empty();
+    }
   });
 
 });
