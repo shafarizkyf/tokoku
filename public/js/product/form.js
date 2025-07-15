@@ -2,12 +2,19 @@ $(function(){
 
   let productVariants = [];
 
+  const generateTableVariantRows = (variantCombinations) => {
+    return variantCombinations.map(item => TableRowVariantEditForm({
+      attributeLength: variantCombinations.length ? variantCombinations[0].split(' + ').length : 0,
+      combination: item.split(' + ')
+    })).join('');
+  }
+
   const toggleParentPriceAndStock = (isVisible) => {
     $('#product-price').closest('.row').toggleClass('d-none', isVisible);
     $('#product-stock').closest('.row').toggleClass('d-none', isVisible);
   }
 
-  const onSelectItemRemoved = (value) => {
+  const onSelectItemRemoved = (value, el) => {
     productVariants.forEach((attribute, attributeIndex) => {
       const optionIndex = attribute.options.findIndex(option => option.name === value);
       if (optionIndex !== -1) {
@@ -19,6 +26,24 @@ $(function(){
         });
       }
     });
+  }
+
+  const onSelectItemAdded = (value, el) => {
+    const attributeIndex = $(el).closest('.row').data('index');
+    if (attributeIndex >= 0) {
+      const _productVariants = [...productVariants];
+
+      _productVariants.forEach((item, index) => {
+        if (index === attributeIndex) {
+          item.options = [{name: value}]
+        }
+      });
+
+      const newlyAddedCombinations = getVariantCombinations(_productVariants);
+
+      const tableRowsEl = generateTableVariantRows(newlyAddedCombinations);
+      $('#table-variants tbody').append(tableRowsEl);
+    }
   }
 
   const getVariantCombinations = (attributes) => {
@@ -69,7 +94,8 @@ $(function(){
           searchField: 'title',
           options: variant.options.map(option => ({ id: option.name, title: option.name, variant })),
           create: true,
-          onItemRemove: onSelectItemRemoved
+          onItemRemove: onSelectItemRemoved,
+          onItemAdd: onSelectItemAdded,
         });
 
         // select all by option
@@ -92,10 +118,7 @@ $(function(){
       `;
 
       // generate table rows
-      const tableRowsEl = variantCombinations.map(item => TableRowVariantEditForm({
-        attributeLength: variantCombinations.length ? variantCombinations[0].split(' + ').length : 0,
-        combination: item.split(' + ')
-      })).join('');
+      const tableRowsEl = generateTableVariantRows(variantCombinations);
 
       $('#table-variants thead').empty().append(tableVariantHeadEl);
       $('#table-variants tbody').empty().append(tableRowsEl);
