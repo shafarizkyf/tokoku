@@ -88,13 +88,13 @@
           </div>
           <div class="col-md-2">
             <div class="d-grid">
-              <button class="btn btn-outline-secondary">Tambah</button>
+              <button type="button" class="btn btn-outline-secondary" name="btn-add-variant">Tambah</button>
             </div>
           </div>
           <hr />
         </div>
         <div class="row gap-3 mb-5" id="variant-options"></div>
-        <div class="table-responsive">
+        <div class="table-responsive d-none">
           <table class="table table-hover table-bordered" id="table-variants">
             <thead>
               <tr>
@@ -106,29 +106,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="1">
-                  </div>
-                </td>
-                <td scope="row">Opsi 1</td>
-                <td>
-                  <div class="input-group">
-                    <span class="input-group-text">Rp</span>
-                    <input type="text" class="form-control" placeholder="Harga">
-                  </div>
-                </td>
-                <td>
-                  <input type="text" class="form-control" placeholder="Stok">
-                </td>
-                <td>
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Berat">
-                    <span class="input-group-text">g</span>
-                  </div>
-                </td>
-              </tr>
             </tbody>
           </table>
         </div>

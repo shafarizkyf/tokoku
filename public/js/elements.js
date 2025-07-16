@@ -22,13 +22,11 @@ const ImportProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, view
   `
 }
 
-const ProductVariantOptionEl = ({ index, attributes }) => {
+const ProductVariantOptionEl = ({ index, variant }) => {
   return `
     <div class="row" data-index="${index}">
       <div class="col-md-3">
-        <select class="form-control" name="variant-attribute" id="variant-attribute-${index}">
-          ${attributes.map((option, i) => `<option value="${option.value}" ${i === index ? 'selected' : ''}>${option.text}</option>`).join('')}
-        </select>
+        <input class="form-control" name="variant-attribute" id="variant-attribute-${index}" value="${variant}" />
       </div>
       <div class="col-md-9">
         <div class="d-flex align-items-center gap-3">

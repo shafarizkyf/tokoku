@@ -12,7 +12,7 @@ $(function(){
   const generateTableRowsCombination = () => {
     const variants = [];
     $('#variant-options .row').each((i, el) => {
-      const attributeName = $(el).find('select[name="variant-attribute"] option:selected').text();
+      const attributeName = $(el).find('input').val();
       const attributeOptions = $(el).find('select[name="variant-options"]').val();
 
       variants.push({
@@ -81,6 +81,19 @@ $(function(){
     return combine(allOptions).map(combo => combo.join(' + '));
   }
 
+  const makeSelectize = (el, options = []) => {
+    return el.selectize({
+      maxItems: null,
+      valueField: 'id',
+      labelField: 'title',
+      searchField: 'title',
+      options: options,
+      create: true,
+      onItemRemove: onSelectItemRemoved,
+      onItemAdd: onSelectItemAdded,
+    });
+  }
+
   const importer = (jsonFile) => {
     new Importer(jsonFile, (product) => {
       console.log(product);
@@ -91,6 +104,12 @@ $(function(){
       $('#product-stock').val(product.stock);
 
       productVariants = product.variants;
+
+      // show table variants
+      if (productVariants.length) {
+        $('#table-variants').parent().removeClass('d-none');
+      }
+
       // parent price and stock section will not visible when has variants
       toggleParentPriceAndStock(Boolean(product.variants.length));
 
@@ -100,21 +119,13 @@ $(function(){
       product.variants.forEach((variant, index) => {
         const variantOptionEl = ProductVariantOptionEl({
           index,
-          attributes: variantAttributes,
+          variant: variant.name,
         });
 
         $('#variant-options').append(variantOptionEl);
 
-        const selection = $(`#attribute-options-${index}`).selectize({
-          maxItems: null,
-          valueField: 'id',
-          labelField: 'title',
-          searchField: 'title',
-          options: variant.options.map(option => ({ id: option.name, title: option.name, variant })),
-          create: true,
-          onItemRemove: onSelectItemRemoved,
-          onItemAdd: onSelectItemAdded,
-        });
+        const variantOptions = variant.options.map(option => ({ id: option.name, title: option.name, variant }));
+        const selection = makeSelectize($(`#attribute-options-${index}`), variantOptions);
 
         // select all by option
         selection[0].selectize.setValue(variant.options.map(option => option.name));
@@ -149,10 +160,26 @@ $(function(){
     }
   });
 
+  $('button[name="btn-add-variant"]').on('click', function(e){
+    e.preventDefault();
+
+    const index = $('#variant-options .row').length;
+    $('#variant-options').append(ProductVariantOptionEl({
+      index,
+      variant: '',
+    }));
+
+    const newVariantRowEl = $(`#variant-options > .row:nth-child(${index + 1})`);
+    makeSelectize(newVariantRowEl.find('select'));
+
+    // show table variants
+    $('#table-variants').parent().removeClass('d-none');
+  });
+
   $('#variant-options').on('click', 'button[name="btn-remove-variant"]', function(e){
     const row = $(this).closest('.row');
     const attributeIndex = row.data('index');
-    const attributeName = $(`#variant-attribute-${attributeIndex} option:selected`).text();
+    const attributeName = $(`#variant-attribute-${attributeIndex}`).val();
 
     $('th').each((i, el) => {
       if ($(el).text() === attributeName) {
