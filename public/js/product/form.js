@@ -9,6 +9,26 @@ $(function(){
     })).join('');
   }
 
+  const generateTableHead = (_variantAttributes = []) => {
+    const variantAttributes = [];
+    if (!variantAttributes.length) {
+      $('input[name="variant-attribute"]').each((i, el) => variantAttributes.push($(el).val()));
+    }
+
+    const tableAttributeHeadEl = variantAttributes.map(item => `<th scope="col">${item}</th>`).join('');
+    const tableVariantHeadEl = `
+      <tr>
+        <th scope="col"></th>
+        ${tableAttributeHeadEl}
+        <th scope="col">Harga</th>
+        <th scope="col">Stok</th>
+        <th scope="col">Berat</th>
+      </tr>
+    `;
+
+    $('#table-variants thead').empty().append(tableVariantHeadEl);
+  }
+
   const generateTableRowsCombination = () => {
     const variants = [];
     $('#variant-options .row').each((i, el) => {
@@ -33,35 +53,11 @@ $(function(){
   }
 
   const onSelectItemRemoved = (value, el) => {
-    productVariants.forEach((attribute, attributeIndex) => {
-      const optionIndex = attribute.options.findIndex(option => option.name === value);
-      if (optionIndex !== -1) {
-        // remove combination rows
-        $(`tr > td:nth-child(${attributeIndex + 2})`).each((i, el) => {
-          if ($(el).text() === value) {
-            $(el).closest('tr').remove();
-          }
-        });
-      }
-    });
+    setTimeout(generateTableRowsCombination, 100);
   }
 
   const onSelectItemAdded = (value, el) => {
-    const attributeIndex = $(el).closest('.row').data('index');
-    if (attributeIndex >= 0) {
-      const _productVariants = [...productVariants];
-
-      _productVariants.forEach((item, index) => {
-        if (index === attributeIndex) {
-          item.options = [{name: value}]
-        }
-      });
-
-      const newlyAddedCombinations = getVariantCombinations(_productVariants);
-
-      const tableRowsEl = generateTableVariantRows(newlyAddedCombinations);
-      $('#table-variants tbody').append(tableRowsEl);
-    }
+    setTimeout(generateTableRowsCombination, 100);
   }
 
   const getVariantCombinations = (attributes) => {
@@ -131,20 +127,7 @@ $(function(){
         selection[0].selectize.setValue(variant.options.map(option => option.name));
       });
 
-      // generate table head
-      const tableAttributeHeadEl = variantAttributes.map(item => `<th scope="col">${item.text}</th>`).join('');
-      const tableVariantHeadEl = `
-        <tr>
-          <th scope="col"></th>
-          ${tableAttributeHeadEl}
-          <th scope="col">Harga</th>
-          <th scope="col">Stok</th>
-          <th scope="col">Berat</th>
-        </tr>
-      `;
-
-      $('#table-variants thead').empty().append(tableVariantHeadEl);
-
+      generateTableHead(variantAttributes.map(item => item.text));
       generateTableRowsCombination();
     });
   };
@@ -163,20 +146,36 @@ $(function(){
   $('button[name="btn-add-variant"]').on('click', function(e){
     e.preventDefault();
 
-    const index = $('#variant-options .row').length;
+    // generate new variant attribute and options input
+    const rowCount = $('#variant-options .row').length;
+    const defaultAttributeName = `Varian ${rowCount + 1}`;
     $('#variant-options').append(ProductVariantOptionEl({
-      index,
-      variant: '',
+      index: rowCount,
+      variant: defaultAttributeName,
     }));
 
-    const newVariantRowEl = $(`#variant-options > .row:nth-child(${index + 1})`);
+    // make the select input as selectize
+    const newVariantRowEl = $(`#variant-options > .row:nth-child(${rowCount + 1})`);
     makeSelectize(newVariantRowEl.find('select'));
+
+    // update product variants data
+    if (!productVariants[rowCount]) {
+      productVariants[rowCount] = {
+        name: defaultAttributeName,
+        options: []
+      };
+    }
+
+    generateTableHead();
+    generateTableRowsCombination();
 
     // show table variants
     $('#table-variants').parent().removeClass('d-none');
   });
 
   $('#variant-options').on('click', 'button[name="btn-remove-variant"]', function(e){
+    e.preventDefault();
+
     const row = $(this).closest('.row');
     const attributeIndex = row.data('index');
     const attributeName = $(`#variant-attribute-${attributeIndex}`).val();
@@ -190,6 +189,8 @@ $(function(){
 
     row.remove();
 
+    productVariants = productVariants.filter(variant => variant.name !== attributeName);
+
     const noLongerHasVariant = $('th').length === 4;
     $('#table-variants').parent().toggleClass('d-none', noLongerHasVariant);
     if (noLongerHasVariant) {
@@ -197,6 +198,16 @@ $(function(){
     } else {
       generateTableRowsCombination();
     }
+  });
+
+  $('#variant-options').on('keyup', 'input[name="variant-attribute"]', function(){
+    const index = $(this).closest('.row').data('index');
+
+    if (productVariants[index]) {
+      productVariants[index].name = $(this).val();
+    }
+
+    generateTableHead();
   });
 
 });
