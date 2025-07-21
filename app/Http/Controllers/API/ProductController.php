@@ -7,7 +7,6 @@ use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductUpdateRequest;
-use App\Models\ImageDownloadQueue;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
@@ -160,10 +159,10 @@ class ProductController extends Controller {
             'path' => $path,
           ]);
         } else {
-          ImageDownloadQueue::create([
-            'url' => $productRequest->imageUrl,
-            'options' => json_encode(['product_id' => $product->id]),
-            'save_path' => "products/{$product->id}",
+          // will download the image later by the scheduler
+          ProductImage::create([
+            'product_id' => $product->id,
+            'path' => $productRequest->imageUrl,
           ]);
         }
 

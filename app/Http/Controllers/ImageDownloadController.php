@@ -3,28 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Image;
-use App\Models\ImageDownloadQueue;
 use App\Models\ProductImage;
 
 class ImageDownloadController extends Controller {
 
   public function download() {
-    $images = ImageDownloadQueue::take(20)->get();
+    $images = ProductImage::where('path', 'like', "http%")->take(20)->get();
 
     $failedUrls = [];
     foreach($images as $image) {
-      $path = Image::saveImageFromUrl($image->url, $image->save_path);
+      $savePath = "products/{$image->product_id}";
+      $path = Image::saveImageFromUrl($image->path, $savePath);
 
       if ($path) {
-        ProductImage::create([
-          'product_id' => $image->options->product_id,
-          'path' => $path,
-        ]);
+        $image->path = $path;
+        $image->save();
       } else {
         $failedUrls[] = $image->url;
       }
-
-      $image->delete();
     }
 
     if ($count = count($failedUrls)) {

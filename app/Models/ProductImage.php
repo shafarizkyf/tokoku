@@ -24,7 +24,9 @@ class ProductImage extends Model {
   ];
 
   public function getUrlAttribute() {
-    return url(Storage::url($this->path));
+    return str_contains($this->path, 'http') // path may still refer to origin host
+      ? $this->path
+      : url(Storage::url($this->path)); // already downloaded to local
   }
 
 }
