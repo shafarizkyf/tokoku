@@ -29,13 +29,38 @@ class ProductController extends Controller {
     Log::channel('product')->info('update', $productUpdateRequest->toArray());
 
     DB::transaction(function() use ($product, &$productUpdateRequest) {
+      $prevSlug = $product->slug;
+      $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
+
       $product->name = $productUpdateRequest->name;
       $product->slug = Utils::slug(Product::class, $productUpdateRequest->name, $product->id);
       $product->description = $productUpdateRequest->description;
       $product->condition = $productUpdateRequest->condition;
       $product->save();
 
-      if (isset($productUpdateRequest->variations) && count($productUpdateRequest->variations)) {
+      if (!$hasVariations) {
+        // product title has changed, assuming the details also change, therefore remove current root price
+        if ($prevSlug != $product->slug) {
+          ProductVariation::whereProductId($product->id)
+            ->whereSku($prevSlug)
+            ->delete();
+        }
+
+        $productVariation = ProductVariation::updateOrCreate([
+          'sku' => $product->slug,
+          'product_id' => $product->id,
+        ], [
+          'price' => $productUpdateRequest->price,
+          'stock' => $productUpdateRequest->stock,
+        ]);
+      }
+
+      if ($hasVariations) {
+        // remove root price (this when product does not have variation)
+        ProductVariation::whereProductId($product->id)
+          ->whereSku($prevSlug)
+          ->delete();
+
         // insert variation attributes
         $attributesWithId = [];
         foreach($productUpdateRequest->variations[0]['attributes'] as $attributeWithValue) {
