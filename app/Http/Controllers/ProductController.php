@@ -14,6 +14,10 @@ class ProductController extends Controller {
     return view('admin.product.import');
   }
 
+  public function add() {
+    return view('admin.product.form');
+  }
+
   public function edit(Product $product) {
     return view('admin.product.form', compact('product'));
   }

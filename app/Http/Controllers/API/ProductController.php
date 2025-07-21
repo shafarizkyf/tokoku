@@ -35,6 +35,36 @@ class ProductController extends Controller {
     return $product->load('variations');
   }
 
+  public function store(ProductUpdateRequest $productUpdateRequest) {
+    Log::channel('product')->info('store', $productUpdateRequest->toArray());
+
+    DB::transaction(function() use (&$productUpdateRequest) {
+      $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
+
+      $product = new Product;
+      $product->store_id = 1;
+      $product->name = $productUpdateRequest->name;
+      $product->slug = Utils::slug(Product::class, $productUpdateRequest->name);
+      $product->description = $productUpdateRequest->description;
+      $product->condition = $productUpdateRequest->condition;
+      $product->created_by = 1;
+      $product->save();
+
+      if (!$hasVariations) {
+        ProductVariation::create( [
+          'sku' => $product->slug,
+          'product_id' => $product->id,
+          'price' => $productUpdateRequest->price,
+          'stock' => $productUpdateRequest->stock,
+        ]);
+      } else {
+        $this->saveProductVariations($product, $productUpdateRequest);
+      }
+    });
+
+    return response([]);
+  }
+
   public function update(Product $product, ProductUpdateRequest $productUpdateRequest) {
     Log::channel('product')->info('update', $productUpdateRequest->toArray());
 
@@ -46,6 +76,7 @@ class ProductController extends Controller {
       $product->slug = Utils::slug(Product::class, $productUpdateRequest->name, $product->id);
       $product->description = $productUpdateRequest->description;
       $product->condition = $productUpdateRequest->condition;
+      $product->updated_by = 1;
       $product->save();
 
       if (!$hasVariations) {
@@ -56,7 +87,7 @@ class ProductController extends Controller {
             ->delete();
         }
 
-        $productVariation = ProductVariation::updateOrCreate([
+        ProductVariation::updateOrCreate([
           'sku' => $product->slug,
           'product_id' => $product->id,
         ], [
@@ -71,41 +102,7 @@ class ProductController extends Controller {
           ->whereSku($prevSlug)
           ->delete();
 
-        // insert variation attributes
-        $attributesWithId = [];
-        foreach($productUpdateRequest->variations[0]['attributes'] as $attributeWithValue) {
-          $attributeName = array_keys($attributeWithValue)[0];
-          $variationAttribute = VariationAttribute::updateOrCreate([
-            'name' => $attributeName
-          ]);
-
-          $attributesWithId[$attributeName] = $variationAttribute->id;
-        }
-
-        foreach($productUpdateRequest->variations as $variation) {
-          $productVariation = ProductVariation::updateOrCreate([
-            'sku' => $variation['sku'],
-            'product_id' => $product->id,
-          ], [
-            'price' => $variation['price'],
-            'stock' => $variation['stock'],
-          ]);
-
-          foreach($variation['attributes'] as $attributeWithValue) {
-            $attributeName = array_keys($attributeWithValue)[0];
-            $attributeValue = array_values($attributeWithValue)[0];
-
-            $variationOption = VariationOption::updateOrCreate([
-              'variation_attribute_id' => $attributesWithId[$attributeName],
-              'value' => $attributeValue,
-            ]);
-
-            ProductVariationOption::updateOrCreate([
-              'product_variation_id' => $productVariation->id,
-              'variation_option_id' => $variationOption->id,
-            ]);
-          }
-        }
+        $this->saveProductVariations($product, $productUpdateRequest);
       }
     });
 
@@ -303,6 +300,44 @@ class ProductController extends Controller {
     $ext = $file->getClientOriginalExtension();
     $filename = Str::uuid() . ".{$ext}";
     return $file->storeAs('import', $filename);
+  }
+
+  private function saveProductVariations(Product $product, $productUpdateRequest) {
+    // insert variation attributes
+    $attributesWithId = [];
+    foreach($productUpdateRequest->variations[0]['attributes'] as $attributeWithValue) {
+      $attributeName = array_keys($attributeWithValue)[0];
+      $variationAttribute = VariationAttribute::updateOrCreate([
+        'name' => $attributeName
+      ]);
+
+      $attributesWithId[$attributeName] = $variationAttribute->id;
+    }
+
+    foreach($productUpdateRequest->variations as $variation) {
+      $productVariation = ProductVariation::updateOrCreate([
+        'sku' => $variation['sku'],
+        'product_id' => $product->id,
+      ], [
+        'price' => $variation['price'],
+        'stock' => $variation['stock'],
+      ]);
+
+      foreach($variation['attributes'] as $attributeWithValue) {
+        $attributeName = array_keys($attributeWithValue)[0];
+        $attributeValue = array_values($attributeWithValue)[0];
+
+        $variationOption = VariationOption::updateOrCreate([
+          'variation_attribute_id' => $attributesWithId[$attributeName],
+          'value' => $attributeValue,
+        ]);
+
+        ProductVariationOption::updateOrCreate([
+          'product_variation_id' => $productVariation->id,
+          'variation_option_id' => $variationOption->id,
+        ]);
+      }
+    }
   }
 
 }

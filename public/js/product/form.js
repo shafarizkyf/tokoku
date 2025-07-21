@@ -2,6 +2,7 @@ $(function(){
 
   let product;
   let productVariants = [];
+  let isEditForm = location.pathname.includes('/edit');
 
   const getProductDetail = () => {
     const productId = location.pathname.split('/')[2];
@@ -276,12 +277,17 @@ $(function(){
       productDetails.stock = $('#product-stock').val();
     }
 
-    $.post(`/api/products/${product.id}`, {
-      ...productDetails,
-      _method: 'PATCH'
-    });
+    if (isEditForm) {
+      $.post(`/api/products/${product.id}`, {
+        ...productDetails,
+        _method: 'PATCH'
+      });
+    } else {
+      $.post(`/api/products`, productDetails);
+    }
   });
 
-  getProductDetail();
-
+  if (isEditForm) {
+    getProductDetail();
+  }
 });

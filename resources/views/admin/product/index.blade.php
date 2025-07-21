@@ -17,7 +17,15 @@
           <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-5">
               <h5 class="card-title m-0">Data Produk</h5>
-              <a href="{{ route('products.import') }}" class="btn btn-outline-secondary">Import</a>
+              <div class="btn-group">
+                <a href="{{ route('products.add') }}" class="btn btn-primary">Buat Baru</a>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{{ route('products.import') }}">Import</a></li>
+                </ul>
+              </div>
             </div>
             <div class="table-responsive">
               <table class="table table-hover table-bordered" id="table-products">
