@@ -8,6 +8,7 @@ $(function(){
     $.getJSON(`/api/products/${productId}`).then(response => {
       console.log(response);
 
+      product = response;
       $('#product-name').val(response.name);
       $('#product-description').val(response.description);
       $(`#condition-${response.condition}`).prop('checked', 'checked');
@@ -232,6 +233,53 @@ $(function(){
     }
 
     generateTableHead();
+  });
+
+  $('button[name="btn-save"]').on('click', function(e){
+    e.preventDefault();
+
+    const variations = [];
+    $('#table-variants tbody > tr').each((i, el) => {
+      const price = $(el).find('input[placeholder="Harga"]').val();
+      const stock = $(el).find('input[placeholder="Stok"]').val();
+      const weight = $(el).find('input[placeholder="Berat"]').val();
+      const sku = $(el).find('[data-key]').attr('data-key');
+
+      const attributes = [];
+      $(el).find('td[data-attribute-index]').each((i, el) => {
+        const attributeName = $(`#variant-attribute-${i}`).val();
+        const attributeOption = $(el).text();
+
+        attributes.push({
+          [attributeName]: attributeOption
+        });
+      });
+
+      variations.push({
+        price,
+        stock,
+        weight,
+        sku,
+        attributes
+      });
+    });
+
+    const productDetails = {
+      name: $('#product-name').val(),
+      description: $('#product-description').val(),
+      condition: $('[name="product-condition"]:checked').val(),
+      variations
+    };
+
+    if (!variations.length) {
+      productDetails.price = $('#product-price').val();
+      productDetails.stock = $('#product-stock').val();
+    }
+
+    $.post(`/api/products/${product.id}`, {
+      ...productDetails,
+      _method: 'PATCH'
+    });
   });
 
   getProductDetail();

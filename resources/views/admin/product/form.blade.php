@@ -45,13 +45,13 @@
               <div class="col-md-8">
                 <div class="d-flex gap-3">
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="product-condition" id="condition-new" checked>
+                    <input class="form-check-input" type="radio" name="product-condition" id="condition-new" value="new" checked>
                     <label class="form-check-label" for="condition-new">
                       Baru
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="product-condition" id="condition-used">
+                    <input class="form-check-input" type="radio" name="product-condition" id="condition-used" value="used">
                     <label class="form-check-label" for="condition-used">
                       Bekas
                     </label>
@@ -113,7 +113,7 @@
     </div>
     <div class="d-flex justify-content-end gap-3">
       <button class="btn btn-outline-secondary">Hapus</button>
-      <button class="btn btn-primary">Simpan</button>
+      <button class="btn btn-primary" name="btn-save">Simpan</button>
     </div>
   </div>
 @endsection

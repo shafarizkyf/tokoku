@@ -47,19 +47,19 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
           <input class="form-check-input" type="checkbox" value="1">
         </div>
       </td>
-      ${(new Array(attributeLength)).fill('').map((_, i) => `<td scope="row">${combination[i].trim()}</td>`).join('')}
+      ${(new Array(attributeLength)).fill('').map((_, i) => `<td data-attribute-index="${i}" scope="row">${combination[i].trim()}</td>`).join('')}
       <td>
         <div class="input-group">
           <span class="input-group-text">Rp</span>
-          <input type="text" class="form-control" placeholder="Harga" name="price-${key}">
+          <input type="text" class="form-control" placeholder="Harga" name="price-${key}" data-key="${key}">
         </div>
       </td>
       <td>
-        <input type="text" class="form-control" placeholder="Stok" name="stock-${key}">
+        <input type="text" class="form-control" placeholder="Stok" name="stock-${key}" data-key="${key}">
       </td>
       <td>
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Berat" name="weight-${key}">
+          <input type="text" class="form-control" placeholder="Berat" name="weight-${key}" data-key="${key}">
           <span class="input-group-text">g</span>
         </div>
       </td>

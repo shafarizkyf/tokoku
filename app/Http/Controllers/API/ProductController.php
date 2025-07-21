@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductUpdateRequest;
 use App\Models\ImageDownloadQueue;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -14,6 +15,7 @@ use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -21,6 +23,58 @@ class ProductController extends Controller {
 
   public function show(Product $product) {
     return $product->load('variations');
+  }
+
+  public function update(Product $product, ProductUpdateRequest $productUpdateRequest) {
+    Log::channel('product')->info('update', $productUpdateRequest->toArray());
+
+    DB::transaction(function() use ($product, &$productUpdateRequest) {
+      $product->name = $productUpdateRequest->name;
+      $product->slug = Utils::slug(Product::class, $productUpdateRequest->name, $product->id);
+      $product->description = $productUpdateRequest->description;
+      $product->condition = $productUpdateRequest->condition;
+      $product->save();
+
+      if (isset($productUpdateRequest->variations) && count($productUpdateRequest->variations)) {
+        // insert variation attributes
+        $attributesWithId = [];
+        foreach($productUpdateRequest->variations[0]['attributes'] as $attributeWithValue) {
+          $attributeName = array_keys($attributeWithValue)[0];
+          $variationAttribute = VariationAttribute::updateOrCreate([
+            'name' => $attributeName
+          ]);
+
+          $attributesWithId[$attributeName] = $variationAttribute->id;
+        }
+
+        foreach($productUpdateRequest->variations as $variation) {
+          $productVariation = ProductVariation::updateOrCreate([
+            'sku' => $variation['sku'],
+            'product_id' => $product->id,
+          ], [
+            'price' => $variation['price'],
+            'stock' => $variation['stock'],
+          ]);
+
+          foreach($variation['attributes'] as $attributeWithValue) {
+            $attributeName = array_keys($attributeWithValue)[0];
+            $attributeValue = array_values($attributeWithValue)[0];
+
+            $variationOption = VariationOption::updateOrCreate([
+              'variation_attribute_id' => $attributesWithId[$attributeName],
+              'value' => $attributeValue,
+            ]);
+
+            ProductVariationOption::updateOrCreate([
+              'product_variation_id' => $productVariation->id,
+              'variation_option_id' => $variationOption->id,
+            ]);
+          }
+        }
+      }
+    });
+
+    return response([]);
   }
 
   public function saveProductsFromJSON() {
