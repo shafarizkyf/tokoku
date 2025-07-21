@@ -16,6 +16,10 @@ class Product extends Model {
     'source',
   ];
 
+  public function image() {
+    return $this->hasOne(ProductImage::class);
+  }
+
   public function images() {
     return $this->hasMany(ProductImage::class);
   }
@@ -26,6 +30,10 @@ class Product extends Model {
 
   public function variation() {
     return $this->hasOne(ProductVariation::class);
+  }
+
+  public function scopeSearch($query, $value) {
+    return $query->where('name', 'like', "%{$value}%");
   }
 
 }

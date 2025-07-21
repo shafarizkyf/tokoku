@@ -6,7 +6,7 @@
 
 @section('js')
   <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-  <script src="{{ asset('js/product-import.js') }}"></script>
+  <script src="{{ asset('js/product/import.js') }}"></script>
 @endsection
 
 @section('content')
@@ -53,7 +53,12 @@
               <div class="badge bg-primary d-none" role="alert" id="import-information">
                 <span id="item-selected-count">1</span>/<span id="item-total-count">100</span> Selected
               </div>
-              <button class="btn btn-primary d-none" id="btn-import">Import</button>
+              <button class="btn btn-primary d-none" id="btn-import">
+                <div class="d-flex align-items-center">
+                  <span style="opacity: 0.2;">Please Wait</span>
+                  <span class="loader-2"></span>
+                </div>
+              </button>
               <button class="btn btn-outline-secondary d-none" id="btn-reset">Reset</button>
             </div>
           </div>

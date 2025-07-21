@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\DataTable;
 use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
@@ -20,6 +21,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller {
+
+  public function index() {
+    $products = Product::with(['image']);
+
+    if (request('view') == 'datatable') {
+      return DataTable::ajaxTable($products);
+    }
+
+    return $products->paginate(10);
+  }
 
   public function show(Product $product) {
     return $product->load('variations');
