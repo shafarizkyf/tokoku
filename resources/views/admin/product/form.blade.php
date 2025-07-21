@@ -51,8 +51,8 @@
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="product-condition" id="condition-owned">
-                    <label class="form-check-label" for="condition-owned">
+                    <input class="form-check-input" type="radio" name="product-condition" id="condition-used">
+                    <label class="form-check-label" for="condition-used">
                       Bekas
                     </label>
                   </div>

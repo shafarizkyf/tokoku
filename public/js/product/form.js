@@ -1,6 +1,23 @@
 $(function(){
 
+  let product;
   let productVariants = [];
+
+  const getProductDetail = () => {
+    const productId = location.pathname.split('/')[2];
+    $.getJSON(`/api/products/${productId}`).then(response => {
+      console.log(response);
+
+      $('#product-name').val(response.name);
+      $('#product-description').val(response.description);
+      $(`#condition-${response.condition}`).prop('checked', 'checked');
+
+      if (response.variations.length === 1) {
+        $('#product-price').val(Number(response.variations[0].price));
+        $('#product-stock').val(response.variations[0].stock);
+      }
+    });
+  }
 
   const generateTableVariantRows = (variantCombinations) => {
     return variantCombinations.map(item => TableRowVariantEditForm({
@@ -48,8 +65,8 @@ $(function(){
   }
 
   const toggleParentPriceAndStock = (isVisible) => {
-    $('#product-price').closest('.row').toggleClass('d-none', isVisible);
-    $('#product-stock').closest('.row').toggleClass('d-none', isVisible);
+    $('#product-price').closest('.row').toggleClass('d-none', !isVisible);
+    $('#product-stock').closest('.row').toggleClass('d-none', !isVisible);
   }
 
   const onSelectItemRemoved = (value, el) => {
@@ -107,7 +124,7 @@ $(function(){
       }
 
       // parent price and stock section will not visible when has variants
-      toggleParentPriceAndStock(Boolean(product.variants.length));
+      toggleParentPriceAndStock(!Boolean(product.variants.length));
 
       // generate variant attributes and options section
       $('#variant-options').empty();
@@ -145,6 +162,9 @@ $(function(){
 
   $('button[name="btn-add-variant"]').on('click', function(e){
     e.preventDefault();
+
+    // parent price and stock section will not visible when has variants
+    toggleParentPriceAndStock(false);
 
     // generate new variant attribute and options input
     const rowCount = $('#variant-options .row').length;
@@ -192,6 +212,10 @@ $(function(){
     productVariants = productVariants.filter(variant => variant.name !== attributeName);
 
     const noLongerHasVariant = $('th').length === 4;
+
+    // parent price and stock section will not visible when has variants
+    toggleParentPriceAndStock(noLongerHasVariant);
+
     $('#table-variants').parent().toggleClass('d-none', noLongerHasVariant);
     if (noLongerHasVariant) {
       $('#table-variants tbody').empty();
@@ -209,5 +233,7 @@ $(function(){
 
     generateTableHead();
   });
+
+  getProductDetail();
 
 });

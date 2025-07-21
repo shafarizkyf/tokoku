@@ -19,6 +19,10 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller {
 
+  public function show(Product $product) {
+    return $product->load('variations');
+  }
+
   public function saveProductsFromJSON() {
     $filePath = $this->saveImportFile();
     $file = Storage::get($filePath);
