@@ -10,6 +10,11 @@ class ProductController extends Controller {
     return view('admin.product.index');
   }
 
+  public function show($slug) {
+    $product = Product::whereSlug($slug)->firstOrFail();
+    return view('homepage.product.show', compact('product'));
+  }
+
   public function import() {
     return view('admin.product.import');
   }

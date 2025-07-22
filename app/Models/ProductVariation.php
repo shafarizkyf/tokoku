@@ -21,11 +21,19 @@ class ProductVariation extends Model {
     'updated_at'
   ];
 
-    protected function casts() {
-      return [
-        'price' => 'double',
-        'discount_price' => 'double',
-      ];
-    }
+  public $appends = [
+    'discount_percentage'
+  ];
+
+  protected function casts() {
+    return [
+      'price' => 'double',
+      'discount_price' => 'double',
+    ];
+  }
+
+  public function getDiscountPercentageAttribute() {
+    return $this->discount_price ? number_format($this->discount_price / $this->price * 100, 0) : null;
+  }
 
 }

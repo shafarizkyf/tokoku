@@ -68,6 +68,12 @@ table td h5 {
   font-size: 0.8rem;
 }
 
+#main-img-preview img {
+  width: 350px;
+  height: 350px;
+  object-fit: cover;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 
