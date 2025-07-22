@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <div class="d-flex flex-wrap gap-3" id="preview-container"></div>
+        <div class="d-flex flex-wrap justify-content-center gap-3" id="preview-container"></div>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self' }) => {
   return `
-    <div class="product card" style="width: 200px;">
+    <div class="product card" style="width: calc(100% / 5 - 1rem);">
       <img src="${imageUrl}" class="card-img-top" alt="${title}">
       <div class="card-body">
         <h5 class="card-title text-ellipsis">
