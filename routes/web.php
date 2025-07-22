@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('', [HomepageController::class, 'index']);
 
 Route::prefix('products')->group(function(){
   Route::get('', [ProductController::class, 'index']);

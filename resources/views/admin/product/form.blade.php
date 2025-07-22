@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['type' => 'admin'])
 
 @section('css')
 @endsection
