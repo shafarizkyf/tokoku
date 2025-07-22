@@ -36,4 +36,17 @@ class ProductVariation extends Model {
     return $this->discount_price ? number_format($this->discount_price / $this->price * 100, 0) : null;
   }
 
+  public function scopeOptions($query) {
+    return $query->select(
+        'variation_attributes.id as attribute_id',
+        'variation_attributes.name as attribute_name',
+        'variation_options.id as option_id',
+        'variation_options.value as option_name'
+      )
+      ->join('product_variation_options', 'product_variation_options.product_variation_id', '=', 'product_variations.id')
+      ->join('variation_options', 'variation_options.id', '=', 'product_variation_options.variation_option_id')
+      ->join('variation_attributes', 'variation_attributes.id', '=', 'variation_options.variation_attribute_id')
+      ->groupBy('attribute_id', 'attribute_name', 'option_id', 'option_name');
+  }
+
 }
