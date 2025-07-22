@@ -28,7 +28,7 @@ class ProductController extends Controller {
       return DataTable::ajaxTable($products);
     }
 
-    return $products->paginate(10);
+    return $products->paginate(30);
   }
 
   public function show(Product $product) {
