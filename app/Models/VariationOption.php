@@ -13,4 +13,8 @@ class VariationOption extends Model {
 
   public $timestamps = false;
 
+  public function variationAttribute() {
+    return $this->belongsTo(VariationAttribute::class);
+  }
+
 }

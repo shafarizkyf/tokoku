@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-  <div class="container product">
+  <div class="container product" data-init-product-variation="{{ $product->variation->id }}">
     <div class="row">
       <div class="col-md-4">
         <div class="mb-3" id="main-img-preview">
@@ -41,6 +41,23 @@
           <p class="text-decoration-line-through"><span class="badge bg-danger">{{ $product->variation->discount_percentage }}%</span> {{ App\Helpers\Utils::currencyFormat($product->variation->price) }}</p>
         @else
           <h2 class="fw-bolder">{{ App\Helpers\Utils::currencyFormat($product->variation->price) }}</h2>
+        @endif
+
+        <hr />
+
+        @if(count(array_keys($variationOptions)))
+          <div class="d-grid gap-3">
+            @foreach(array_keys($variationOptions) as $attribute)
+              <div class="attribute">
+                <p class="mb-2"><span class="fw-bolder">{{ $attribute }}</span>: <span class="selected">-</span> </p>
+                <div class="d-flex flex-wrap gap-2">
+                  @foreach($variationOptions[$attribute] as $option)
+                    <button type="button" class="btn btn-outline-dark" data-product-variation="{{ $option['product_variation_id'] }}">{{ $option['option_name'] }}</button>
+                  @endforeach
+                </div>
+              </div>
+            @endforeach
+          </div>
         @endif
       </div>
       <div class="col-md-3">
