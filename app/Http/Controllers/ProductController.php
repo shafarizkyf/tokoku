@@ -21,16 +21,18 @@ class ProductController extends Controller {
       'variation_attributes.id as attribute_id',
         'variation_attributes.name as attribute_name',
         'variation_options.id as option_id',
-        'variation_options.value as option_name',
-        'product_variation_id'
+        'variation_options.value as option_name'
       )
       ->join('product_variation_options', 'product_variation_options.product_variation_id', '=', 'product_variations.id')
       ->join('variation_options', 'variation_options.id', '=', 'product_variation_options.variation_option_id')
       ->join('variation_attributes', 'variation_attributes.id', '=', 'variation_options.variation_attribute_id')
       ->where('product_id', $product->id)
+      ->groupBy('attribute_id', 'attribute_name', 'option_id', 'option_name')
       ->get()
-      ->groupBy('attribute_name')
+      ->groupBy('attribute_name',)
       ->toArray();
+
+    // return $variationOptions;
 
     return view('homepage.product.show', compact('product', 'variationOptions'));
   }

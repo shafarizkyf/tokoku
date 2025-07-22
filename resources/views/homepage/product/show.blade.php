@@ -52,7 +52,7 @@
                 <p class="mb-2"><span class="fw-bolder">{{ $attribute }}</span>: <span class="selected">-</span> </p>
                 <div class="d-flex flex-wrap gap-2">
                   @foreach($variationOptions[$attribute] as $option)
-                    <button type="button" class="btn btn-outline-dark" data-product-variation="{{ $option['product_variation_id'] }}">{{ $option['option_name'] }}</button>
+                    <button type="button" class="btn btn-outline-dark" data-attribute="{{ $option['attribute_id'] }}" data-option="{{ $option['option_id'] }}">{{ $option['option_name'] }}</button>
                   @endforeach
                 </div>
               </div>

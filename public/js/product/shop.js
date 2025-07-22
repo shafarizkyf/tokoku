@@ -20,25 +20,23 @@ $(function(){
     },
   });
 
-  const setActiveButtonVariation = (productVariationId) => {
-    const el = $(`[data-product-variation="${productVariationId}"]`);
+  const setActiveButtonOption = (value) => {
+    const el = $(`[data-option="${value}"]`);
+    const parentEl = el.closest('.attribute');
     // reset button class
-    $('[data-product-variation]').removeClass('btn-dark');
-    $('[data-product-variation]').addClass('btn-outline-dark');
+    parentEl.find(`[data-option]`).removeClass('btn-dark');
+    parentEl.find(`[data-option]`).addClass('btn-outline-dark');
     // mark as active for specific button
     el.removeClass('btn-outline-dark');
     el.addClass('btn-dark');
     // set label
-    const activeLabel = $(`[data-product-variation="${productVariationId}"].btn-dark`).text();
-    el.closest('.attribute').find('.selected').text(activeLabel);
+    const activeLabel = parentEl.find(`[data-option="${value}"].btn-dark`).text();
+    parentEl.find('.selected').text(activeLabel);
   }
 
-  $('button[data-product-variation]').on('click', function(e){
+  $('button[data-option]').on('click', function(e){
     e.preventDefault();
-    const productVariationId = $(this).data('product-variation');
-    setActiveButtonVariation(productVariationId)
+    const optionId = $(this).data('option');
+    setActiveButtonOption(optionId);
   });
-
-  const initProductVariation = $('[data-init-product-variation]').data('init-product-variation');
-  setActiveButtonVariation(initProductVariation)
 });
