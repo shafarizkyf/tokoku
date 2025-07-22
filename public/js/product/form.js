@@ -17,6 +17,38 @@ $(function(){
       if (response.variations.length === 1) {
         $('#product-price').val(Number(response.variations[0].price));
         $('#product-stock').val(response.variations[0].stock);
+
+      } else {
+        const optionsGroupByAttribute = _.groupBy(response.variation_options, 'attribute_name');
+
+        // setup varian option form
+        Object.keys(optionsGroupByAttribute).forEach((attribute, index) => {
+          $('button[name="btn-add-variant"]').trigger('click');
+          $(`#variant-attribute-${index}`).val(attribute);
+
+          const select = $('#variant-options select')[index].selectize;
+          optionsGroupByAttribute[attribute].forEach(item => {
+            select.addOption({
+              id: item.option_name,
+              title: item.option_name,
+            });
+
+            select.addItem(item.option_name);
+          });
+        });
+
+        // wait for table rows generation
+        _.delay(() => {
+          // pre-fill table form
+          $('#table-variants tbody tr').each((i, el) => {
+            const key = $(el).find('[data-key]').eq(0).data('key');
+            const productVariation = response.variations.find((item) => item.sku === key);
+            if (productVariation) {
+              $(`input[name="price-${key}"]`).val(productVariation.price);
+              $(`input[name="stock-${key}"]`).val(productVariation.stock);
+            }
+          });
+        }, response.variations.length * 100);
       }
     });
   }

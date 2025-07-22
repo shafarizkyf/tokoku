@@ -32,7 +32,10 @@ class ProductController extends Controller {
   }
 
   public function show(Product $product) {
-    return $product->load('variations');
+    $product = $product->load('variations');
+    $product['variation_options'] = ProductVariation::options()->where('product_id', $product->id)->get();
+
+    return $product;
   }
 
   public function store(ProductUpdateRequest $productUpdateRequest) {
