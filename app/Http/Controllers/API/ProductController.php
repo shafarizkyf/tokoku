@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 class ProductController extends Controller {
 
   public function index() {
-    $products = Product::with(['image']);
+    $products = Product::with(['image', 'variation']);
 
     if (request('view') == 'datatable') {
       return DataTable::ajaxTable($products);

@@ -13,16 +13,15 @@ $(function(){
 
   infiniteScroll.on('load', function (response) {
     const productsEl = response.data.map((product, index) => {
-      return ImportProductCardEl({
+      return ProductCardEl({
         imageUrl: product.image?.url || '#',
-        discountPrice: 0,
-        normalPrice: 0,
+        discountPrice: product.variation.discount_price ? currencyFormat.format(product.variation.discount_price) : null,
+        normalPrice: currencyFormat.format(product.variation.price),
         title: product.name,
-        viewUrl: '#'
+        viewUrl: `/products/${product.slug}`
       })
     });
 
-    console.log(productsEl);
     $('.product-list').append(productsEl.join(''));
 
     // 👇 Stop fetching more if last page is reached

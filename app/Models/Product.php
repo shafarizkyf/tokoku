@@ -29,7 +29,7 @@ class Product extends Model {
   }
 
   public function variation() {
-    return $this->hasOne(ProductVariation::class);
+    return $this->hasOne(ProductVariation::class)->orderBy('price');
   }
 
   public function scopeSearch($query, $value) {
