@@ -19,6 +19,7 @@ $(function(){
                   Pengaturan
                 </button>
                 <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/products/${item.slug}" target="_blank">Lihat</a></li>
                   <li><a class="dropdown-item" href="/products/${item.id}/edit">Edit</a></li>
                 </ul>
               </div>

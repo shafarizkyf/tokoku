@@ -3,8 +3,11 @@
 use App\Http\Controllers\API\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('products', [ProductController::class, 'index']);
-Route::get('products/{product}', [ProductController::class, 'show']);
-Route::post('products', [ProductController::class, 'store']);
-Route::patch('products/{product}', [ProductController::class, 'update']);
-Route::post('products/import', [ProductController::class, 'saveProductsFromJSON']);
+Route::prefix('products')->group(function(){
+  Route::get('', [ProductController::class, 'index']);
+  Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
+  Route::get('{product}', [ProductController::class, 'show']);
+  Route::post('', [ProductController::class, 'store']);
+  Route::patch('{product}', [ProductController::class, 'update']);
+  Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+});

@@ -112,6 +112,26 @@ class ProductController extends Controller {
     return response([]);
   }
 
+  public function getProductVariationByOptions($productId) {
+    $variationOptionId = explode(',', request('variation_option_id'));
+    $count = count($variationOptionId);
+
+    $productVariation = ProductVariation::select('product_variation_id')
+      ->join('product_variation_options', 'product_variation_options.product_variation_id', '=', 'product_variations.id')
+      ->where('product_id', $productId)
+      ->whereIn('variation_option_id', $variationOptionId)
+      ->groupBy('product_variation_id')
+      ->havingRaw('COUNT(*) = ?', [$count])
+      ->havingRaw('SUM(variation_option_id IN (' . implode(',', $variationOptionId) . ')) = ?', [$count])
+      ->first();
+
+    if (!$productVariation) {
+      return response([], 404);
+    }
+
+    return ProductVariation::find($productVariation->product_variation_id);
+  }
+
   public function saveProductsFromJSON() {
     $filePath = $this->saveImportFile();
     $file = Storage::get($filePath);

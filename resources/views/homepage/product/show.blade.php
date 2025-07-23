@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-  <div class="container product" data-init-product-variation="{{ $product->variation->id }}">
+  <div class="container product" data-product-id="{{ $product->id }}" data-init-product-variation="{{ $product->variation->id }}">
     <div class="row">
       <div class="col-md-4">
         <div class="mb-3" id="main-img-preview">

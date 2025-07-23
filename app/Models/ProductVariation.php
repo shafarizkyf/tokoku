@@ -33,7 +33,7 @@ class ProductVariation extends Model {
   }
 
   public function getDiscountPercentageAttribute() {
-    return $this->discount_price ? number_format($this->discount_price / $this->price * 100, 0) : null;
+    return $this->discount_price ? number_format(100 - $this->discount_price / $this->price * 100, 0) : null;
   }
 
   public function scopeOptions($query) {

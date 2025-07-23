@@ -1,4 +1,6 @@
 $(function(){
+  const buttonOptionActiveClass = 'btn-dark';
+  const variationOptions = {};
 
   new ImageZoom(document.getElementById('main-img-preview'), {
     width: 350,
@@ -24,13 +26,13 @@ $(function(){
     const el = $(`[data-option="${value}"]`);
     const parentEl = el.closest('.attribute');
     // reset button class
-    parentEl.find(`[data-option]`).removeClass('btn-dark');
+    parentEl.find(`[data-option]`).removeClass(buttonOptionActiveClass);
     parentEl.find(`[data-option]`).addClass('btn-outline-dark');
     // mark as active for specific button
     el.removeClass('btn-outline-dark');
-    el.addClass('btn-dark');
+    el.addClass(buttonOptionActiveClass);
     // set label
-    const activeLabel = parentEl.find(`[data-option="${value}"].btn-dark`).text();
+    const activeLabel = parentEl.find(`[data-option="${value}"].${buttonOptionActiveClass}`).text();
     parentEl.find('.selected').text(activeLabel);
   }
 
@@ -38,5 +40,42 @@ $(function(){
     e.preventDefault();
     const optionId = $(this).data('option');
     setActiveButtonOption(optionId);
+  });
+
+  $(document).on('click', 'button[data-attribute]', async function(e){
+    e.preventDefault();
+    const optionIds = [];
+    $(`button[data-attribute].${buttonOptionActiveClass}`).each((i, el) => {
+      optionIds.push($(el).data('option'));
+    });
+
+    // must select all attribute options
+    if (optionIds.length !== $('.attribute').length) {
+      return;
+    }
+
+    let variationOption;
+    // check if already fetched
+    if (variationOptions[optionIds.join(',')]) {
+      variationOption = variationOptions[optionIds.join(',')];
+    } else {
+      const productId = $('[data-product-id]').data('product-id');
+      const response = await $.getJSON(`/api/products/${productId}/variations?variation_option_id=${optionIds.join(',')}`);
+
+      variationOptions[optionIds.join(',')] = response;
+      variationOption = response;
+    }
+
+    // remove discount element
+    if ($('h2').next().prop('tagName') === 'P') {
+      $('h2').next().remove();
+    }
+
+    if (variationOption.discount_price) {
+      $('h2').text(currencyFormat.format(variationOption.discount_price));
+      $('h2').after(`<p class="text-decoration-line-through"><span class="badge bg-danger">${variationOption.discount_percentage}%</span> ${variationOption.price}</p>`)
+    } else {
+      $('h2').text(currencyFormat.format(variationOption.price));
+    }
   });
 });
