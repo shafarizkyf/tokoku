@@ -36,14 +36,13 @@ $(function(){
     parentEl.find('.selected').text(activeLabel);
   }
 
-  $('button[data-option]').on('click', function(e){
-    e.preventDefault();
-    const optionId = $(this).data('option');
-    setActiveButtonOption(optionId);
-  });
-
+  // select variant option to fetch price details
   $(document).on('click', 'button[data-attribute]', async function(e){
     e.preventDefault();
+
+    const optionId = $(this).data('option');
+    setActiveButtonOption(optionId);
+
     const optionIds = [];
     $(`button[data-attribute].${buttonOptionActiveClass}`).each((i, el) => {
       optionIds.push($(el).data('option'));
