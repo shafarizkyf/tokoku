@@ -1,4 +1,7 @@
-@extends('layouts.app', ['type' => 'homepage'])
+@extends('layouts.app', [
+  'type' => 'homepage',
+  'productId' => $product->id
+])
 
 @section('css')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -12,7 +15,7 @@
 @endsection
 
 @section('content')
-  <div class="container product" data-product-id="{{ $product->id }}" data-init-options="{{ json_encode($defaultVariantOptions) }}">
+  <div class="container product" data-init-options="{{ json_encode($defaultVariantOptions) }}">
     <div class="row">
       <div class="col-md-4">
         <div class="mb-3" id="main-img-preview">
@@ -64,7 +67,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-grid gap-2">
-              <button type="button" class="btn btn-primary">+ Keranjang</button>
+              <button type="button" class="btn btn-primary" name="btn-add-to-cart">+ Keranjang</button>
               <button type="button" class="btn btn-outline-primary">Beli Sekarang</button>
             </div>
           </div>
