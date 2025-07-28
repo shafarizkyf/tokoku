@@ -15,7 +15,7 @@ class ProductController extends Controller {
   }
 
   public function show($slug) {
-    $product = Product::whereSlug($slug)->firstOrFail();
+    $product = Product::with(['variation'])->whereSlug($slug)->firstOrFail();
 
     $variationOptions = ProductVariation::options()
       ->where('product_id', $product->id)
@@ -23,9 +23,19 @@ class ProductController extends Controller {
       ->groupBy('attribute_name',)
       ->toArray();
 
-    // return $variationOptions;
+    $defaultVariantOptions = ProductVariation::where('product_variations.id', $product->variation->id)
+      ->options()
+      ->get()
+      ->pluck('option_id')
+      ->toArray();
 
-    return view('homepage.product.show', compact('product', 'variationOptions'));
+    $data = compact(
+      'product',
+      'variationOptions',
+      'defaultVariantOptions'
+    );
+
+    return view('homepage.product.show', $data);
   }
 
   public function import() {

@@ -47,10 +47,15 @@ $(function(){
     const optionIds = [];
     $(`button[data-attribute].${buttonOptionActiveClass}`).each((i, el) => {
       optionIds.push($(el).data('option'));
+      $(el).closest('.attribute').addClass('selected');
     });
 
     // must select all attribute options
     if (optionIds.length !== $('.attribute').length) {
+      // set first unselected option as default selected
+      $('.attribute:not(.selected)').each((i, el) => {
+        $(el).find('button').eq(0).trigger('click');
+      });
       return;
     }
 
@@ -77,5 +82,9 @@ $(function(){
     } else {
       $('h2').text(currencyFormat.format(variationOption.price));
     }
+  });
+
+  $('[data-init-options]').data('init-options').forEach(optionId => {
+    $(`button[data-option="${optionId}"]`).trigger('click');
   });
 });
