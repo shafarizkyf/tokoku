@@ -5,6 +5,7 @@ use App\Http\Controllers\API\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('carts')->group(function(){
+  Route::get('count', [CartController::class, 'count']);
   Route::post('', [CartController::class, 'store']);
 });
 

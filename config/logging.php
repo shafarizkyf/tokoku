@@ -132,6 +132,11 @@ return [
             'path' => storage_path('logs/product.log'),
         ],
 
+        'cart' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/cart.log'),
+        ],
+
     ],
 
 ];

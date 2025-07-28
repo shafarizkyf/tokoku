@@ -6,8 +6,8 @@
 @endsection
 
 @section('content')
-  @component('components.carousel') @endcomponent
   <div class="container">
+    @component('components.carousel') @endcomponent
     <div class="row">
       <div class="col-md-12">
         <div class="product-list d-flex gap-3 flex-wrap"></div>

@@ -1,4 +1,5 @@
 $(function(){
+  const productId = $('meta[name="product-id"]').attr('content');
   const buttonOptionActiveClass = 'btn-dark';
   const variationOptions = {};
 
@@ -36,6 +37,16 @@ $(function(){
     parentEl.find('.selected').text(activeLabel);
   }
 
+  const getAllSelectedOptions = () => {
+    const optionIds = [];
+    $(`button[data-attribute].${buttonOptionActiveClass}`).each((i, el) => {
+      optionIds.push($(el).data('option'));
+      $(el).closest('.attribute').addClass('selected');
+    });
+
+    return optionIds;
+  }
+
   // select variant option to fetch price details
   $(document).on('click', 'button[data-attribute]', async function(e){
     e.preventDefault();
@@ -43,11 +54,7 @@ $(function(){
     const optionId = $(this).data('option');
     setActiveButtonOption(optionId);
 
-    const optionIds = [];
-    $(`button[data-attribute].${buttonOptionActiveClass}`).each((i, el) => {
-      optionIds.push($(el).data('option'));
-      $(el).closest('.attribute').addClass('selected');
-    });
+    const optionIds = getAllSelectedOptions();
 
     // must select all attribute options
     if (optionIds.length !== $('.attribute').length) {
@@ -63,7 +70,6 @@ $(function(){
     if (variationOptions[optionIds.join(',')]) {
       variationOption = variationOptions[optionIds.join(',')];
     } else {
-      const productId = $('[data-product-id]').data('product-id');
       const response = await $.getJSON(`/api/products/${productId}/variations?variation_option_id=${optionIds.join(',')}`);
 
       variationOptions[optionIds.join(',')] = response;
@@ -85,5 +91,15 @@ $(function(){
 
   $('[data-init-options]').data('init-options').forEach(optionId => {
     $(`button[data-option="${optionId}"]`).trigger('click');
+  });
+
+  $('button[name="btn-add-to-cart"]').on('click', function(e){
+    e.preventDefault();
+    const optionIds = getAllSelectedOptions();
+    $.post(`/api/carts`, {
+      product_id: productId,
+      product_variation_id: variationOptions[optionIds.join(',')]?.id,
+      quantity: 1,
+    });
   });
 });
