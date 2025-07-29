@@ -57,4 +57,26 @@ const refreshCartCounter = () => {
 
 $(function(){
   refreshCartCounter();
+
+  $('input[type="search"]').on('keyup', _.debounce(function(){
+    const keyword = $(this).val();
+    if (!keyword.trim().length) {
+      $('.search-result').addClass('d-none');
+      $('.search-result').empty();
+      return;
+    }
+
+    $.getJSON(`/api/search?keyword=${keyword}`).then(response => {
+      const container = $('.search-result').empty();
+
+      $('.search-result').removeClass('d-none');
+
+      if (response.length) {
+        const list = response.map(item => `<li><a href="/products/${item.slug}">${item.name}</a></li>`).join('');
+        container.append(list);
+      } else {
+        container.append(`<li>Not Found</li>`);
+      }
+    })
+  }, 400));
 });

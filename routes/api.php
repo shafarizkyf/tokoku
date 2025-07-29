@@ -19,3 +19,5 @@ Route::prefix('products')->group(function(){
   Route::patch('{product}', [ProductController::class, 'update']);
   Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
 });
+
+Route::get('search', [ProductController::class, 'search']);

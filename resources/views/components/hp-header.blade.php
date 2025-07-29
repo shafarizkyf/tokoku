@@ -6,7 +6,10 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+        <div class="position-relative w-100">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+          <ul class="search-result d-none"></ul>
+        </div>
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
           <li class="nav-item">
             <a class="nav-link" href="{{ route('carts.index') }}">

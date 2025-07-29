@@ -31,6 +31,10 @@ class ProductController extends Controller {
     return $products->paginate(30);
   }
 
+  public function search() {
+    return Product::search(request('keyword'))->take(10)->get();
+  }
+
   public function show(Product $product) {
     $product = $product->load('variations');
     $product['variation_options'] = ProductVariation::options()->where('product_id', $product->id)->get();

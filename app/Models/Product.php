@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Product extends Model {
+
+  use Searchable;
 
   protected $fillable = [
     'store_id',
@@ -15,6 +18,19 @@ class Product extends Model {
     'created_by',
     'source',
   ];
+
+  public function toSearchableArray() {
+    return [
+      'id' => $this->id,
+      'name' => $this->name,
+      'slug' => $this->slug,
+      'description' => strip_tags($this->description), // Optional, but useful for full text search
+      'condition' => $this->condition,
+      'review_avg' => $this->review_avg,
+      'review_count' => $this->review_count,
+      'sold_count' => $this->sold_count,
+    ];
+  }
 
   public function image() {
     return $this->hasOne(ProductImage::class);

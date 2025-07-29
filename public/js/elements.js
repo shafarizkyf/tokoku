@@ -94,7 +94,7 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
           </div>
           <div class="">
             <p class="m-0">${currencyFormat.format(price)}</p>
-            ${originalPrice ? `<p class="m-0 text-muted text-decoration-line-through">xxx.xxx</p>` : ''}
+            ${originalPrice ? `<p class="m-0 text-muted text-decoration-line-through">${currencyFormat.format(originalPrice)}</p>` : ''}
           </div>
         </div>
         <div class="d-flex justify-content-end">
