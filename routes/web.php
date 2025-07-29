@@ -3,9 +3,12 @@
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
+
+Route::get('carts', [CartController::class, 'index'])->name('carts.index');
 
 Route::prefix('products')->group(function(){
   Route::get('', [ProductController::class, 'index'])->name('products.index');

@@ -7,10 +7,39 @@ use App\Http\Requests\StoreCartRequest;
 use App\Models\Cart;
 use App\Models\CartItems;
 use App\Models\ProductVariation;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller {
+
+  public function index() {
+    return Cache::remember('cartItems', now()->add('hour', 1), function(){
+      $cart = Cart::with([
+        'items.product:id,name',
+        'items.productVariation.variationOptions.variationOption'
+      ])->first();
+
+      $cartItems = [];
+
+      foreach($cart->items as $cartItem) {
+        $options = [];
+        foreach($cartItem->productVariation->variationOptions as $variationOption) {
+          $options[] = $variationOption->variationOption->value;
+        }
+
+        $cartItems[] = [
+          'product_name' => $cartItem->product->name,
+          'product_image' => $cartItem->product->images->count() ? $cartItem->product->images[0] : null,
+          'quantity' => $cartItem->quantity,
+          'price' => $cartItem->price_at_time,
+          'options' => $options,
+        ];
+      }
+
+      return $cartItems;
+    });
+  }
 
   public function store(StoreCartRequest $request) {
     Log::channel('cart')->info('atc', array_merge(request()->all(), [
@@ -46,9 +75,7 @@ class CartController extends Controller {
   }
 
   public function count() {
-    return Cart::withCount(['items'])
-      ->whereSessionId(request()->cookie('session_id'))
-      ->first();
+    return Cart::withCount(['items'])->first();
   }
 
 }

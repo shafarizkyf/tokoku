@@ -13,4 +13,8 @@ class ProductVariationOption extends Model {
 
   public $timestamps = false;
 
+  public function variationOption() {
+    return $this->belongsTo(VariationOption::class);
+  }
+
 }

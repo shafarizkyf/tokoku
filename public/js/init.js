@@ -49,8 +49,12 @@ $.ajaxSetup({
   }
 });
 
-$(function(){
+const refreshCartCounter = () => {
   $.getJSON('/api/carts/count').then(response => {
     $('#cart-counter').text(response.items_count > 99 ? '99+' : response.items_count);
   });
+}
+
+$(function(){
+  refreshCartCounter();
 });

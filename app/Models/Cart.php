@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model {
@@ -16,6 +17,12 @@ class Cart extends Model {
     'created_at',
     'updated_at',
   ];
+
+  protected static function booted(): void {
+    static::addGlobalScope('session_id', function (Builder $builder) {
+      $builder->where('session_id', request()->cookie('session_id'));
+    });
+  }
 
   public function items() {
     return $this->hasMany(CartItems::class);

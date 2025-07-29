@@ -1,6 +1,7 @@
 @extends('layouts.app', [
   'type' => 'homepage',
-  'productId' => $product->id
+  'productId' => $product->id,
+  'initVariationId' => $product->variation->id,
 ])
 
 @section('css')

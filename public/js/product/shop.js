@@ -96,10 +96,14 @@ $(function(){
   $('button[name="btn-add-to-cart"]').on('click', function(e){
     e.preventDefault();
     const optionIds = getAllSelectedOptions();
-    $.post(`/api/carts`, {
+    const data = {
       product_id: productId,
-      product_variation_id: variationOptions[optionIds.join(',')]?.id,
+      product_variation_id: optionIds.length
+        ? variationOptions[optionIds.join(',')]?.id // when product has variant options
+        : $('meta[name="init-product-variation"]').attr('content'), // when product does not have variant option
       quantity: 1,
-    });
+    };
+
+    $.post(`/api/carts`, data).then(refreshCartCounter);
   });
 });

@@ -49,4 +49,8 @@ class ProductVariation extends Model {
       ->groupBy('attribute_id', 'attribute_name', 'option_id', 'option_name');
   }
 
+  public function variationOptions() {
+    return $this->hasMany(ProductVariationOption::class);
+  }
+
 }
