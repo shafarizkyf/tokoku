@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_variation_id');
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('price_at_time', 12);
+            $table->decimal('price_discount_at_time', 12)->nullable();
             $table->timestamps();
         });
     }

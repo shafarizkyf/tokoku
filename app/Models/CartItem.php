@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
-class CartItems extends Model {
+class CartItem extends Model {
 
   protected $hidden = [
     'cart_id',
@@ -15,7 +15,8 @@ class CartItems extends Model {
 
   protected function casts() {
     return [
-      'price_at_time' => 'double'
+      'price_at_time' => 'double',
+      'price_discount_at_time' => 'double',
     ];
   }
 

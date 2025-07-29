@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCartRequest;
 use App\Models\Cart;
-use App\Models\CartItems;
+use App\Models\CartItem;
 use App\Models\ProductVariation;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -29,10 +29,12 @@ class CartController extends Controller {
         }
 
         $cartItems[] = [
+          'cart_item_id' => $cartItem->id,
           'product_name' => $cartItem->product->name,
           'product_image' => $cartItem->product->images->count() ? $cartItem->product->images[0] : null,
           'quantity' => $cartItem->quantity,
           'price' => $cartItem->price_at_time,
+          'price_discount' => $cartItem->price_discount_at_time,
           'options' => $options,
         ];
       }
@@ -58,11 +60,12 @@ class CartController extends Controller {
 
       $productVariation = ProductVariation::find($request->product_variation_id);
 
-      $cartItem = new CartItems;
+      $cartItem = new CartItem;
       $cartItem->cart_id = $cart->id;
       $cartItem->product_id = $request->product_id;
       $cartItem->product_variation_id = $request->product_variation_id;
       $cartItem->price_at_time = $productVariation->price;
+      $cartItem->price_discount_at_time = $productVariation->discount_price;
       $cartItem->save();
 
       $response = response([
@@ -72,6 +75,12 @@ class CartController extends Controller {
     });
 
     return $response;
+  }
+
+  public function destroy(CartItem $cartItem) {
+    $cartItem->delete();
+
+    return response([]);
   }
 
   public function count() {
