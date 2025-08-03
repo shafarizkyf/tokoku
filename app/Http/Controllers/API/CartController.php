@@ -84,7 +84,14 @@ class CartController extends Controller {
   }
 
   public function count() {
-    return Cart::withCount(['items'])->first();
+    $cart = Cart::withCount(['items'])->first();
+    if (!$cart) {
+      return response([
+        'items_count' => 0,
+      ]);
+    }
+
+    return $cart;
   }
 
 }
