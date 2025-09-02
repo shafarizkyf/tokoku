@@ -22,6 +22,10 @@ class CartController extends Controller {
 
       $cartItems = [];
 
+      if (!$cart) {
+        return $cartItems;
+      }
+
       foreach($cart->items as $cartItem) {
         $options = [];
         foreach($cartItem->productVariation->variationOptions as $variationOption) {
