@@ -5,6 +5,7 @@
 @endsection
 
 @section('js')
+  <script src="{{ asset('js/region.js') }}"></script>
   <script src="{{ asset('js/homepage/cart.js') }}"></script>
 @endsection
 
@@ -12,14 +13,33 @@
   <div class="container cart">
     <h1 class="h3">Keranjang</h1>
     <div class="row mt-4">
-      <div class="col-md-9 cart-items">
+      <div class="col-md-8 cart-items">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="card">
           <div class="card-body">
-
-            <div class="d-grid">
-              <button class="btn btn-primary">Beli</button>
+            <div class="d-grid gap-2">
+              <h6>Pengiriman</h6>
+              <select class="" name="province_id" id="province_id">
+                <option value="">Provinsi</option>
+              </select>
+              <select class="" name="regency_id" id="regency_id">
+                <option value="">Kota/Kabupaten</option>
+              </select>
+              <select class="" name="district_id" id="district_id">
+                <option value="">Kecamatan</option>
+              </select>
+              <select class="" name="village_id" id="village_id">
+                <option value="">Kelurahan/Desa</option>
+              </select>
+              <select class="" name="postal_code" id="postal_code">
+                <option value="">Kodepos</option>
+              </select>
+              <input type="text" class="form-control" placeholder="Alamat (contoh: Jl. Ahmad Yani RT.01 RW.01)" name="address" id="address">
+              <input type="text" class="form-control" placeholder="Catatan tambahan" name="note" id="note" maxlength="100">
+            </div>
+            <div class="d-grid mt-3">
+              <button class="btn btn-primary">Bayar</button>
             </div>
           </div>
         </div>
