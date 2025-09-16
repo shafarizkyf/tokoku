@@ -4,6 +4,10 @@
   overflow-y: auto;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .text-ellipsis {
   display: -webkit-box;
   line-clamp: 2;

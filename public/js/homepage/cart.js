@@ -1,4 +1,6 @@
 $(function(){
+  let isEditShippingForm = false;
+
   const regionSelectizeConfig = {
     valueField: 'id',
     labelField: 'name',
@@ -29,6 +31,20 @@ $(function(){
     })).join('');
 
     $('.cart-items').append(cartItemsCard);
+  });
+
+  $('#btn-set-shipping').on('click', function(){
+    if (!isEditShippingForm) {
+      $(this).text('Simpan');
+      $('#selected-address').addClass('d-none');
+      $('#shipping-form').removeClass('d-none');
+      isEditShippingForm = true;
+    } else {
+      $(this).text('Atur alamat');
+      $('#selected-address').removeClass('d-none');
+      $('#shipping-form').addClass('d-none');
+      isEditShippingForm = false;
+    }
   });
 
   $(document).on('click', 'button[name="btn-remove-item"]', function(e){

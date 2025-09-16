@@ -18,8 +18,16 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-body">
-            <div class="d-grid gap-2">
-              <h6>Pengiriman</h6>
+            <div class="d-grid gap-2 mb-2">
+              <div class="d-flex align-items-center justify-content-between">
+                <h6>Pengiriman</h6>
+              <span role="button" class="text-primary text-decoration-underline" id="btn-set-shipping">Atur alamat</span>
+              </div>
+              <div class="alert alert-light" id="selected-address">
+                Mohon atur alamat pengiriman
+              </div>
+            </div>
+            <div class="d-grid gap-2 d-none" id="shipping-form">
               <select class="" name="province_id" id="province_id">
                 <option value="">Provinsi</option>
               </select>
