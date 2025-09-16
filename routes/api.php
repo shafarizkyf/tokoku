@@ -17,7 +17,7 @@ Route::prefix('region')->group(function(){
   Route::get('provinces/{province}/regencies', [RegionController::class, 'regencies']);
   Route::get('provinces/{province}/regencies/{regency}/districts', [RegionController::class, 'districts']);
   Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [RegionController::class, 'villages']);
-  Route::get('postal-code', [RegionController::class, 'postalCode']);
+  Route::get('postal-code/{village}', [RegionController::class, 'postalCode']);
 });
 
 Route::prefix('products')->group(function(){

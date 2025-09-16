@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Province;
 use App\Models\Regency;
+use App\Models\Village;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -36,13 +37,9 @@ class RegionController extends Controller {
     });
   }
 
-  public function postalCode() {
-    $data = request()->validate([
-      'keyword' => 'required'
-    ]);
-
+  public function postalCode(Village $village) {
     $response = Http::asForm()->post('https://kodepos.posindonesia.co.id/CariKodepos', [
-      'kodepos' => $data['keyword']
+      'kodepos' => $village->name,
     ]);
 
     if (!$response->successful()) {
@@ -72,7 +69,7 @@ class RegionController extends Controller {
         $td[] = trim($col->textContent);
       }
 
-      $tr[] = $td;
+      $tr[] = array_slice($td, 1);
     }
 
     return $tr;
