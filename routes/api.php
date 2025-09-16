@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\RegionController;
+use App\Http\Controllers\API\ShippingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('carts')->group(function(){
@@ -27,6 +28,10 @@ Route::prefix('products')->group(function(){
   Route::post('', [ProductController::class, 'store']);
   Route::patch('{product}', [ProductController::class, 'update']);
   Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+});
+
+Route::prefix('shipping')->group(function(){
+  Route::post('calculate', [ShippingController::class, 'calculate']);
 });
 
 Route::get('search', [ProductController::class, 'search']);
