@@ -48,7 +48,7 @@
               <input type="text" class="form-control" placeholder="Catatan tambahan" name="shipping_note" id="shipping_note" maxlength="100">
             </div>
             <div class="d-grid mt-3">
-              <button class="btn btn-primary">Bayar</button>
+              <button class="btn btn-primary" id="btn-pay">Bayar</button>
             </div>
           </div>
         </div>

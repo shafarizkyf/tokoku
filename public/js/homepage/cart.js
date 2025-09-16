@@ -71,12 +71,14 @@ $(function(){
   $('#btn-set-shipping').on('click', function(){
     if (!isEditShippingForm) {
       $(this).text('Simpan');
+      $('#btn-pay').addClass('d-none');
       $('#selected-address').addClass('d-none');
       $('#shipping-form').removeClass('d-none');
       isEditShippingForm = true;
     } else {
       $(this).text('Atur alamat');
       saveShippingForm();
+      $('#btn-pay').removeClass('d-none');
       $('#selected-address').removeClass('d-none');
       $('#shipping-form').addClass('d-none');
       isEditShippingForm = false;
