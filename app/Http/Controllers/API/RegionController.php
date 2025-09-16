@@ -60,7 +60,7 @@ class RegionController extends Controller {
     $tr = [];
     foreach ($rows as $row) {
       if (!($row instanceof \DOMElement)) {
-          continue;
+        continue;
       }
 
       $cols = $row->getElementsByTagName("td");
@@ -69,7 +69,15 @@ class RegionController extends Controller {
         $td[] = trim($col->textContent);
       }
 
-      $tr[] = array_slice($td, 1);
+      $tdVillage = $td[2];
+      $tdProvince = $td[count($td) - 1];
+
+      $isSameProvince = $tdProvince == $village->district->regency->province->name;
+      $isSameName = strtolower($tdVillage) == strtolower($village->name);
+
+      if ($isSameName && $isSameProvince) {
+        $tr[] = array_slice($td, 1);
+      }
     }
 
     return $tr;
