@@ -104,6 +104,12 @@ table td h5 {
 .search-result li:hover {
   background-color: #f1f1f1;
 }
+
+#delivery-options {
+  max-height: 270px;
+  overflow-y: auto;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 

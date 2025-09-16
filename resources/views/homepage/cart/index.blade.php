@@ -47,6 +47,8 @@
               <input type="text" class="form-control" placeholder="Alamat (contoh: Jl. Ahmad Yani RT.01 RW.01)" name="address" id="address">
               <input type="text" class="form-control" placeholder="Catatan tambahan" name="shipping_note" id="shipping_note" maxlength="100">
             </div>
+            <div class="d-grid gap-2" id="delivery-options">
+            </div>
             <div class="d-grid mt-3">
               <button class="btn btn-primary" id="btn-pay">Bayar</button>
             </div>

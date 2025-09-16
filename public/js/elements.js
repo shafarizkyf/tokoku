@@ -109,3 +109,17 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
     </div>
   `;
 }
+
+const DeliveryOptionCard = ({ name, cost, estimation }) => {
+  return `
+    <div class="card delivery-option" role="button">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <p class="m-0 fw-medium">${name}</p>
+          <p class="m-0 fw-medium">${cost}</p>
+        </div>
+        <p class="m-0 text-muted fs-6">Estimasi pengiriman: ${estimation}</p>
+      </div>
+    </div>
+  `;
+}

@@ -55,6 +55,12 @@ $(function(){
     $('#selected-address').text(`${data.receiver_name} - ${data.address_full}`);
   }
 
+  const getDeliveryOptions = async (postalCode) => {
+    return await $.post(`/api/shipping/calculate`, {
+      postal_code: postalCode
+    });
+  }
+
   $.getJSON('/api/carts').then(response => {
     const cartItemsCard = response.map(item => CartItemCard({
       imageUrl: item.product_image?.url,
@@ -93,6 +99,11 @@ $(function(){
     }).then(response => {
       $(this).closest('.card').remove();
     });
+  });
+
+  $(document).on('click', '.card.delivery-option', function(){
+    $('.card.delivery-option').removeClass('border-primary');
+    $(this).addClass('border-primary');
   });
 
   $('#province_id').on('change', function(){
@@ -144,6 +155,26 @@ $(function(){
         appendOptions(postalSelectEl, remapOptions, currentShippingForm?.postal_code)
       });
     }
+  });
+
+  $('#postal_code').on('change', async function(){
+    const value = $(this).val();
+    if (!value) {
+      return;
+    }
+
+    $('#delivery-options').empty();
+    const deliveryOptions = await getDeliveryOptions(value);
+    deliveryOptions.forEach(item => {
+      const cardEl = DeliveryOptionCard({
+        name: `${item.shipping_name} - ${item.service_name}`,
+        cost: item.shipping_cost,
+        estimation: item.etd
+      });
+
+      $('#delivery-options').append(cardEl);
+      $('#delivery-options .card').eq(0).addClass('border-primary')
+    });
   });
 
   getProvinces().then(response => {
