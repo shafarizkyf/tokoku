@@ -137,6 +137,11 @@ return [
             'path' => storage_path('logs/cart.log'),
         ],
 
+        'tripay' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/tripay.log'),
+        ],
+
     ],
 
 ];

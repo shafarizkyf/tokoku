@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
@@ -11,6 +12,10 @@ Route::prefix('carts')->group(function(){
   Route::get('count', [CartController::class, 'count']);
   Route::post('', [CartController::class, 'store']);
   Route::delete('items/{cart_item}', [CartController::class, 'destroy']);
+});
+
+Route::prefix('orders')->group(function(){
+  Route::post('', [OrderController::class, 'store']);
 });
 
 Route::prefix('region')->group(function(){
