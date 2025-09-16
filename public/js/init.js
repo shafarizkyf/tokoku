@@ -5,6 +5,10 @@ const currencyFormat = new Intl.NumberFormat('id-ID', {
   maximumFractionDigits: 0,
 });
 
+const LOCAL_KEY = {
+  SHIPPING: 'tokoku_shipping'
+}
+
 // mimic jQuery $(element).on(event, selector, handler)
 const on = (element, type, selector, handler) => {
   element.addEventListener(type, (event) => {

@@ -25,7 +25,7 @@ class ShippingController extends Controller {
     // e.g: reguler, cargo, instant
     $shippingTypes = array_keys($shippingOptions['data']);
 
-    // remap
+    // remap because there are informations user shouldnt know about
     $remapShippingOptions = [];
     foreach($shippingTypes as $shippingType) {
       foreach($shippingOptions['data'][$shippingType] as $option) {

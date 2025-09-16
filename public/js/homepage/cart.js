@@ -1,6 +1,14 @@
 $(function(){
   let isEditShippingForm = false;
 
+  let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
+    ? JSON.parse(localStorage.getItem(LOCAL_KEY.SHIPPING))
+    : null
+
+  if (currentShippingForm) {
+    $('#selected-address').text(`${currentShippingForm.receiver_name} - ${currentShippingForm.address_full}`);
+  }
+
   const regionSelectizeConfig = {
     valueField: 'id',
     labelField: 'name',
@@ -13,11 +21,38 @@ $(function(){
   const villageSelectEl = $('#village_id').selectize(regionSelectizeConfig);
   const postalSelectEl = $('#postal_code').selectize(regionSelectizeConfig);
 
-  const appendOptions = (selectizeEl, options) => {
+  const appendOptions = (selectizeEl, options, initValue = null) => {
     const control = selectizeEl[0].selectize;
     options.forEach(item => {
       control.addOption(item);
     });
+
+    control.setValue([initValue]);
+  }
+
+  const saveShippingForm = () => {
+    const address_full = $('#address').val().trim() + ', '
+      +  $('#village_id').text().trim() + ', '
+      +  $('#district_id').text().trim() + ', '
+      +  $('#regency_id').text().trim() + ', '
+      +  $('#province_id').text().trim() + ' '
+      +  '(' + $('#postal_code').val().trim() + ')'
+
+    const data = {
+      receiver_name: $('#receiver_name').val(),
+      province_id: $('#province_id').val(),
+      regency_id: $('#regency_id').val(),
+      district_id: $('#district_id').val(),
+      village_id: $('#village_id').val(),
+      postal_code: $('#postal_code').val(),
+      address: $('#address').val(),
+      shipping_note: $('#shipping_note').val(),
+      address_full,
+    };
+
+    console.log(data);
+    localStorage.setItem(LOCAL_KEY.SHIPPING, JSON.stringify(data));
+    $('#selected-address').text(`${data.receiver_name} - ${data.address_full}`);
   }
 
   $.getJSON('/api/carts').then(response => {
@@ -41,6 +76,7 @@ $(function(){
       isEditShippingForm = true;
     } else {
       $(this).text('Atur alamat');
+      saveShippingForm();
       $('#selected-address').removeClass('d-none');
       $('#shipping-form').addClass('d-none');
       isEditShippingForm = false;
@@ -65,7 +101,9 @@ $(function(){
     postalSelectEl[0].selectize.clearOptions();
 
     if (provinceId) {
-      getRegencies(provinceId).then(response => appendOptions(regencySelectEl, response))
+      getRegencies(provinceId).then(response => {
+        appendOptions(regencySelectEl, response, currentShippingForm?.regency_id);
+      })
     }
   });
 
@@ -77,7 +115,7 @@ $(function(){
     postalSelectEl[0].selectize.clearOptions();
 
     if (provinceId && regencyId) {
-      getDistricts(provinceId, regencyId).then(response => appendOptions(districtSelectEl, response))
+      getDistricts(provinceId, regencyId).then(response => appendOptions(districtSelectEl, response, currentShippingForm?.district_id))
     }
   });
 
@@ -90,7 +128,7 @@ $(function(){
     postalSelectEl[0].selectize.clearOptions();
 
     if (provinceId && regencyId && districtId) {
-      getVillages(provinceId, regencyId, districtId).then(response => appendOptions(villageSelectEl, response))
+      getVillages(provinceId, regencyId, districtId).then(response => appendOptions(villageSelectEl, response, currentShippingForm?.village_id))
     }
   });
 
@@ -101,13 +139,15 @@ $(function(){
     if (villageId) {
       getPostalCode(villageId).then(response => {
         const remapOptions = response.map(item => ({id: item[0], name: item[0]}));
-        appendOptions(postalSelectEl, remapOptions)
+        appendOptions(postalSelectEl, remapOptions, currentShippingForm?.postal_code)
       });
     }
   });
 
-
   getProvinces().then(response => {
-    appendOptions(proviceSelectEl, response);
+    appendOptions(proviceSelectEl, response, currentShippingForm?.province_id);
+    $('#receiver_name').val(currentShippingForm?.receiver_name || '');
+    $('#address').val(currentShippingForm?.address || '');
+    $('#shipping_note').val(currentShippingForm?.shipping_note || '');
   });
 });
