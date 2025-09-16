@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\RegionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('carts')->group(function(){
@@ -9,6 +10,14 @@ Route::prefix('carts')->group(function(){
   Route::get('count', [CartController::class, 'count']);
   Route::post('', [CartController::class, 'store']);
   Route::delete('items/{cart_item}', [CartController::class, 'destroy']);
+});
+
+Route::prefix('region')->group(function(){
+  Route::get('provinces', [RegionController::class, 'provinces']);
+  Route::get('provinces/{province}/regencies', [RegionController::class, 'regencies']);
+  Route::get('provinces/{province}/regencies/{regency}/districts', [RegionController::class, 'districts']);
+  Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [RegionController::class, 'villages']);
+  Route::get('postal-code', [RegionController::class, 'postalCode']);
 });
 
 Route::prefix('products')->group(function(){
