@@ -37,17 +37,21 @@ class OrderController extends Controller {
     }
 
     DB::transaction(function()use ($request, $preferredDelivery, &$response){
-      Tripay::requestTransaction('ABC', 100000);
-
       $totalPrice = 0;
       $totalWeightInGrams = 0;
       $orderItems = [];
       foreach($request->items as $item) {
         $productVariation = ProductVariation::with(['product'])->find($item['product_variation_id']);
+        $subtotal = floor($productVariation->price * $item['quantity']);
 
-        $totalPrice += $productVariation->price;
+        // remove decimal like 999.99 to 999 as indonesian currency does not apply this
+        $totalPrice += floor($subtotal);
         $totalWeightInGrams += 500;
-        $orderItems[] = $productVariation;
+        $orderItems[] = [
+          'product_variation' => $productVariation,
+          'quantity' => $item['quantity'],
+          'subtotal' => $subtotal,
+        ];
       }
 
       $shippingPrice = $preferredDelivery['shipping_cost'];
@@ -72,26 +76,37 @@ class OrderController extends Controller {
       $order->note = $request->shipping['shipping_note'];
       $order->save();
 
-      foreach($orderItems as $index => $productVariation) {
-        $quantity = $request->items[$index]['quantity'];
-        $subtotal = $productVariation->price * $quantity;
-
+      foreach($orderItems as $orderItem) {
         $orderDetail = new OrderDetail;
         $orderDetail->order_id = $order->id;
-        $orderDetail->product_id = $productVariation->product_id;
-        $orderDetail->product_variation_id = $productVariation->id;
-        $orderDetail->name_snapshot = $productVariation->product->name;
-        $orderDetail->price = $productVariation->price;
-        $orderDetail->quantity = $quantity;
-        $orderDetail->subtotal = $subtotal;
+        $orderDetail->product_id = $orderItem['product_variation']->product_id;
+        $orderDetail->product_variation_id = $orderItem['product_variation']->id;
+        $orderDetail->name_snapshot = $orderItem['product_variation']->product->name;
+        $orderDetail->price = $orderItem['product_variation']->price;
+        $orderDetail->quantity = $orderItem['quantity'];
+        $orderDetail->subtotal = $orderItem['subtotal'];
         $orderDetail->weight = 500;
         $orderDetail->save();
       }
 
-      $response = response([
-        'success' => true,
-        'message' => 'Pesanan diterima'
-      ], 200);
+      $response = Tripay::requestTransaction($order);
+      $order->payment_response = json_encode($response);
+      $order->save();
+
+      if (!$response['success']) {
+        $response = response([
+          'success' => false,
+          'message' => $response['message'],
+        ], 400);
+      } else {
+        $response = response([
+          'success' => true,
+          'message' => 'Pesanan diterima',
+          'data' => [
+            'payment' => $response,
+          ],
+        ], 200);
+      }
     });
 
     return $response;

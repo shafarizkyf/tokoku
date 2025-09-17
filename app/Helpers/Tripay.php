@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -32,43 +33,48 @@ class Tripay {
     return hash_hmac('sha256', $merchantCode . $merchantRef . $amount, $privateKey);
   }
 
-  public static function requestTransaction($merchantRef, $amount) {
+  public static function requestTransaction(Order $order) {
     $instance = new self();
+
+    $orderItems = [];
+    foreach($order->orderDetails as $orderItem) {
+      $orderItems[] = [
+        'sku'         => $orderItem->productVariation->sku,
+        'name'        => $orderItem->name_snapshot,
+        'price'       => floor($orderItem->price),
+        'quantity'    => $orderItem->quantity,
+        'product_url' => route('products.details', ['productSlug' => $orderItem->product->slug]),
+        'image_url'   => 'https://tokokamu.com/product/nama-produk-1.jpg',
+      ];
+    }
+
+    if ($order->shipping_price) {
+      $orderItems[] = [
+        'name'      => 'Pengiriman',
+        'price'     => $order->shipping_price,
+        'quantity'  => 1,
+      ];
+    }
+
     $data = [
-      'method'         => 'QRISC',
-      'merchant_ref'   => $merchantRef,
-      'amount'         => $amount,
-      'customer_name'  => 'Nama Pelanggan',
-      'customer_email' => 'emailpelanggan@domain.com',
-      'customer_phone' => '081234567890',
-      'order_items'    => [
-        [
-          'sku'         => 'FB-06',
-          'name'        => 'Nama Produk 1',
-          'price'       => 50000,
-          'quantity'    => 1,
-          'product_url' => 'https://tokokamu.com/product/nama-produk-1',
-          'image_url'   => 'https://tokokamu.com/product/nama-produk-1.jpg',
-        ],
-        [
-          'sku'         => 'FB-07',
-          'name'        => 'Nama Produk 2',
-          'price'       => 50000,
-          'quantity'    => 1,
-          'product_url' => 'https://tokokamu.com/product/nama-produk-2',
-          'image_url'   => 'https://tokokamu.com/product/nama-produk-2.jpg',
-        ]
-      ],
-      'return_url'   => 'https://domainanda.com/redirect',
-      'expired_time' => (time() + (24 * 60 * 60)), // 24 hour
-      'signature'    => self::signature($merchantRef, $amount)
+      'method'          => $order->payment_method,
+      'merchant_ref'    => $order->code,
+      'amount'          => $order->grand_total,
+      'customer_name'   => $order->recipient_name,
+      'customer_email'  => 'emailpelanggan@domain.com',
+      'customer_phone'  => '081234567890',
+      'order_items'     => $orderItems,
+      'return_url'      => 'https://domainanda.com/redirect',
+      'expired_time'    => (time() + (24 * 60 * 60)), // 24 hour
+      'signature'       => self::signature($order->code, $order->grand_total)
     ];
 
     $response = $instance->tripay->post('/transaction/create', $data);
 
     if (!$response->successful()) {
-      Log::channel('tripay')->error('requestTransaction: ' . $response->body());
-      return [];
+      Log::channel('tripay')->error('requestTransaction request: ', $data);
+      Log::channel('tripay')->error('requestTransaction response: ' . $response->body());
+      return $response->json();
     }
 
     return $response->json();
