@@ -1,5 +1,6 @@
 $(function(){
   let isEditShippingForm = false;
+  let paymentChannels = [];
 
   let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
     ? JSON.parse(localStorage.getItem(LOCAL_KEY.SHIPPING))
@@ -9,17 +10,18 @@ $(function(){
     $('#selected-address').text(`${currentShippingForm.receiver_name} - ${currentShippingForm.address_full}`);
   }
 
-  const regionSelectizeConfig = {
+  const selectizeConfig = {
     valueField: 'id',
     labelField: 'name',
     searchField: 'name',
   };
 
-  const proviceSelectEl = $('#province_id').selectize(regionSelectizeConfig);
-  const regencySelectEl = $('#regency_id').selectize(regionSelectizeConfig);
-  const districtSelectEl = $('#district_id').selectize(regionSelectizeConfig);
-  const villageSelectEl = $('#village_id').selectize(regionSelectizeConfig);
-  const postalSelectEl = $('#postal_code').selectize(regionSelectizeConfig);
+  const proviceSelectEl = $('#province_id').selectize(selectizeConfig);
+  const regencySelectEl = $('#regency_id').selectize(selectizeConfig);
+  const districtSelectEl = $('#district_id').selectize(selectizeConfig);
+  const villageSelectEl = $('#village_id').selectize(selectizeConfig);
+  const postalSelectEl = $('#postal_code').selectize(selectizeConfig);
+  const paymentMethodSelectEl = $('#payment_method').selectize(selectizeConfig);
 
   const appendOptions = (selectizeEl, options, initValue = null) => {
     const control = selectizeEl[0].selectize;
@@ -61,6 +63,12 @@ $(function(){
     });
   }
 
+  const getPaymentChannels = async () => {
+    paymentChannels = await $.getJSON(`/api/payments/channels`);
+    const remapChannels = paymentChannels.map(item => ({ id: item.code, name: item.name }));
+    appendOptions(paymentMethodSelectEl, remapChannels);
+  }
+
   $.getJSON('/api/carts').then(response => {
     const cartItemsCard = response.map(item => CartItemCard({
       imageUrl: item.product_image?.url,
@@ -79,6 +87,7 @@ $(function(){
       $(this).text('Simpan');
       $('#btn-pay').addClass('d-none');
       $('#selected-address').addClass('d-none');
+      $('#delivery-options').addClass('d-none');
       $('#shipping-form').removeClass('d-none');
       isEditShippingForm = true;
     } else {
@@ -86,6 +95,7 @@ $(function(){
       saveShippingForm();
       $('#btn-pay').removeClass('d-none');
       $('#selected-address').removeClass('d-none');
+      $('#delivery-options').removeClass('d-none');
       $('#shipping-form').addClass('d-none');
       isEditShippingForm = false;
     }
@@ -183,4 +193,6 @@ $(function(){
     $('#address').val(currentShippingForm?.address || '');
     $('#shipping_note').val(currentShippingForm?.shipping_note || '');
   });
+
+  getPaymentChannels();
 });

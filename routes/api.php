@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
@@ -24,6 +25,10 @@ Route::prefix('region')->group(function(){
   Route::get('provinces/{province}/regencies/{regency}/districts', [RegionController::class, 'districts']);
   Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [RegionController::class, 'villages']);
   Route::get('postal-code/{village}', [RegionController::class, 'postalCode']);
+});
+
+Route::prefix('payments')->group(function(){
+  Route::get('channels', [PaymentController::class, 'channels']);
 });
 
 Route::prefix('products')->group(function(){

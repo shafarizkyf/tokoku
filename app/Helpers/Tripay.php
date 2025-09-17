@@ -8,10 +8,22 @@ use Illuminate\Support\Facades\Log;
 class Tripay {
 
   public $tripay;
- 
+
   function __construct() {
     $this->tripay = Http::baseUrl(env('TRIPAY_URL', 'https://tripay.co.id/api-sandbox'))
       ->withHeader('Authorization', "Bearer " . env('TRIPAY_MERCHANT_API_KEY'));
+  }
+
+  public static function paymentChannels() {
+    $instance = new self();
+    $response = $instance->tripay->get('/merchant/payment-channel');
+
+    if (!$response->successful()) {
+      Log::channel('tripay')->error('paymentChannels: ' . $response->body());
+      return [];
+    }
+
+    return $response->json();
   }
 
   private static function signature($merchantRef, $amount) {
@@ -56,7 +68,7 @@ class Tripay {
 
     if (!$response->successful()) {
       Log::channel('tripay')->error('requestTransaction: ' . $response->body());
-      return false;
+      return [];
     }
 
     return $response->json();
