@@ -34,4 +34,31 @@ class Komerce {
     return $response->json();
   }
 
+    public static function calculateByPostalCode(string $postalCode): array {
+      $destination = self::searchDestination($postalCode);
+      if (!isset($destination['data']) || (isset($destination['data']) && !count($destination['data']))) {
+        return [];
+      }
+
+      $shippingOptions = self::calculate($destination['data'][0]['id']);
+
+      // e.g: reguler, cargo, instant
+      $shippingTypes = array_keys($shippingOptions['data']);
+
+      // remap because there are informations user shouldnt know about
+      $remapShippingOptions = [];
+      foreach($shippingTypes as $shippingType) {
+        foreach($shippingOptions['data'][$shippingType] as $option) {
+          $remapShippingOptions[] = [
+            'shipping_name' => $option['shipping_name'],
+            'service_name' => $option['service_name'],
+            'shipping_cost' => $option['shipping_cost'],
+            'etd' => $option['etd'],
+          ];
+        }
+      }
+
+      return $remapShippingOptions;
+    }
+
 }

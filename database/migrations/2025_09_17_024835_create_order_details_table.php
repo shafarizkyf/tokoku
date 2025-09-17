@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('variation_id');
+            $table->unsignedBigInteger('product_variation_id');
             $table->string('name_snapshot');
-            $table->decimal('price');
+            $table->decimal('price', 12);
             $table->unsignedMediumInteger('quantity');
+            $table->decimal('discount', 12)->default(0);
+            $table->decimal('subtotal', 12);
             $table->unsignedMediumInteger('weight');
             $table->timestamps();
         });

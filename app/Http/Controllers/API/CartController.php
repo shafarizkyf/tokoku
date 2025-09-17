@@ -36,6 +36,7 @@ class CartController extends Controller {
           'cart_item_id' => $cartItem->id,
           'product_name' => $cartItem->product->name,
           'product_image' => $cartItem->product->images->count() ? $cartItem->product->images[0] : null,
+          'product_variation_id' => $cartItem->product_variation_id,
           'quantity' => $cartItem->quantity,
           'price' => $cartItem->price_at_time,
           'price_discount' => $cartItem->price_discount_at_time,

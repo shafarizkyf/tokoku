@@ -110,9 +110,9 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
   `;
 }
 
-const DeliveryOptionCard = ({ name, cost, estimation }) => {
+const DeliveryOptionCard = ({ name, cost, estimation, index }) => {
   return `
-    <div class="card delivery-option" role="button">
+    <div class="card delivery-option" role="button" data-index="${index}">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <p class="m-0 fw-medium">${name}</p>

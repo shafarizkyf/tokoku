@@ -1,5 +1,7 @@
 $(function(){
   let isEditShippingForm = false;
+  let cartItems = [];
+  let deliveryOptions = [];
   let paymentChannels = [];
 
   let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
@@ -70,6 +72,7 @@ $(function(){
   }
 
   $.getJSON('/api/carts').then(response => {
+    cartItems = response;
     const cartItemsCard = response.map(item => CartItemCard({
       imageUrl: item.product_image?.url,
       price: item.price_discount || item.price,
@@ -174,17 +177,36 @@ $(function(){
     }
 
     $('#delivery-options').empty();
-    const deliveryOptions = await getDeliveryOptions(value);
-    deliveryOptions.forEach(item => {
+    deliveryOptions = await getDeliveryOptions(value);
+    deliveryOptions.forEach((item, index) => {
       const cardEl = DeliveryOptionCard({
         name: `${item.shipping_name} - ${item.service_name}`,
         cost: item.shipping_cost,
-        estimation: item.etd
+        estimation: item.etd,
+        index
       });
 
       $('#delivery-options').append(cardEl);
       $('#delivery-options .card').eq(0).addClass('border-primary')
     });
+  });
+
+  $('#btn-pay').on('click', function(e){
+    e.preventDefault();
+    const selectedDeliveryIndex = $('.card.delivery-option.border-primary').data('index');
+    const orderItems = cartItems.map(item => ({
+      product_variation_id: item.product_variation_id,
+      quantity: item.quantity,
+    }));
+
+    const order = {
+      items: orderItems,
+      payment_method: $('#payment_method').val(),
+      shipping: currentShippingForm,
+      delivery: deliveryOptions[selectedDeliveryIndex]
+    }
+
+    console.log({ order })
   });
 
   getProvinces().then(response => {
