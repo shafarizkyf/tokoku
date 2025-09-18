@@ -7,6 +7,7 @@ use App\Helpers\Tripay;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\ProductVariation;
@@ -99,6 +100,13 @@ class OrderController extends Controller {
           'message' => $response['message'],
         ], 400);
       } else {
+
+        // clear cart items
+        $cart = Cart::whereSessionId(request()->cookie('session_id'))->first();
+        if ($cart) {
+          $cart->items()->delete();
+        }
+
         $response = response([
           'success' => true,
           'message' => 'Pesanan diterima',
