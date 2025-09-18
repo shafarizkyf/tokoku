@@ -21,20 +21,23 @@ class CartItem extends Model {
   }
 
   protected static function booted(): void {
-    static::created(function(){
-      Cache::forget('cartItems');
+    $sessionId = request()->cookie('session_id');
+    $cacheKey = "cartItems.{$sessionId}";
+
+    static::created(function() use ($cacheKey) {
+      Cache::forget($cacheKey);
     });
 
-    static::saved(function(){
-      Cache::forget('cartItems');
+    static::saved(function() use ($cacheKey) {
+      Cache::forget($cacheKey);
     });
 
-    static::updated(function(){
-      Cache::forget('cartItems');
+    static::updated(function() use ($cacheKey) {
+      Cache::forget($cacheKey);
     });
 
-    static::deleted(function(){
-      Cache::forget('cartItems');
+    static::deleted(function() use ($cacheKey) {
+      Cache::forget($cacheKey);
     });
   }
 

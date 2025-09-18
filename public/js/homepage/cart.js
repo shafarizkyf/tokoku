@@ -178,7 +178,9 @@ $(function(){
     $.post(`/api/carts/items/${id}`, {
       _method: 'DELETE'
     }).then(response => {
+      cartItems = cartItems.filter(item => item.cart_item_id !== id);
       $(this).closest('.card').remove();
+      updateGrandTotal();
     });
   });
 

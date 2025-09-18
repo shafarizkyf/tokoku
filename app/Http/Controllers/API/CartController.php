@@ -14,11 +14,12 @@ use Illuminate\Support\Facades\Log;
 class CartController extends Controller {
 
   public function index() {
-    return Cache::remember('cartItems', now()->add('hour', 1), function(){
+    $sessionId = request()->cookie('session_id');
+    return Cache::remember("cartItems.{$sessionId}", now()->add('hour', 1), function()use ($sessionId) {
       $cart = Cart::with([
         'items.product:id,name',
         'items.productVariation.variationOptions.variationOption'
-      ])->first();
+      ])->whereSessionId($sessionId)->first();
 
       $cartItems = [];
 
