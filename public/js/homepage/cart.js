@@ -250,7 +250,7 @@ $(function(){
     deliveryOptions.forEach((item, index) => {
       const cardEl = DeliveryOptionCard({
         name: `${item.shipping_name} - ${item.service_name}`,
-        cost: item.shipping_cost,
+        cost: currencyFormat.format(item.shipping_cost),
         estimation: item.etd,
         index
       });
