@@ -19,7 +19,9 @@
                   <img src="{{ $orderItem->product->image->url }}" class="img-thumbnail" alt="" style="height: 100px">
                   <div class="w-100">
                     <p class="m-0 fs-6 text-ellipsis">{{ $orderItem->name_snapshot }}</p>
-                    <p class="m-0 variation text-muted"></p>
+                    @foreach($orderItem->productVariation()->options()->get() as $option)
+                      <p class="m-0 variation badge rounded-pill text-bg-secondary">{{ $option->option_name }}</p>
+                    @endforeach
                     <p class="m-0 text-muted">{{ $orderItem->quantity }} x {{ App\Helpers\Utils::currencyFormat($orderItem->price) }}</p>
                   </div>
                   <div class="d-flex">

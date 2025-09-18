@@ -286,7 +286,7 @@ $(function(){
       if (response.success && response?.data?.url) {
         location.href = response.data.url;
       }
-    }).fail(function(error) {
+    }).fail((error) => {
       $(this).text('Bayar');
       $(this).removeAttr('disabled', 'disabled');
       console.error(error);
