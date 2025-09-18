@@ -11,8 +11,15 @@
 
 @section('content')
   <div class="container cart">
-    <h1 class="h3">Keranjang</h1>
-    <div class="row mt-4">
+    <h1 class="h3 d-none">Keranjang</h1>
+    <div class="p-5 mb-4 bg-body-tertiary rounded-3 d-none" id="cart-empty-content">
+      <div class="container-fluid py-5">
+        <h3 class="fw-bold">Hemat pangkal kaya!</h3>
+        <p class="col-md-8 fs-6">Keranjangmu kosong, namun kami persilahkan jika ingin berbelanja</p>
+        <a href="/" class="btn btn-primary btn-lg">Belanja</a>
+      </div>
+    </div>
+    <div class="row mt-4 d-none" id="cart-content">
       <div class="col-md-8">
         <div class="d-grid gap-3">
           <div class="cart-items"></div>

@@ -137,8 +137,22 @@ $(function(){
     $('#grand-total').text(currencyFormat.format(getGrandTotal()));
   }
 
+  const toggleContainerVisibility = (hasItem = false) => {
+    if (hasItem) {
+      $('h1').removeClass('d-none');
+      $('#cart-content').removeClass('d-none');
+    } else {
+      $('#cart-empty-content').removeClass('d-none');
+      $('#cart-content').addClass('d-none');
+      $('h1').addClass('d-none');
+    }
+  }
+
   $.getJSON('/api/carts').then(response => {
     cartItems = response;
+
+    toggleContainerVisibility(response.length > 0)
+
     const cartItemsCard = response.map(item => CartItemCard({
       imageUrl: item.product_image?.url,
       price: item.price_discount || item.price,
@@ -179,6 +193,8 @@ $(function(){
       _method: 'DELETE'
     }).then(response => {
       cartItems = cartItems.filter(item => item.cart_item_id !== id);
+      toggleContainerVisibility(cartItems.length > 0);
+
       $(this).closest('.card').remove();
       updateGrandTotal();
     });
@@ -243,7 +259,9 @@ $(function(){
 
   $('#postal_code').on('change', async function(){
     const value = $(this).val();
-    if (!value) {
+
+    // to not fetch delivery options
+    if (!value || !cartItems.length) {
       return;
     }
 
