@@ -278,7 +278,19 @@ $(function(){
       delivery: getPreferredDelivery(),
     }
 
-    console.log({ order })
+    console.info('order', order);
+
+    $(this).text('Mohon tunggu...');
+    $(this).attr('disabled', 'disabled');
+    $.post('/api/orders', order).then(response => {
+      if (response.success && response?.data?.url) {
+        location.href = response.data.url;
+      }
+    }).fail(function(error) {
+      $(this).text('Bayar');
+      $(this).removeAttr('disabled', 'disabled');
+      console.error(error);
+    })
   });
 
   getProvinces().then(response => {

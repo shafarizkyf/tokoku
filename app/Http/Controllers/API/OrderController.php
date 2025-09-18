@@ -103,7 +103,7 @@ class OrderController extends Controller {
           'success' => true,
           'message' => 'Pesanan diterima',
           'data' => [
-            'payment' => $response,
+            'url' => route('orders.details', ['orderCode' => $order->code]),
           ],
         ], 200);
       }
