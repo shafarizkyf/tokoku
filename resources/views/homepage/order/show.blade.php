@@ -49,16 +49,31 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
-          <div class="card-body">
-            @component('components.transaction-details', [
-              'paymentMethod' => $order->payment_method,
-              'itemCount' => $order->orderDetails->count(),
-              'costItems' => App\Helpers\Utils::currencyFormat($order->total_price),
-              'costShipping' => App\Helpers\Utils::currencyFormat($order->shipping_price),
-              'costProcessing' => App\Helpers\Utils::currencyFormat($order->payment_fee),
-              'grandTotal' => App\Helpers\Utils::currencyFormat($order->grand_total)
-            ]) @endcomponent
+        <div class="d-grid gap-3">
+          @if($order->status == 'pending')
+            <div class="card">
+              <div class="card-body">
+                <h6>Menunggu Pembayaran</h6>
+                <dl class="row">
+                  <dt class="col-sm-4 fw-normal">Metode</dt>
+                  <dd class="col-sm-8 text-md-end">{{ $order->payment_response->data->payment_name }}</dd>
+                  <dt class="col-sm-4 fw-normal">Nomor</dt>
+                  <dd class="col-sm-8 text-md-end">{{ $order->payment_response->data->pay_code }}</dd>
+                </dl>
+              </div>
+            </div>
+          @endif
+          <div class="card">
+            <div class="card-body">
+              @component('components.transaction-details', [
+                'paymentMethod' => !$order->status == 'pending' ? $order->payment_response->data->payment_name : null,
+                'itemCount' => $order->orderDetails->count(),
+                'costItems' => App\Helpers\Utils::currencyFormat($order->total_price),
+                'costShipping' => App\Helpers\Utils::currencyFormat($order->shipping_price),
+                'costProcessing' => App\Helpers\Utils::currencyFormat($order->payment_fee),
+                'grandTotal' => App\Helpers\Utils::currencyFormat($order->grand_total)
+              ]) @endcomponent
+            </div>
           </div>
         </div>
       </div>
