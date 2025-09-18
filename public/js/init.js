@@ -18,6 +18,9 @@ const on = (element, type, selector, handler) => {
   });
 };
 
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 $.ajaxSetup({
   beforeSend: function (xhr) {
     // xhr.setRequestHeader('Authorization', `Bearer ${token}`);

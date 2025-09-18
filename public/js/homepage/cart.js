@@ -71,6 +71,72 @@ $(function(){
     appendOptions(paymentMethodSelectEl, remapChannels);
   }
 
+  const getPreferredDelivery = () => {
+    const selectedDeliveryIndex = $('.card.delivery-option.border-primary').data('index');
+    return deliveryOptions[selectedDeliveryIndex]
+  }
+
+  const getPreferredPayment = () => {
+    const channelId = $('#payment_method').val();
+    return paymentChannels.find(item => item.code === channelId);
+  }
+
+  const getCostOfItems = () => {
+    return cartItems.reduce((a, b) => a + b.price, 0);
+  }
+
+  const getCostOfShipping = () => {
+    const preferredDelivery = getPreferredDelivery();
+    return preferredDelivery ? preferredDelivery['shipping_cost'] : 0;
+  }
+
+  const getCostOfProcessing = () => {
+    const preferredPayment = getPreferredPayment();
+    let totalFee = 0;
+    if (preferredPayment) {
+      const { flat, percent } = preferredPayment.total_fee;
+      totalFee = flat;
+      if (Number(percent)) {
+        const feeAmount = (getCostOfItems() + getCostOfShipping()) * Number(percent) / 100;
+        totalFee += feeAmount;
+      }
+    }
+
+    return totalFee;
+  }
+
+  const getGrandTotal = () => {
+    return getCostOfItems() +
+      getCostOfShipping() +
+      getCostOfProcessing()
+  }
+
+  const updateCostOfItems = () => {
+    $('#cost-items').text(currencyFormat.format(getCostOfItems()));
+    // need to update because some has % fee
+    updateCostOfProcessing();
+
+    updateGrandTotal();
+  }
+
+  const updateCostOfShipping = () => {
+    $('#cost-shipping').text(currencyFormat.format(getCostOfShipping()));
+    // need to update because some has % fee
+    updateCostOfProcessing();
+
+    updateGrandTotal();
+  }
+
+  const updateCostOfProcessing = () => {
+    $('#cost-proccessing').text(currencyFormat.format(getCostOfProcessing()));
+
+    updateGrandTotal();
+  }
+
+  const updateGrandTotal = () => {
+    $('#grand-total').text(currencyFormat.format(getGrandTotal()));
+  }
+
   $.getJSON('/api/carts').then(response => {
     cartItems = response;
     const cartItemsCard = response.map(item => CartItemCard({
@@ -83,6 +149,8 @@ $(function(){
     })).join('');
 
     $('.cart-items').append(cartItemsCard);
+
+    updateCostOfItems();
   });
 
   $('#btn-set-shipping').on('click', function(){
@@ -117,6 +185,7 @@ $(function(){
   $(document).on('click', '.card.delivery-option', function(){
     $('.card.delivery-option').removeClass('border-primary');
     $(this).addClass('border-primary');
+    updateCostOfShipping();
   });
 
   $('#province_id').on('change', function(){
@@ -187,13 +256,16 @@ $(function(){
       });
 
       $('#delivery-options').append(cardEl);
-      $('#delivery-options .card').eq(0).addClass('border-primary')
+      $('#delivery-options .card').eq(0).trigger('click');
     });
+  });
+
+  $('#payment_method').on('change', function(){
+    updateCostOfProcessing();
   });
 
   $('#btn-pay').on('click', function(e){
     e.preventDefault();
-    const selectedDeliveryIndex = $('.card.delivery-option.border-primary').data('index');
     const orderItems = cartItems.map(item => ({
       product_variation_id: item.product_variation_id,
       quantity: item.quantity,
@@ -203,7 +275,7 @@ $(function(){
       items: orderItems,
       payment_method: $('#payment_method').val(),
       shipping: currentShippingForm,
-      delivery: deliveryOptions[selectedDeliveryIndex]
+      delivery: getPreferredDelivery(),
     }
 
     console.log({ order })
