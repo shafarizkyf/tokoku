@@ -152,6 +152,11 @@ return [
             'path' => storage_path('logs/oauth.log'),
         ],
 
+        'email' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/email.log'),
+        ],
+
     ],
 
 ];

@@ -35,4 +35,9 @@ class GoogleOAuthController extends Controller {
     return redirect('/');
   }
 
+  // google oauth for web administrator, enabling gmail api
+  public function adminCallback() {
+    return request()->all();
+  }
+
 }
