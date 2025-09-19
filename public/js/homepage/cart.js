@@ -112,6 +112,7 @@ $(function(){
   }
 
   const updateCostOfItems = () => {
+    $('#item-count').text(cartItems.length);
     $('#cost-items').text(currencyFormat.format(getCostOfItems()));
     // need to update because some has % fee
     updateCostOfProcessing();
@@ -196,6 +197,8 @@ $(function(){
       toggleContainerVisibility(cartItems.length > 0);
 
       $(this).closest('.card').remove();
+    }).always(() => {
+      updateCostOfItems();
       updateGrandTotal();
     });
   });
