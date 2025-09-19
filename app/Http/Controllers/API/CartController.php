@@ -66,12 +66,15 @@ class CartController extends Controller {
 
       $productVariation = ProductVariation::find($request->product_variation_id);
 
-      $cartItem = new CartItem;
-      $cartItem->cart_id = $cart->id;
-      $cartItem->product_id = $request->product_id;
-      $cartItem->product_variation_id = $request->product_variation_id;
+      $cartItem = CartItem::firstOrNew([
+        'cart_id' => $cart->id,
+        'product_id' => $request->product_id,
+        'product_variation_id' => $request->product_variation_id,
+      ]);
+
       $cartItem->price_at_time = $productVariation->price;
       $cartItem->price_discount_at_time = $productVariation->discount_price;
+      $cartItem->quantity += 1;
       $cartItem->save();
 
       $response = response([

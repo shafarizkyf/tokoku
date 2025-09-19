@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Cache;
 
 class CartItem extends Model {
 
+  protected $fillable = [
+    'cart_id',
+    'product_id',
+    'product_variation_id',
+    'price_at_time',
+    'price_discount_at_time',
+  ];
+
   protected $hidden = [
     'cart_id',
     'created_at',
