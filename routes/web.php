@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
@@ -11,11 +12,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('', [HomepageController::class, 'index']);
 
 Route::prefix('auth')->group(function(){
-  Route::get('google', [GoogleOAuthController::class, 'redirect']);
+  Route::get('', [AuthController::class, 'index'])->name('login');
+  Route::get('google', [GoogleOAuthController::class, 'redirect'])->name('oauth.google');
   Route::get('google/callback', [GoogleOAuthController::class, 'callback']);
 });
 
-Route::get('carts', [CartController::class, 'index'])->name('carts.index');
+Route::middleware(['auth'])->group(function(){
+  Route::get('carts', [CartController::class, 'index'])->name('carts.index');
+});
 
 Route::prefix('orders')->group(function(){
   Route::get('', [OrderController::class, 'index'])->name('orders.index');
