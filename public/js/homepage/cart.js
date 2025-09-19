@@ -4,6 +4,10 @@ $(function(){
   let deliveryOptions = [];
   let paymentChannels = [];
 
+  // for cart item deletion
+  let tempCartItemId;
+  let tempCartItemEl;
+
   let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
     ? JSON.parse(localStorage.getItem(LOCAL_KEY.SHIPPING))
     : null
@@ -149,6 +153,23 @@ $(function(){
     }
   }
 
+  const deleteCartItem = () => {
+    $.post(`/api/carts/items/${tempCartItemId}`, {
+      _method: 'DELETE'
+    }).then(response => {
+      cartItems = cartItems.filter(item => item.cart_item_id !== tempCartItemId);
+      toggleContainerVisibility(cartItems.length > 0);
+
+      tempCartItemEl.closest('.card').remove();
+    }).always(() => {
+      $('#confirmModal').modal('hide');
+
+      refreshCartCounter();
+      updateCostOfItems();
+      updateGrandTotal();
+    });
+  }
+
   $.getJSON('/api/carts').then(response => {
     cartItems = response;
 
@@ -192,24 +213,20 @@ $(function(){
 
   $(document).on('click', 'button[name="btn-remove-item"]', function(e){
     e.preventDefault();
-    const id = $(this).closest('.card').data('id');
-    $.post(`/api/carts/items/${id}`, {
-      _method: 'DELETE'
-    }).then(response => {
-      cartItems = cartItems.filter(item => item.cart_item_id !== id);
-      toggleContainerVisibility(cartItems.length > 0);
-
-      $(this).closest('.card').remove();
-    }).always(() => {
-      updateCostOfItems();
-      updateGrandTotal();
-    });
+    tempCartItemId = $(this).closest('.card').data('id');
+    tempCartItemEl = $(this);
+    $('#confirmModal').modal('show');
   });
 
   $(document).on('click', '.card.delivery-option', function(){
     $('.card.delivery-option').removeClass('border-primary');
     $(this).addClass('border-primary');
     updateCostOfShipping();
+  });
+
+  $('button[name="btn-confirm-modal"]').on('click', function(e){
+    e.preventDefault();
+    deleteCartItem();
   });
 
   $('#province_id').on('change', function(){

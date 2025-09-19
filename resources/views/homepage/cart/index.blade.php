@@ -81,4 +81,6 @@
       </div>
     </div>
   </div>
+
+  @component('components.modal-confirm') @endcomponent
 @endsection
