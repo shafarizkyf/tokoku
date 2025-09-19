@@ -13,6 +13,7 @@ Route::get('', [HomepageController::class, 'index']);
 
 Route::prefix('auth')->group(function(){
   Route::get('', [AuthController::class, 'index'])->name('login');
+  Route::get('logout', [AuthController::class, 'logout'])->name('logout');
   Route::get('google', [GoogleOAuthController::class, 'redirect'])->name('oauth.google');
   Route::get('google/callback', [GoogleOAuthController::class, 'callback']);
 });

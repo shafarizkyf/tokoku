@@ -23,7 +23,8 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
 
 $.ajaxSetup({
   beforeSend: function (xhr) {
-    // xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    const token = $('meta[name="token"]').attr('content');
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
   },
   success: function (x, status, error) {
   },
