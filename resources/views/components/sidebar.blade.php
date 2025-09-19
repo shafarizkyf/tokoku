@@ -6,7 +6,13 @@
   <hr>
   <ul class="nav nav-pills flex-column mb-auto">
     <li class="nav-item">
-      <a href="{{ route('products.index') }}" class="nav-link active" aria-current="page">
+      <a href="{{ route('orders.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'orders.index' ? 'active' : '' }}" aria-current="page">
+        <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
+        Order
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{{ route('products.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'products.index' ? 'active' : '' }}" aria-current="page">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
         Produk
       </a>

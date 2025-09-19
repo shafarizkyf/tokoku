@@ -12,6 +12,7 @@ Route::get('', [HomepageController::class, 'index']);
 Route::get('carts', [CartController::class, 'index'])->name('carts.index');
 
 Route::prefix('orders')->group(function(){
+  Route::get('', [OrderController::class, 'index'])->name('orders.index');
   Route::get('{orderCode}', [OrderController::class, 'show'])->name('orders.details');
 });
 

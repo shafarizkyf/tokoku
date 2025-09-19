@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\DataTable;
 use App\Helpers\Komerce;
 use App\Helpers\Tripay;
 use App\Helpers\Utils;
@@ -16,6 +17,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller {
+
+  public function index() {
+    $orders = Order::with([
+      'orderDetails:id,order_id,product_id',
+      'orderDetails.product:id,name,slug',
+      'orderDetails.product.image',
+    ]);
+
+    return DataTable::ajaxTable($orders);
+  }
 
   public function store(StoreOrderRequest $request) {
     Log::channel('order')->info('store', $request->all());

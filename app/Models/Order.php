@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model {
 
+  public $appends = [
+    'order_status'
+  ];
+
   public function orderDetails() {
     return $this->hasMany(OrderDetail::class);
   }
@@ -24,11 +28,26 @@ class Order extends Model {
   }
 
   public function getPaymentFeeAttribute() {
-    return $this->payment_response ? $this->payment_response->data->total_fee : 0;
+    return $this->payment_response && isset($this->payment_response->data) ? $this->payment_response->data->total_fee : 0;
   }
 
   public function getGrandTotalAttribute($value) {
     return $value + $this->payment_fee;
+  }
+
+  public function getOrderStatusAttribute() {
+    switch ($this->status) {
+      case 'pending':
+        return 'Menunggu Pembayaran';
+      case 'paid':
+        return 'Dalam Proses';
+      case 'shipped':
+        return 'Dalam Pengiriman';
+      case 'completed':
+        return 'Selesai';
+      case 'cancelled':
+        return 'Dibatalkan';
+    }
   }
 
   public function district() {
@@ -45,6 +64,11 @@ class Order extends Model {
 
   public function village() {
     return $this->belongsTo(Village::class);
+  }
+
+  public function scopeSearch($query, $value) {
+    return $query->where('code', $value)
+      ->orWhere('recipient_name', 'like', "{$value}%");
   }
 
 }

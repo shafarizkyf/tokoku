@@ -5,7 +5,6 @@
 @endsection
 
 @section('js')
-  <script src="https://unpkg.com/infinite-scroll@5/dist/infinite-scroll.pkgd.min.js"></script>
   <script src="{{ asset('js/product/index.js') }}"></script>
 @endsection
 
