@@ -15,6 +15,26 @@ class ProductVariation extends Model {
     'sku'
   ];
 
+  protected static function booted() {
+    static::updated(function(ProductVariation $productVariation){
+      CartItem::whereProductVariationId($productVariation->id)->update([
+        'price_at_time' => $productVariation->price,
+        'price_discount_at_time' => $productVariation->discount_price,
+      ]);
+    });
+
+    static::saved(function(ProductVariation $productVariation){
+      CartItem::whereProductVariationId($productVariation->id)->update([
+        'price_at_time' => $productVariation->price,
+        'price_discount_at_time' => $productVariation->discount_price,
+      ]);
+    });
+
+    static::deleted(function(ProductVariation $productVariation){
+      CartItem::whereProductVariationId($productVariation->id)->delete();
+    });
+  }
+
   protected $hidden = [
     'product_id',
     'created_at',
