@@ -82,7 +82,7 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
   `
 }
 
-const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice }) => {
+const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal }) => {
   return `
     <div class="card" data-id="${id}">
       <div class="card-body">
@@ -91,10 +91,11 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
           <div class="w-100">
             <p class="m-0 fs-6 text-ellipsis">${productName}</p>
             <p class="m-0 variation text-muted">${productOptions.join(' - ')}</p>
+            <p class="m-0 text-muted">${quantity} x ${currencyFormat.format(originalPrice)}</p>
           </div>
           <div class="">
-            <p class="m-0">${currencyFormat.format(price)}</p>
-            ${originalPrice ? `<p class="m-0 text-muted text-decoration-line-through">${currencyFormat.format(originalPrice)}</p>` : ''}
+            <p class="m-0">${currencyFormat.format(subtotal)}</p>
+            ${subtotal !== subtotalOriginal ? `<p class="m-0 text-muted text-decoration-line-through">${currencyFormat.format(subtotalOriginal)}</p>` : ''}
           </div>
         </div>
         <div class="d-flex justify-content-end">

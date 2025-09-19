@@ -41,6 +41,7 @@ class CartController extends Controller {
           'quantity' => $cartItem->quantity,
           'price' => $cartItem->price_at_time,
           'price_discount' => $cartItem->price_discount_at_time,
+          'subtotal' => $cartItem->subtotal,
           'options' => $options,
         ];
       }

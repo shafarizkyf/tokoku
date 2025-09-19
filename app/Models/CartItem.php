@@ -21,6 +21,10 @@ class CartItem extends Model {
     'updated_at'
   ];
 
+  public $appends = [
+    'subtotal'
+  ];
+
   protected function casts() {
     return [
       'price_at_time' => 'double',
@@ -47,6 +51,10 @@ class CartItem extends Model {
     static::deleted(function() use ($cacheKey) {
       Cache::forget($cacheKey);
     });
+  }
+
+  public function getSubtotalAttribute() {
+    return $this->quantity * ($this->price_discount_at_time ?? $this->price_at_time);
   }
 
   public function product() {

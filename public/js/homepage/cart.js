@@ -161,6 +161,9 @@ $(function(){
       productName: item.product_name,
       productOptions: item.options,
       id: item.cart_item_id,
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+      subtotalOriginal: item.price * item.quantity,
     })).join('');
 
     $('.cart-items').append(cartItemsCard);
