@@ -104,6 +104,9 @@ $(function(){
       quantity: 1,
     };
 
-    $.post(`/api/carts`, data).then(refreshCartCounter);
+    $.post(`/api/carts`, data).then((response) => {
+      refreshCartCounter();
+      toast({ text: response.message });
+    });
   });
 });

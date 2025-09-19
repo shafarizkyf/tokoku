@@ -76,7 +76,7 @@ class CartController extends Controller {
 
       $response = response([
         'success' => true,
-        'message' => 'Saved'
+        'message' => 'Barang telah ditambahkan ke keranjang'
       ]);
     });
 

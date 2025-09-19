@@ -69,7 +69,6 @@
           <div class="card-body">
             <div class="d-grid gap-2">
               <button type="button" class="btn btn-primary" name="btn-add-to-cart">+ Keranjang</button>
-              <button type="button" class="btn btn-outline-primary">Beli Sekarang</button>
             </div>
           </div>
         </div>

@@ -57,6 +57,19 @@ $.ajaxSetup({
   }
 });
 
+const toast = ({ text, duration = 3000 }) => {
+  Toastify({
+    text,
+    duration,
+    gravity: "top", // `top` or `bottom`
+    position: "right", // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+      background: "linear-gradient(to right, #535BED, #2DA1CF)",
+    },
+  }).showToast();
+}
+
 const refreshCartCounter = () => {
   $.getJSON('/api/carts/count').then(response => {
     $('#cart-counter').text(response.items_count > 99 ? '99+' : response.items_count);
