@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCartRequest;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariation;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,12 +15,12 @@ use Illuminate\Support\Facades\Log;
 class CartController extends Controller {
 
   public function index() {
-    $sessionId = request()->cookie('session_id');
-    return Cache::remember("cartItems.{$sessionId}", now()->add('hour', 1), function()use ($sessionId) {
+    $user = Auth::user();
+    return Cache::remember("cartItems.{$user->id}", now()->add('hour', 1), function() use ($user) {
       $cart = Cart::with([
         'items.product:id,name',
         'items.productVariation.variationOptions.variationOption'
-      ])->whereSessionId($sessionId)->first();
+      ])->whereUserId($user->id)->first();
 
       $cartItems = [];
 
@@ -51,8 +52,9 @@ class CartController extends Controller {
   }
 
   public function store(StoreCartRequest $request) {
+    $user = Auth::user();
     Log::channel('cart')->info('atc', array_merge(request()->all(), [
-      'session_id' => request()->cookie('session_id')
+      'user_id' => $user->id
     ]));
 
     $response = response([
@@ -60,9 +62,9 @@ class CartController extends Controller {
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function() use ($request, &$response) {
+    DB::transaction(function() use ($request, &$response, $user) {
       $cart = Cart::updateOrCreate([
-        'session_id' => $request->cookie('session_id'),
+        'user_id' => $user->id,
       ]);
 
       $productVariation = ProductVariation::find($request->product_variation_id);

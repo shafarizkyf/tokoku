@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class CartItem extends Model {
@@ -33,8 +34,8 @@ class CartItem extends Model {
   }
 
   protected static function booted(): void {
-    $sessionId = request()->cookie('session_id');
-    $cacheKey = "cartItems.{$sessionId}";
+    $userId = Auth::id();
+    $cacheKey = "cartItems.{$userId}";
 
     static::created(function() use ($cacheKey) {
       Cache::forget($cacheKey);

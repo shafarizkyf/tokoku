@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\ProductVariation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -113,7 +114,7 @@ class OrderController extends Controller {
       } else {
 
         // clear cart items
-        $cart = Cart::whereSessionId(request()->cookie('session_id'))->first();
+        $cart = Cart::whereSessionId(Auth::id())->first();
         if ($cart) {
           $cart->items()->delete();
         }

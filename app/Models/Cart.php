@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Cart extends Model {
 
@@ -19,8 +20,10 @@ class Cart extends Model {
   ];
 
   protected static function booted(): void {
-    static::addGlobalScope('session_id', function (Builder $builder) {
-      $builder->where('session_id', request()->cookie('session_id'));
+    static::addGlobalScope('user_id', function (Builder $builder) {
+      if ($user = Auth::user()) {
+        $builder->where('user_id', $user->id);
+      }
     });
   }
 
