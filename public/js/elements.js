@@ -1,10 +1,10 @@
 const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self' }) => {
   return `
-    <div class="product card" style="width: calc(100% / 5 - 1rem);">
+    <a href="${viewUrl}" target="${target}" class="product text-decoration-none card" style="width: calc(100% / 5 - 1rem);">
       <img src="${imageUrl}" class="card-img-top" alt="${title}">
       <div class="card-body">
         <h5 class="card-title text-ellipsis">
-          <a href="${viewUrl}" target="${target}">${title}</a>
+          <span>${title}</span>
         </h5>
         <div class="d-flex align-items-center gap-1 mb-3">
           ${discountPrice
@@ -13,7 +13,7 @@ const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, c
         </div>
         ${children}
       </div>
-    </div>
+    </a>
   `
 }
 
