@@ -22,6 +22,10 @@ Route::middleware(['auth'])->group(function(){
   Route::get('carts', [CartController::class, 'index'])->name('carts.index');
 });
 
+Route::prefix('emails')->group(function(){
+  Route::get('orders/{order}', [OrderController::class, 'orderEmailPreview']);
+});
+
 Route::prefix('orders')->group(function(){
   Route::get('', [OrderController::class, 'index'])->name('orders.index');
   Route::get('{orderCode}', [OrderController::class, 'show'])->name('orders.details');

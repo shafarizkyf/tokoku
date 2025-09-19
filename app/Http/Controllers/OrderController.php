@@ -16,4 +16,8 @@ class OrderController extends Controller {
     return view('homepage.order.show', compact('order'));
   }
 
+  public function orderEmailPreview(Order $order) {
+    return view('email.order', compact('order'));
+  }
+
 }

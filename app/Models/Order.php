@@ -10,6 +10,12 @@ class Order extends Model {
     'order_status'
   ];
 
+  protected function casts() {
+    return [
+      'created_at' => 'datetime'
+    ];
+  }
+
   public function orderDetails() {
     return $this->hasMany(OrderDetail::class);
   }
