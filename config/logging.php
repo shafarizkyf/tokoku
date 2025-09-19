@@ -147,6 +147,11 @@ return [
             'path' => storage_path('logs/order.log'),
         ],
 
+        'oauth' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/oauth.log'),
+        ],
+
     ],
 
 ];

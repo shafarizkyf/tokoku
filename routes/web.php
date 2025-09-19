@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleOAuthController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\OrderController;
@@ -8,6 +9,11 @@ use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
+
+Route::prefix('auth')->group(function(){
+  Route::get('google', [GoogleOAuthController::class, 'redirect']);
+  Route::get('google/callback', [GoogleOAuthController::class, 'callback']);
+});
 
 Route::get('carts', [CartController::class, 'index'])->name('carts.index');
 
