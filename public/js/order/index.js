@@ -29,12 +29,12 @@ $(function(){
             `
               <div class="d-flex justify-content-end">
                 <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-primary btn-sm">Lihat Detail Transaksi</button>
+                  <a href="/orders/${item.code}" class="btn btn-primary btn-sm">Lihat Detail Transaksi</a>
                   <div class="btn-group" role="group">
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">Dropdown link</a></li>
-                      <li><a class="dropdown-item" href="#">Dropdown link</a></li>
+                      <li><a class="dropdown-item" href="#">Atur Pengiriman</a></li>
+                      <li><button class="dropdown-item text-danger" href="#">Batalkan Order</button></li>
                     </ul>
                   </div>
                 </div>
