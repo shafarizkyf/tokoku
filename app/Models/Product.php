@@ -32,6 +32,10 @@ class Product extends Model {
     ];
   }
 
+  public function getDescriptionAttribute($value) {
+    return strip_tags($value);
+  }
+
   public function image() {
     return $this->hasOne(ProductImage::class);
   }

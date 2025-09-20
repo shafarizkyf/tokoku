@@ -110,6 +110,34 @@ table td h5 {
   overflow-y: auto;
 }
 
+.description {
+  height: 250px;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.description.expand {
+  height: auto;
+}
+
+.btn-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-toggle .icon {
+  transition: transform 0.3s ease;
+}
+
+.description.expand + .btn-toggle .icon {
+  transform: rotate(180deg);
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 

@@ -109,4 +109,23 @@ $(function(){
       toast({ text: response.message });
     });
   });
+
+  // toggle full description
+  document.querySelectorAll(".btn-toggle").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const desc = this.previousElementSibling;
+      desc.classList.toggle("expand");
+
+      const text = this.querySelector(".text");
+      text.textContent = desc.classList.contains("expand")
+        ? "Tutup"
+        : "Lihat Selengkapnya";
+    });
+  });
+
+  // unhide show full description toogle
+  const { height: descriptionHeight } = $('.description p')[0].getBoundingClientRect();
+  if (descriptionHeight >= 250) {
+    $('.description-wrapper button').removeClass('d-none');
+  }
 });
