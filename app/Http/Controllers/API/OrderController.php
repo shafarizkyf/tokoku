@@ -59,7 +59,7 @@ class OrderController extends Controller {
 
         // remove decimal like 999.99 to 999 as indonesian currency does not apply this
         $totalPrice += floor($subtotal);
-        $totalWeightInGrams += 500;
+        $totalWeightInGrams += $productVariation->weight ?? 500;
         $orderItems[] = [
           'product_variation' => $productVariation,
           'quantity' => $item['quantity'],
@@ -71,6 +71,7 @@ class OrderController extends Controller {
       $grandTotal = $totalPrice + $shippingPrice;
 
       $order = new Order;
+      $order->user_id = Auth::id();
       $order->code = 'INV' . now()->format('Ymd')  . Utils::generateRandomCode(3);
       $order->payment_method = $request->payment_method;
       $order->total_price = $totalPrice;
