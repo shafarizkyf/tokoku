@@ -112,7 +112,7 @@
                     </div>
                     <div class="item-desc" role="gridcell">
                       <div style="font-weight:600; color:#0f172a;">{{ $orderItem->name_snapshot }}</div>
-                      <div style="font-size:13px; color:#64748b;">{{ '[variantName]' }}</div>
+                      <div style="font-size:13px; color:#64748b;">{{ $orderItem->variation_snapshot }}</div>
                     </div>
                     <div class="item-qty" role="gridcell">x{{ $orderItem->quantity }}</div>
                     <div class="item-price" role="gridcell">{{ App\Helpers\Utils::currencyFormat($orderItem->price) }}</div>

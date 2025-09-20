@@ -58,11 +58,17 @@ class OrderController extends Controller {
         $productVariation = ProductVariation::with(['product'])->find($item['product_variation_id']);
         $subtotal = floor($productVariation->price * $item['quantity']);
 
+        $options = [];
+        foreach($productVariation->variationOptions as $variationOption) {
+          $options[] = $variationOption->variationOption->value;
+        }
+
         // remove decimal like 999.99 to 999 as indonesian currency does not apply this
         $totalPrice += floor($subtotal);
         $totalWeightInGrams += $productVariation->weight ?? 500;
         $orderItems[] = [
           'product_variation' => $productVariation,
+          'variation_snapshot' => join(',', $options),
           'quantity' => $item['quantity'],
           'subtotal' => $subtotal,
         ];
@@ -97,6 +103,7 @@ class OrderController extends Controller {
         $orderDetail->product_id = $orderItem['product_variation']->product_id;
         $orderDetail->product_variation_id = $orderItem['product_variation']->id;
         $orderDetail->name_snapshot = $orderItem['product_variation']->product->name;
+        $orderDetail->variation_snapshot = $orderItem['variation_snapshot'];
         $orderDetail->price = $orderItem['product_variation']->price;
         $orderDetail->quantity = $orderItem['quantity'];
         $orderDetail->subtotal = $orderItem['subtotal'];

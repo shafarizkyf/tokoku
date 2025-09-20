@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('product_variation_id');
             $table->string('name_snapshot');
+            $table->string('variation_snapshot')->nullable();
             $table->decimal('price', 12);
             $table->unsignedMediumInteger('quantity');
             $table->decimal('discount', 12)->default(0);

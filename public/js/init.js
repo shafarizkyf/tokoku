@@ -32,7 +32,8 @@ $.ajaxSetup({
   error: function (x, status, error) {
     let message = 'Unexpected Error';
     if (x.status === 401) {
-      message = 'Mohon untuk login terlebih dahulu';
+      $('#loginModal').modal('show');
+      message = '';
     } else if (x.status === 404) {
       message = 'Data not found';
     } else if (x.status === 403) {
