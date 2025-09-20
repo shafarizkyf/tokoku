@@ -123,7 +123,7 @@ class OrderController extends Controller {
       } else {
 
         // clear cart items
-        $cart = Cart::whereSessionId(Auth::id())->first();
+        $cart = Cart::whereUserId(Auth::id())->first();
         if ($cart) {
           $cart->items()->delete();
         }
