@@ -1,3 +1,5 @@
+const token = $('meta[name="token"]').attr('content');
+
 const currencyFormat = new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
@@ -23,7 +25,6 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
 
 $.ajaxSetup({
   beforeSend: function (xhr) {
-    const token = $('meta[name="token"]').attr('content');
     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
   },
   success: function (x, status, error) {
@@ -71,6 +72,8 @@ const toast = ({ text, duration = 3000 }) => {
 }
 
 const refreshCartCounter = () => {
+  if (!token) return;
+
   $.getJSON('/api/carts/count').then(response => {
     $('#cart-counter').text(response.items_count > 99 ? '99+' : response.items_count);
   });
