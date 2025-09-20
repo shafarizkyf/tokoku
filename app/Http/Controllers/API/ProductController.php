@@ -63,6 +63,7 @@ class ProductController extends Controller {
           'product_id' => $product->id,
           'price' => $productUpdateRequest->price,
           'stock' => $productUpdateRequest->stock,
+          'weight' => $productUpdateRequest->weight,
         ]);
       } else {
         $this->saveProductVariations($product, $productUpdateRequest);
@@ -348,6 +349,7 @@ class ProductController extends Controller {
       ], [
         'price' => $variation['price'],
         'stock' => $variation['stock'],
+        'weight' => $variation['weight'],
       ]);
 
       foreach($variation['attributes'] as $attributeWithValue) {

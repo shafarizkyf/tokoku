@@ -12,7 +12,8 @@ class ProductVariation extends Model {
     'discount_price',
     'condition',
     'stock',
-    'sku'
+    'sku',
+    'weight',
   ];
 
   protected static function booted() {

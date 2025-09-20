@@ -46,6 +46,7 @@ $(function(){
             if (productVariation) {
               $(`input[name="price-${key}"]`).val(productVariation.price);
               $(`input[name="stock-${key}"]`).val(productVariation.stock);
+              $(`input[name="weight-${key}"]`).val(productVariation.weight);
             }
           });
         }, response.variations.length * 100);
