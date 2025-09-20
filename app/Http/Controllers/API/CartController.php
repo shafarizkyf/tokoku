@@ -18,7 +18,7 @@ class CartController extends Controller {
     $user = Auth::user();
     return Cache::remember("cartItems.{$user->id}", now()->add('hour', 1), function() use ($user) {
       $cart = Cart::with([
-        'items.product:id,name',
+        'items.product:id,name,slug',
         'items.productVariation.variationOptions.variationOption'
       ])->whereUserId($user->id)->first();
 
@@ -39,6 +39,7 @@ class CartController extends Controller {
           'product_name' => $cartItem->product->name,
           'product_image' => $cartItem->product->images->count() ? $cartItem->product->images[0] : null,
           'product_variation_id' => $cartItem->product_variation_id,
+          'product_url' => route('products.details', ['productSlug' => $cartItem->product->slug]),
           'quantity' => $cartItem->quantity,
           'price' => $cartItem->price_at_time,
           'price_discount' => $cartItem->price_discount_at_time,

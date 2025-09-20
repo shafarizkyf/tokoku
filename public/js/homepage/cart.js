@@ -185,6 +185,7 @@ $(function(){
       quantity: item.quantity,
       subtotal: item.subtotal,
       subtotalOriginal: item.price * item.quantity,
+      url: item.product_url,
     })).join('');
 
     $('.cart-items').append(cartItemsCard);

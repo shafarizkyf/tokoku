@@ -82,9 +82,9 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
   `
 }
 
-const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal }) => {
+const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal, url }) => {
   return `
-    <div class="card" data-id="${id}">
+    <a href="${url}" class="card text-decoration-none" data-id="${id}" role="button">
       <div class="card-body">
         <div class="d-flex gap-3">
           <img src="${imageUrl}" class="img-thumbnail" alt="">
@@ -107,7 +107,7 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
           </button>
         </div>
       </div>
-    </div>
+    </a>
   `;
 }
 
