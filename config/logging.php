@@ -157,6 +157,11 @@ return [
             'path' => storage_path('logs/email.log'),
         ],
 
+        'komerce' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/komerce.log'),
+        ],
+
     ],
 
 ];

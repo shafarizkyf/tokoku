@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Cart;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Komerce {
 
@@ -23,7 +24,7 @@ class Komerce {
     return $response->json();
   }
 
-  public static function calculate(string | int $destinationId, int $weight = 1, int $itemValue = 10000) {
+  public static function calculate(string | int $destinationId, float $weight = 1, int $itemValue = 10000) {
     $instance = new self();
     $response = $instance->komerce->get('tariff/api/v1/calculate', [
       'shipper_destination_id' => env('KOMERCE_SHIPPER_DESTINATION_ID'),
@@ -32,16 +33,24 @@ class Komerce {
       'item_value' => $itemValue
     ]);
 
+    if (!$response->successful()) {
+      Log::channel('komerce')->error('calculate: ' . $response->body());
+    }
+
     return $response->json();
   }
 
-  public static function calculateByPostalCode(string $postalCode, int $weight, int $itemValue): array {
+  public static function calculateByPostalCode(string $postalCode, float $weight, int $itemValue): array {
     $destination = self::searchDestination($postalCode);
     if (!isset($destination['data']) || (isset($destination['data']) && !count($destination['data']))) {
       return [];
     }
 
     $shippingOptions = self::calculate($destination['data'][0]['id'], $weight, $itemValue);
+
+    if (!isset($shippingOptions['data'])) {
+      return [];
+    }
 
     // e.g: reguler, cargo, instant
     $shippingTypes = array_keys($shippingOptions['data']);
