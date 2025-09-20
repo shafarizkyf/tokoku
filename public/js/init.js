@@ -32,7 +32,7 @@ $.ajaxSetup({
   error: function (x, status, error) {
     let message = 'Unexpected Error';
     if (x.status === 401) {
-      message = 'You don\'t have permission for this action';
+      message = 'Mohon untuk login terlebih dahulu';
     } else if (x.status === 404) {
       message = 'Data not found';
     } else if (x.status === 403) {
@@ -53,7 +53,7 @@ $.ajaxSetup({
     }
 
     if (message) {
-      alert(message, 'error');
+      toast({ text: message });
     }
   }
 });
