@@ -31,4 +31,24 @@ class Cart extends Model {
     return $this->hasMany(CartItem::class);
   }
 
+  public static function calculateWeightAndValue($userId) {
+    $totalWeightInGrams = 0;
+    $totalItemValue = 0;
+
+    $cart = self::whereUserId($userId)->first();
+    if ($cart) {
+      foreach($cart->items as $cartItem) {
+        $totalWeightInGrams += $cartItem->productVariation->weight ?? 500;
+        $totalItemValue += $cartItem->productVariation->discount_price ?? $cartItem->productVariation->price;
+      }
+    }
+
+    $totalWeightInKg = $totalWeightInGrams / 1000;
+
+    return [
+      'weight_in_kg' => $totalWeightInKg,
+      'package_value' => $totalItemValue
+    ];
+  }
+
 }

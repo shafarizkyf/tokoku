@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\Komerce;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ShippingController extends Controller {
 
@@ -13,7 +15,8 @@ class ShippingController extends Controller {
       'postal_code' => 'required|digits:5',
     ]);
 
-    $result = Komerce::calculateByPostalCode($request['postal_code']);
+    $cart = Cart::calculateWeightAndValue(Auth::id());
+    $result = Komerce::calculateByPostalCode($request['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     if (empty($result)) {
       return response(['message' => 'destination not found'], 404);
     }

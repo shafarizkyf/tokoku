@@ -37,7 +37,8 @@ class OrderController extends Controller {
       'message' => 'Unexpected Error'
     ], 500);
 
-    $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code']);
+    $cart = Cart::calculateWeightAndValue(Auth::id());
+    $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     $preferredDelivery = array_find($deliveryOptions, function($item)use ($request) {
       return $item['service_name'] == $request->delivery['service_name'] && $item['shipping_name'] == $request->delivery['shipping_name'];
     });
