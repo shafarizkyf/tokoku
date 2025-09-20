@@ -8,7 +8,7 @@
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <div class="position-relative w-100">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-          <ul class="search-result d-none"></ul>
+          <ul class="search-result shadow-lg d-none"></ul>
         </div>
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
           <li class="nav-item">
