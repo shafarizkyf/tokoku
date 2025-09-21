@@ -86,7 +86,7 @@ $(function(){
   }
 
   const getCostOfItems = () => {
-    return cartItems.reduce((a, b) => a + b.price, 0);
+    return cartItems.reduce((a, b) => a + (b.price_discount || b.price), 0);
   }
 
   const getCostOfShipping = () => {
@@ -154,6 +154,7 @@ $(function(){
   }
 
   const deleteCartItem = () => {
+    $('#confirmModal').modal('hide');
     $.post(`/api/carts/items/${tempCartItemId}`, {
       _method: 'DELETE'
     }).then(response => {
@@ -162,8 +163,6 @@ $(function(){
 
       tempCartItemEl.closest('.card').remove();
     }).always(() => {
-      $('#confirmModal').modal('hide');
-
       refreshCartCounter();
       updateCostOfItems();
       updateGrandTotal();

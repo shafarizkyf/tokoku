@@ -93,7 +93,7 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
             <p class="m-0 variation text-muted">${productOptions.join(' - ')}</p>
             <p class="m-0 text-muted">${quantity} x ${currencyFormat.format(originalPrice)}</p>
           </div>
-          <div class="">
+          <div class="text-end">
             <p class="m-0">${currencyFormat.format(subtotal)}</p>
             ${subtotal !== subtotalOriginal ? `<p class="m-0 text-muted text-decoration-line-through">${currencyFormat.format(subtotalOriginal)}</p>` : ''}
           </div>

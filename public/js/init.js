@@ -80,6 +80,11 @@ const refreshCartCounter = () => {
   });
 }
 
+const getUrlQuery = (key) => {
+  const url = new URL(location.href);
+  return url.searchParams.get(key);
+}
+
 $(function(){
   refreshCartCounter();
 
@@ -91,16 +96,22 @@ $(function(){
       return;
     }
 
-    $.getJSON(`/api/search?keyword=${keyword}`).then(response => {
-      const container = $('.search-result').empty();
+    const container = $('.search-result').empty();
 
+    // container.append(`
+    //   <li>
+    //     <a href="/?q=${encodeURIComponent(keyword)}">Lihat semua pencarian untuk <span class="fw-medium">${keyword}</span></a>
+    //   </li>
+    // `);
+
+    $.getJSON(`/api/search?keyword=${keyword}`).then(response => {
       $('.search-result').removeClass('d-none');
 
       if (response.length) {
         const list = response.map(item => `<li><a href="/products/${item.slug}">${item.name}</a></li>`).join('');
         container.append(list);
       } else {
-        container.append(`<li>Not Found</li>`);
+        container.empty().append(`<li>Pencarian tidak ditemukan</li>`);
       }
     })
   }, 400));

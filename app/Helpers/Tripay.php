@@ -72,7 +72,7 @@ class Tripay {
     $response = $instance->tripay->post('/transaction/create', $data);
 
     if (!$response->successful()) {
-      Log::channel('tripay')->error('requestTransaction request: ', $data);
+      Log::channel('tripay')->info('requestTransaction request: ', $data);
       Log::channel('tripay')->error('requestTransaction response: ' . $response->body());
       return $response->json();
     }

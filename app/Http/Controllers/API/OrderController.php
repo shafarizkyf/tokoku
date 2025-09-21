@@ -56,7 +56,8 @@ class OrderController extends Controller {
       $orderItems = [];
       foreach($request->items as $item) {
         $productVariation = ProductVariation::with(['product'])->find($item['product_variation_id']);
-        $subtotal = floor($productVariation->price * $item['quantity']);
+        $price = $productVariation->discount_price ?? $productVariation->price;
+        $subtotal = floor($price * $item['quantity']);
 
         $options = [];
         foreach($productVariation->variationOptions as $variationOption) {
@@ -104,7 +105,7 @@ class OrderController extends Controller {
         $orderDetail->product_variation_id = $orderItem['product_variation']->id;
         $orderDetail->name_snapshot = $orderItem['product_variation']->product->name;
         $orderDetail->variation_snapshot = $orderItem['variation_snapshot'];
-        $orderDetail->price = $orderItem['product_variation']->price;
+        $orderDetail->price = $orderItem['product_variation']->discount_price ?? $orderItem['product_variation']->price;
         $orderDetail->quantity = $orderItem['quantity'];
         $orderDetail->subtotal = $orderItem['subtotal'];
         $orderDetail->weight = 500;
@@ -116,6 +117,10 @@ class OrderController extends Controller {
       $order->save();
 
       if (!$response['success']) {
+        // remove order data when unable to create transaction request
+        $order->orderDetails()->delete();
+        $order->delete();
+
         $response = response([
           'success' => false,
           'message' => $response['message'],
