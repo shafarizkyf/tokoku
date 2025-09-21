@@ -37,6 +37,8 @@ $(function(){
           });
         });
 
+        appendImageThumbnails(product.images.map(item => item.url));
+
         // wait for table rows generation
         _.delay(() => {
           // pre-fill table form
@@ -97,6 +99,11 @@ $(function(){
     const updatedRows = generateTableVariantRows(updatedCombinations);
 
     $('#table-variants tbody').empty().append(updatedRows);
+  }
+
+  const appendImageThumbnails = (imageUrls = []) => {
+    const imagesEl = imageUrls.map(imageUrl => `<img src="${imageUrl}" class="img-thumbnail tiny" />`);
+    $('.images').empty().append(imagesEl.join(''));
   }
 
   const toggleParentPriceAndStock = (isVisible) => {
@@ -178,6 +185,8 @@ $(function(){
         // select all by option
         selection[0].selectize.setValue(variant.options.map(option => option.name));
       });
+
+      appendImageThumbnails(product.images);
 
       generateTableHead(variantAttributes.map(item => item.text));
       generateTableRowsCombination();
@@ -298,11 +307,21 @@ $(function(){
       });
     });
 
+    const imageUrls = [];
+    $('.images img').each((_, el) => {
+      const sourceUrl = $(el).attr('src');
+      // image from external source/import
+      if (!sourceUrl.includes(location.host)) {
+        imageUrls.push(sourceUrl);
+      }
+    });
+
     const productDetails = {
       name: $('#product-name').val(),
       description: $('#product-description').val(),
       condition: $('[name="product-condition"]:checked').val(),
-      variations
+      variations,
+      image_urls: imageUrls,
     };
 
     if (!variations.length) {

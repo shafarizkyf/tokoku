@@ -36,7 +36,7 @@ class ProductController extends Controller {
   }
 
   public function show(Product $product) {
-    $product = $product->load('variations');
+    $product = $product->load('variations', 'images');
     $product['variation_options'] = ProductVariation::options()->where('product_id', $product->id)->get();
 
     return $product;
@@ -111,6 +111,18 @@ class ProductController extends Controller {
           ->delete();
 
         $this->saveProductVariations($product, $productUpdateRequest);
+      }
+
+      if ($productUpdateRequest->image_urls) {
+        foreach($productUpdateRequest->image_urls as $imageUrl) {
+          $path = Image::saveImageFromUrl($imageUrl, "products/{$product->id}");
+          if ($path) {
+            ProductImage::create([
+              'product_id' => $product->id,
+              'path' => $path,
+            ]);
+          }
+        }
       }
     });
 

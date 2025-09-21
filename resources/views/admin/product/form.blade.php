@@ -81,6 +81,12 @@
     </div>
     <div class="card mb-3">
       <div class="card-body">
+        <h5 class="card-title">Gambar</h5>
+        <div class="images d-flex gap-2"></div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-body">
         <div class="row align-items-center">
           <div class="col-md-10">
             <h5 class="card-title">Varian</h5>

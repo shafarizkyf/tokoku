@@ -22,21 +22,19 @@
         <div class="mb-3" id="main-img-preview">
           <img src="{{ $product->image->url }}" alt="{{ $product->name }}">
         </div>
-        <div class="swiper" id="image-slider">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">Slide 1</div>
-            <div class="swiper-slide">Slide 2</div>
-            <div class="swiper-slide">Slide 3</div>
-            <div class="swiper-slide">Slide 4</div>
-            <div class="swiper-slide">Slide 5</div>
-            <div class="swiper-slide">Slide 6</div>
-            <div class="swiper-slide">Slide 7</div>
-            <div class="swiper-slide">Slide 8</div>
-            <div class="swiper-slide">Slide 9</div>
+        @if($product->images->count() > 1)
+          <div class="swiper" id="image-slider">
+            <div class="swiper-wrapper">
+              @foreach($product->images as $image)
+                <div class="swiper-slide">
+                  <img src="{{ $image->url }}" alt="" />
+                </div>
+              @endforeach
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
           </div>
-          <div class="swiper-button-next"></div>
-          <div class="swiper-button-prev"></div>
-        </div>
+        @endif
       </div>
       <div class="col-md-5">
         <h1>{{ $product->name }}</h1>

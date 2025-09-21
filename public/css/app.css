@@ -138,6 +138,12 @@ table td h5 {
   transform: rotate(180deg);
 }
 
+img.tiny {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 

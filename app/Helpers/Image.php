@@ -33,7 +33,7 @@ class Image {
     $filename = Str::uuid();
     $ext = self::getExtensionFromUrl($url);
 
-    if (strlen($ext) > 3) {
+    if (strlen($ext) > 3 || !$ext) {
       $ext = "png";
     }
 
@@ -42,6 +42,8 @@ class Image {
 
     if ($saved) {
       return $path;
+    } else {
+      Log::error('download image to path', compact('url', 'path', 'ext', 'saved'));
     }
 
     return null;

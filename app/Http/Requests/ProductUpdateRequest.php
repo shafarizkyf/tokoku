@@ -30,6 +30,7 @@ class ProductUpdateRequest extends FormRequest
             'variations.*.stock' => 'required',
             'variations.*.weight' => 'required',
             'variations.*.attributes' => 'array',
+            'image_urls' => 'nullable|array',
         ];
     }
 }
