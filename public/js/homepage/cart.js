@@ -7,6 +7,7 @@ $(function(){
   // for cart item deletion
   let tempCartItemId;
   let tempCartItemEl;
+  let shouldUpdateCart = false;
 
   let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
     ? JSON.parse(localStorage.getItem(LOCAL_KEY.SHIPPING))
@@ -272,10 +273,13 @@ $(function(){
       const requestedQuantity = quantity + 1
       if (requestedQuantity <= stock) {
         quantity = requestedQuantity
+        shouldUpdateCart = true;
       } else {
+        shouldUpdateCart = false;
         toast({ text: 'Stok tidak mencukupi' });
       }
     } else if (quantity > 1) {
+      shouldUpdateCart = true;
       quantity -= 1;
     }
 
@@ -298,21 +302,27 @@ $(function(){
     const requestedQuantity = Number($(this).val()) || 1;
 
     if (requestedQuantity > stock) {
+      shouldUpdateCart = false;
       toast({ text: 'Stok hanya tersedia: ' + stock });
       $(this).val(stock);
     } else if (requestedQuantity < 1) {
+      shouldUpdateCart = true;
       $(this).val('1');
     }
   });
 
   // handler for updating quantity to BE and recalculate shipping cost (by buttons)
   $(document).on('click', '.quantity > button', _.debounce(function(){
-    updateCartItem($(this));
+    if (shouldUpdateCart) {
+      updateCartItem($(this));
+    }
   }, 500))
 
   // handler for updating quantity to BE and recalculate shipping cost (by text input)
   $(document).on('keyup', 'input[name="quantity"]', _.debounce(function(){
-    updateCartItem($(this));
+    if (shouldUpdateCart) {
+      updateCartItem($(this));
+    }
   }, 500))
 
   // modal confirmation when cart item is about to be removed
