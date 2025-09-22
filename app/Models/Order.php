@@ -68,6 +68,10 @@ class Order extends Model {
     return $this->belongsTo(Regency::class);
   }
 
+  public function user() {
+    return $this->belongsTo(User::class);
+  }
+
   public function village() {
     return $this->belongsTo(Village::class);
   }

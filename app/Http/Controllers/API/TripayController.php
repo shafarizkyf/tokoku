@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\Gmail;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
@@ -16,29 +17,35 @@ class TripayController extends Controller {
       $paymentResponse = $order->payment_response;
       $paymentResponse->callback = request()->all();
       $order->payment_response = json_encode($paymentResponse);
+      $status = strtoupper(request('status'));
 
-      switch (strtoupper(request('status'))) {
+      switch ($status) {
         case 'PAID':
           $order->status = 'paid';
           $order->payment_status = 'paid';
+          $order->save();
+
+          // email receipt
+          $emailTemplate = view('email.order', compact('order'))->render();
+          Gmail::send($order->user->email, config('app.name'). ": Kuitansi Pesanan", $emailTemplate);
         break;
 
         case 'FAILED':
           $order->status = 'pending';
           $order->payment_status = 'failed';
+          $order->save();
         break;
 
         case 'EXPIRED':
           $order->status = 'pending';
           $order->payment_status = 'expired';
+          $order->save();
         break;
 
         case 'REFUND':
           // TODO:
         break;
       }
-
-      $order->save();
     }
     return [];
   }
