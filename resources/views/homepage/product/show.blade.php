@@ -25,8 +25,8 @@
         @if($product->images->count() > 1)
           <div class="swiper" id="image-slider">
             <div class="swiper-wrapper">
-              @foreach($product->images as $image)
-                <div class="swiper-slide">
+              @foreach($product->images as $index => $image)
+                <div class="swiper-slide cursor-pointer {{ $index == 0 ? 'border border-dark' : '' }}">
                   <img src="{{ $image->url }}" alt="" />
                 </div>
               @endforeach

@@ -189,6 +189,14 @@ $(function(){
     });
   });
 
+  // handler for changing image thumbnail by clicking the img slider
+  $(document).on('click', '.swiper-slide > img', function(){
+    $('.swiper-slide').removeClass('border border-dark');
+    $(this).parent().addClass('border border-dark');
+    const src = $(this).attr('src');
+    $('#main-img-preview > img').attr('src', src);
+  });
+
   // unhide show full description toogle
   const { height: descriptionHeight } = $('.description p')[0].getBoundingClientRect();
   if (descriptionHeight >= 250) {
