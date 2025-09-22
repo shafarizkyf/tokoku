@@ -44,7 +44,19 @@ class Order extends Model {
   public function getOrderStatusAttribute() {
     switch ($this->status) {
       case 'pending':
-        return 'Menunggu Pembayaran';
+        $message = 'Unknown';
+        switch($this->payment_status) {
+          case 'unpaid':
+            $message = 'Menunggu Pembayaran';
+            break;
+          case 'expired':
+            $message = 'Pembayaran Kadaluarsa';
+            break;
+          case 'failed':
+            $message = 'Pembayaran Gagal';
+            break;
+        }
+        return $message;
       case 'paid':
         return 'Dalam Proses';
       case 'shipped':
