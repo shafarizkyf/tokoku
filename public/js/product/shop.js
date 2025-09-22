@@ -47,6 +47,17 @@ $(function(){
     return optionIds;
   }
 
+  const toggleAddToCartButtonByStock = (stockAmount = 1) => {
+    const button = $('button[name="btn-add-to-cart"]');
+    if (stockAmount) {
+      button.text('+ Keranjang');
+      button.removeAttr('disabled');
+    } else {
+      button.text('Stok Habis');
+      button.attr('disabled', 'disabled');
+    }
+  }
+
   // select variant option to fetch price details
   $(document).on('click', 'button[data-attribute]', async function(e){
     e.preventDefault();
@@ -81,12 +92,18 @@ $(function(){
       $('h2').next().remove();
     }
 
+    // update price information
     if (variationOption.discount_price) {
       $('h2').text(currencyFormat.format(variationOption.discount_price));
       $('h2').after(`<p class="text-decoration-line-through"><span class="badge bg-danger">${variationOption.discount_percentage}%</span> ${variationOption.price}</p>`)
     } else {
       $('h2').text(currencyFormat.format(variationOption.price));
     }
+
+    $('#stock-amount').text(variationOption.stock);
+    $('#weight-amount').text((Number(variationOption.weight) / 1000).toFixed(2));
+
+    toggleAddToCartButtonByStock(variationOption.stock);
   });
 
   $('[data-init-options]').data('init-options').forEach(optionId => {
