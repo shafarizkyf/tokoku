@@ -14,6 +14,7 @@ Dengan TokoKu, pelaku usaha:
 - **Notifikasi**:
   - Gmail: Digunakan untuk mengirim salinan kuitansi kepada kostumer saat pesanan telah dibayar
   - WhatsApp: Digunakan untuk mengirim notifikasi kepada owner ketika mendapatkan pesanan baru
+- Web Analytics: [PostHog](posthog.com)
 
 ### Tech Stack
 - **Framework**: [Laravel](laravel.com)
