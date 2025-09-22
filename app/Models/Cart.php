@@ -42,8 +42,8 @@ class Cart extends Model {
     $cart = self::whereUserId($userId)->first();
     if ($cart) {
       foreach($cart->items as $cartItem) {
-        $totalWeightInGrams += $cartItem->productVariation->weight ?? 500;
-        $totalItemValue += $cartItem->productVariation->discount_price ?? $cartItem->productVariation->price;
+        $totalWeightInGrams += ($cartItem->productVariation->weight ?? 500) * $cartItem->quantity;
+        $totalItemValue += ($cartItem->productVariation->discount_price ?? $cartItem->productVariation->price) * $cartItem->quantity;
       }
     }
 
