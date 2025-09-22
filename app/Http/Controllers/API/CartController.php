@@ -71,19 +71,12 @@ class CartController extends Controller {
       'message' => 'Unexpected Error'
     ], 500);
 
-    $productVariation = ProductVariation::find($request->product_variation_id);
-
-    if (!$productVariation->stock) {
-      return response([
-        'success' => false,
-        'message' => 'Stok tidak tersedia'
-      ], 400);
-    }
-
-    DB::transaction(function() use ($request, &$response, $user, $productVariation) {
+    DB::transaction(function() use ($request, &$response, $user) {
       $cart = Cart::updateOrCreate([
         'user_id' => $user->id,
       ]);
+
+      $productVariation = ProductVariation::find($request->product_variation_id);
 
       $cartItem = CartItem::firstOrNew([
         'cart_id' => $cart->id,
@@ -91,9 +84,19 @@ class CartController extends Controller {
         'product_variation_id' => $request->product_variation_id,
       ]);
 
+      $requestedQuantity = $cartItem->quantity + 1;
+      if ($requestedQuantity > $productVariation->stock) {
+        $response = response([
+          'success' => false,
+          'message' => 'Stok tidak mencukupi'
+        ], 400);
+
+        return;
+      }
+
       $cartItem->price_at_time = $productVariation->price;
       $cartItem->price_discount_at_time = $productVariation->discount_price;
-      $cartItem->quantity += 1;
+      $cartItem->quantity = $requestedQuantity;
       $cartItem->save();
 
       $response = response([
