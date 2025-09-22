@@ -31,6 +31,10 @@ class Cart extends Model {
     return $this->hasMany(CartItem::class);
   }
 
+  public function user() {
+    return $this->belongsTo(User::class);
+  }
+
   public static function calculateWeightAndValue($userId) {
     $totalWeightInGrams = 0;
     $totalItemValue = 0;

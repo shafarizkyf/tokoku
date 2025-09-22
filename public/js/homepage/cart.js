@@ -153,6 +153,13 @@ $(function(){
     }
   }
 
+  const updateCartItem = (cartItemId, data = {}) => {
+    $.post(`/api/carts/items/${cartItemId}`, {
+      _method: 'PATCH',
+      ...data
+    })
+  }
+
   const deleteCartItem = () => {
     $('#confirmModal').modal('hide');
     $.post(`/api/carts/items/${tempCartItemId}`, {
@@ -232,7 +239,7 @@ $(function(){
     const operation = $(this).attr('name');
     const card = $(this).closest('.card')
     const cartItemId = card.data('id');
-    const quantityEl = $(this).parent().find('[name="quantity"]');
+    const quantityEl = card.find('[name="quantity"]');
 
     let quantity = Number(quantityEl.val());
 
@@ -256,6 +263,14 @@ $(function(){
 
   // handler for updating quantity to BE and recalculate shipping cost
   $(document).on('click', '.quantity > button', _.debounce(function(){
+    const card = $(this).closest('.card')
+    const cartItemId = card.data('id');
+    const quantity = card.find('[name="quantity"]').val();
+
+    updateCartItem(cartItemId, {
+      quantity
+    });
+
     console.log('update cart on db an recalculate the shipping cost')
   }, 500))
 

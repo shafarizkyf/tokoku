@@ -54,6 +54,10 @@ class CartItem extends Model {
     });
   }
 
+  public function cart() {
+    return $this->belongsTo(Cart::class);
+  }
+
   public function getSubtotalAttribute() {
     return $this->quantity * ($this->price_discount_at_time ?? $this->price_at_time);
   }

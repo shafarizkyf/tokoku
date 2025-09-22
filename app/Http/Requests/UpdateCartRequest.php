@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreCartRequest extends FormRequest
+class UpdateCartRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return $this->cart_item->cart->user_id == Auth::id();
     }
 
     /**
@@ -23,8 +23,7 @@ class StoreCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required',
-            'product_variation_id' => 'required',
+            // 'product_variation_id' => 'required',
             'quantity' => 'required|min:1'
         ];
     }

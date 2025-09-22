@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteCartRequest;
 use App\Http\Requests\StoreCartRequest;
+use App\Http\Requests\UpdateCartRequest;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariation;
@@ -103,7 +105,15 @@ class CartController extends Controller {
     return $response;
   }
 
-  public function destroy(CartItem $cartItem) {
+  public function update(CartItem $cartItem, UpdateCartRequest $request) {
+    // $cartItem->product_variation_id = $request->product_variation_id;
+    $cartItem->quantity = $request->quantity;
+    $cartItem->save();
+
+    return response([]);
+  }
+
+  public function destroy(CartItem $cartItem, DeleteCartRequest $request) {
     $cartItem->delete();
 
     return response([]);
