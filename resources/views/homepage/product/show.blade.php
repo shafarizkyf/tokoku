@@ -97,6 +97,8 @@
               <dd class="col-8 text-end"><span id="stock-amount">-</span></dd>
               <dt class="col-4 text-muted fw-normal">Berat (Kg)</dt>
               <dd class="col-8 text-end"><span id="weight-amount">-</span></dd>
+              <dt class="col-4 text-muted fw-normal">Subtotal</dt>
+              <dd class="col-8 text-end"><span id="subtotal">-</span></dd>
             </dl>
             <div class="d-grid gap-2">
               <button type="button" class="btn btn-primary" name="btn-add-to-cart">+ Keranjang</button>

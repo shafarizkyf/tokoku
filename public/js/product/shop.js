@@ -2,11 +2,12 @@ $(function(){
   const productId = $('meta[name="product-id"]').attr('content');
   const buttonOptionActiveClass = 'btn-dark';
   const variationOptions = {};
+  let variationOption;
 
   new ImageZoom(document.getElementById('main-img-preview'), {
-    width: 350,
-    height: 350,
-    zoomWidth: 500,
+    // width: 350,
+    // height: 350,
+    // zoomWidth: 500,
     // fillContainer: true,
     offset: {
       vertical: 0,
@@ -58,6 +59,14 @@ $(function(){
     }
   }
 
+  const updateSubtotal = () => {
+    if (!variationOption) return;
+
+    const quantity = Number($('input[name="quantity"]').val()) || 1;
+    const subtotal = (variationOption.discount_price || variationOption.price) * quantity;
+    $('#subtotal').text(currencyFormat.format(subtotal));
+  }
+
   // select variant option to fetch price details
   $(document).on('click', 'button[data-attribute]', async function(e){
     e.preventDefault();
@@ -76,7 +85,6 @@ $(function(){
       return;
     }
 
-    let variationOption;
     // check if already fetched
     if (variationOptions[optionIds.join(',')]) {
       variationOption = variationOptions[optionIds.join(',')];
@@ -105,6 +113,7 @@ $(function(){
     $('input[name="quantity"]').attr('max', variationOption.stock);
 
     toggleAddToCartButtonByStock(variationOption.stock);
+    updateSubtotal();
   });
 
   $('[data-init-options]').data('init-options').forEach(optionId => {
@@ -149,6 +158,7 @@ $(function(){
     }
 
     quantityEl.val(quantity);
+    updateSubtotal();
   });
 
   // handler for changing quantity (by text input)
@@ -162,6 +172,8 @@ $(function(){
     } else if (requestedQuantity < 1) {
       $(this).val('1');
     }
+
+    updateSubtotal();
   });
 
   // toggle full description
