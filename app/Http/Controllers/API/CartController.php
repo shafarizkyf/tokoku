@@ -69,12 +69,19 @@ class CartController extends Controller {
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function() use ($request, &$response, $user) {
+    $productVariation = ProductVariation::find($request->product_variation_id);
+
+    if (!$productVariation->stock) {
+      return response([
+        'success' => false,
+        'message' => 'Stok tidak tersedia'
+      ], 400);
+    }
+
+    DB::transaction(function() use ($request, &$response, $user, $productVariation) {
       $cart = Cart::updateOrCreate([
         'user_id' => $user->id,
       ]);
-
-      $productVariation = ProductVariation::find($request->product_variation_id);
 
       $cartItem = CartItem::firstOrNew([
         'cart_id' => $cart->id,
