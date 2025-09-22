@@ -10,6 +10,27 @@ Dengan TokoKu, pelaku usaha:
 ### Integrasi Fitur
 - **Gerbang Pembayaran**: [TriPay](tripay.co.id)
 - **Cek ongkir**: [Komerce](komerce.id) *(dulunya RajaOngkir)*
-- **Autentikasi**: Google OAuth; digunakan untuk memasukan barang ke keranjang, checkout, dan melihat status order.
-- **Search Engine**: [MeiliSearch](meilisearch.com); digunkan untuk mencari product dengan memasukan kata kunci.
+- **Autentikasi**: Google OAuth. Digunakan untuk memasukan barang ke keranjang, checkout, dan melihat status order.
+- **Notifikasi**:
+  - Gmail: Digunakan untuk mengirim salinan kuitansi kepada kostumer saat pesanan telah dibayar
+  - WhatsApp: Digunakan untuk mengirim notifikasi kepada owner ketika mendapatkan pesanan baru
+
+### Tech Stack
+- **Framework**: [Laravel](laravel.com)
 - **Caching**: [Redis](redis.io)
+- **Search Engine**: [MeiliSearch](meilisearch.com). Digunkan untuk mencari product dengan memasukan kata kunci.
+
+### Ringkasan Bisnis Proses Transaksi Jual Beli
+ - **Sebagai Kosumer**
+   - Kostumer memasukan barang ke keranjang
+   - Kostumer memasukan alamat pengiriman
+   - Kosumer memilih metode pembayaran
+   - Sistem menampilkan detail order
+   - Setelah kostumer melakukan pembayaran, sistem akan mengirimkan salinan detail order melalui email
+   - Penjual memproses pesanan anda
+   - Kostumer dapat melihat detail order secara berkala untuk melihat status pengiriman
+   - Kostumer menerima barang
+ - **Sebagai Penjual**
+   - Admin mendapatkan notifikasi pesanan masuk
+   - Admin memproses pesanan
+   - Admin memberikan nomor resi pada order
