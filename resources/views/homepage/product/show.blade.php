@@ -2,7 +2,19 @@
   'type' => 'homepage',
   'productId' => $product->id,
   'initVariationId' => $product->variation->id,
+  'title' => config('app.name') . ' | ' . $product->name
 ])
+
+@section('meta')
+  @component('components.seo-product-detail', [
+    'description' => "Temukan {$product->name} harga murah hanya di " . config('app.name'),
+    'url' => route('products.details', ['productSlug' => $product->slug]),
+    'productName' => $product->name,
+    'imageUrl' => $product->image->url,
+  ])
+
+  @endcomponent
+@endsection
 
 @section('css')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -108,4 +120,28 @@
       </div>
     </div>
   </div>
+@endsection
+
+@section('js')
+  <!-- Product structured data (JSON-LD for rich results) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": "{{ $product->name }}",
+    "image": ["{{ $product->image->url }}"],
+    "description": "{{ $product->description }}",
+    "brand": {
+      "@type": "Brand",
+      "name": "{{ config('app.name') }}"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": "{{ route('products.details', ['productSlug' => $product->slug]) }}",
+      "priceCurrency": "IDR",
+      "price": "{{ $product->variation->price }}",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
 @endsection
