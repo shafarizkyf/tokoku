@@ -234,7 +234,7 @@ $(function(){
     updateCostOfShipping();
   });
 
-  // handler for changing FE quantity
+  // handler for changing quantity (by button)
   $(document).on('click', '.quantity > button', function(e){
     e.preventDefault();
     const operation = $(this).attr('name');
@@ -243,7 +243,7 @@ $(function(){
     const quantityEl = card.find('[name="quantity"]');
     const stock = card.find('[name="quantity"]').attr('max');
 
-    let quantity = Number(quantityEl.val());
+    let quantity = Number(quantityEl.val()) || 1;
 
     if (operation === 'add') {
       const requestedQuantity = quantity + 1
@@ -266,6 +266,20 @@ $(function(){
     card.find('.display-quantity').text(quantity);
     quantityEl.val(quantity);
     updateCostOfItems();
+  });
+
+  // handler for changing quantity (by text input)
+  $(document).on('keyup', 'input[name="quantity"]', function(e) {
+    const card = $(this).closest('.card');
+    const stock = card.find('[name="quantity"]').attr('max');
+    const requestedQuantity = $(this).val();
+
+    if (requestedQuantity > stock) {
+      toast({ text: 'Stok hanya tersedia: ' + stock });
+      $(this).val(stock);
+    } else if (requestedQuantity < 1) {
+      $(this).val('1');
+    }
   });
 
   // handler for updating quantity to BE and recalculate shipping cost
