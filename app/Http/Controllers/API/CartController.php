@@ -85,7 +85,7 @@ class CartController extends Controller {
         'product_variation_id' => $request->product_variation_id,
       ]);
 
-      $requestedQuantity = $cartItem->quantity + 1;
+      $requestedQuantity = $cartItem->quantity + $request->quantity;
       if ($requestedQuantity > $productVariation->stock) {
         $response = response([
           'success' => false,
