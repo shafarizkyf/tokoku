@@ -8,13 +8,13 @@ Dengan TokoKu, pelaku usaha:
 
 
 ### Integrasi Fitur
-- **Gerbang Pembayaran**: [TriPay](tripay.co.id)
+- **Gerbang Pembayaran**: [TriPay](tripay.co.id). Digunakan untuk menerima pembayaran melalui Bank/MiniMart/QRIS.
 - **Cek ongkir**: [Komerce](komerce.id) *(dulunya RajaOngkir)*
 - **Autentikasi**: Google OAuth. Digunakan untuk memasukan barang ke keranjang, checkout, dan melihat status order.
 - **Notifikasi**:
   - Gmail: Digunakan untuk mengirim salinan kuitansi kepada kostumer saat pesanan telah dibayar
   - WhatsApp: Digunakan untuk mengirim notifikasi kepada owner ketika mendapatkan pesanan baru
-- Web Analytics: [PostHog](posthog.com)
+- **Web Analytics**: [PostHog](posthog.com). Digunakan untuk mendapatkan data pengunjung website
 
 ### Tech Stack
 - **Framework**: [Laravel](laravel.com)
