@@ -79,7 +79,7 @@
                   <td>
                     <div class="brand" aria-label="brand">
                       <img src="#" alt="logo" />
-                      <h1>TokoKu</h1>
+                      <h1>{{ config('app.name') }}</h1>
                     </div>
                   </td>
                   <td align="right" style="vertical-align:middle;">
@@ -156,8 +156,8 @@
           <tr>
             <td style="background:#f8fafc; padding:18px;">
               <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-size:13px; color:#64748b; text-align:center;">
-                <div style="margin-bottom:6px;">Anda menerima email ini karena telah melakukan pembelian pada {{'TokoKu'}}.</div>
-                <div style="font-size:12px;">© 2025 {{'TokoKu'}}. All rights reserved.</div>
+                <div style="margin-bottom:6px;">Anda menerima email ini karena telah melakukan pembelian pada {{ config('app.name') }}.</div>
+                <div style="font-size:12px;">© 2025 {{ config('app.name') }}. All rights reserved.</div>
 
               </div>
             </td>
