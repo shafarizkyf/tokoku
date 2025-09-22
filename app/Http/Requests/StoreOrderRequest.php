@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\EnsureStockExist;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -24,6 +26,16 @@ class StoreOrderRequest extends FormRequest
         return [
             'items' => 'required|array|min:1',
             'items.*.product_variation_id' => 'exists:product_variations,id',
+            'items.*.quantity' => [
+                'required',
+                'numeric',
+                function($attribute, $value, $fail) {
+                    $index = explode('.', $attribute)[1];
+                    $productVariationId = request()->input("items.$index.product_variation_id");
+                    (new EnsureStockExist($productVariationId))
+                        ->validate($attribute, $value, $fail);
+                }
+            ],
             'payment_method' => 'required',
             'shipping' => 'required',
             'shipping.receiver_name' => 'required|max:50',
