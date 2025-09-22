@@ -86,7 +86,7 @@ $(function(){
   }
 
   const getCostOfItems = () => {
-    return cartItems.reduce((a, b) => a + (b.price_discount || b.price), 0);
+    return cartItems.reduce((a, b) => a + b.quantity * (b.price_discount || b.price), 0);
   }
 
   const getCostOfShipping = () => {
@@ -320,6 +320,9 @@ $(function(){
       shipping: currentShippingForm,
       delivery: getPreferredDelivery(),
     }
+
+    delete order.delivery.shipping_cost;
+    delete order.delivery.etd;
 
     console.info('order', order);
 
