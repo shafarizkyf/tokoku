@@ -84,21 +84,26 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
 
 const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal, url }) => {
   return `
-    <a href="${url}" class="card text-decoration-none" data-id="${id}" role="button">
+    <div class="card" data-id="${id}">
       <div class="card-body">
         <div class="d-flex gap-3">
           <img src="${imageUrl}" class="img-thumbnail" alt="">
-          <div class="w-100">
-            <p class="m-0 fs-6 text-ellipsis">${productName}</p>
+          <a href="${url}" class="w-100 text-decoration-none">
+            <p class="m-0 fs-6 text-ellipsis text-dark">${productName}</p>
             <p class="m-0 variation text-muted">${productOptions.join(' - ')}</p>
-            <p class="m-0 text-muted">${quantity} x ${currencyFormat.format(originalPrice)}</p>
-          </div>
+            <p class="m-0 text-muted"><span class="display-quantity">${quantity}</span> x ${currencyFormat.format(originalPrice)}</p>
+          </a>
           <div class="text-end">
             <p class="m-0">${currencyFormat.format(subtotal)}</p>
             ${subtotal !== subtotalOriginal ? `<p class="m-0 text-muted text-decoration-line-through">${currencyFormat.format(subtotalOriginal)}</p>` : ''}
           </div>
         </div>
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-between mt-3">
+          <div class="d-flex gap-1 quantity">
+            <button class="btn btn-sm btn-dark" name="substract">-</button>
+            <input type="number" name="quantity" class="form-control" placeholder="Qty" value="${quantity}">
+            <button class="btn btn-sm btn-dark" name="add">+</button>
+          </div>
           <button class="btn btn-light" name="btn-remove-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
@@ -107,7 +112,7 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
           </button>
         </div>
       </div>
-    </a>
+    </div>
   `;
 }
 

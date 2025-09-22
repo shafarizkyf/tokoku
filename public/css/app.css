@@ -144,6 +144,14 @@ img.tiny {
   object-fit: contain;
 }
 
+.quantity > button {
+  width: 30px;
+}
+
+.quantity > input {
+  width: 100px;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 

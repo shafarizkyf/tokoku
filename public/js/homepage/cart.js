@@ -211,6 +211,7 @@ $(function(){
     }
   });
 
+  // handler for removing cart item
   $(document).on('click', 'button[name="btn-remove-item"]', function(e){
     e.preventDefault();
     tempCartItemId = $(this).closest('.card').data('id');
@@ -218,12 +219,47 @@ $(function(){
     $('#confirmModal').modal('show');
   });
 
+  // handler for changing shipping courier
   $(document).on('click', '.card.delivery-option', function(){
     $('.card.delivery-option').removeClass('border-primary');
     $(this).addClass('border-primary');
     updateCostOfShipping();
   });
 
+  // handler for changing FE quantity
+  $(document).on('click', '.quantity > button', function(e){
+    e.preventDefault();
+    const operation = $(this).attr('name');
+    const card = $(this).closest('.card')
+    const cartItemId = card.data('id');
+    const quantityEl = $(this).parent().find('[name="quantity"]');
+
+    let quantity = Number(quantityEl.val());
+
+    if (operation === 'add') {
+      quantity += 1;
+    } else if (quantity > 1) {
+      quantity -= 1;
+    }
+
+    cartItems = cartItems.map(item => {
+      if (item.cart_item_id === Number(cartItemId)) {
+        item.quantity = quantity;
+      }
+      return item;
+    });
+
+    card.find('.display-quantity').text(quantity);
+    quantityEl.val(quantity);
+    updateCostOfItems();
+  });
+
+  // handler for updating quantity to BE and recalculate shipping cost
+  $(document).on('click', '.quantity > button', _.debounce(function(){
+    console.log('update cart on db an recalculate the shipping cost')
+  }, 500))
+
+  // modal confirmation when cart item is about to be removed
   $('button[name="btn-confirm-modal"]').on('click', function(e){
     e.preventDefault();
     deleteCartItem();
