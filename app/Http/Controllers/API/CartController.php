@@ -29,6 +29,12 @@ class CartController extends Controller {
       }
 
       foreach($cart->items as $cartItem) {
+        // if the cart item no longer exist, delete
+        if (!$cartItem->productVariation) {
+          $cartItem->delete();
+          continue;
+        }
+
         $options = [];
         foreach($cartItem->productVariation->variationOptions as $variationOption) {
           $options[] = $variationOption->variationOption->value;
