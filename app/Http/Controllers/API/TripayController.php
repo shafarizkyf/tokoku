@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Helpers\Gmail;
+use App\Helpers\Stock;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
@@ -34,12 +35,16 @@ class TripayController extends Controller {
           $order->status = 'pending';
           $order->payment_status = 'failed';
           $order->save();
+
+          Stock::revert($order);
         break;
 
         case 'EXPIRED':
           $order->status = 'pending';
           $order->payment_status = 'expired';
           $order->save();
+
+          Stock::revert($order);
         break;
 
         case 'REFUND':

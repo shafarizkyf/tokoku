@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\DataTable;
 use App\Helpers\Komerce;
+use App\Helpers\Stock;
 use App\Helpers\Tripay;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
@@ -73,6 +74,10 @@ class OrderController extends Controller {
           'quantity' => $item['quantity'],
           'subtotal' => $subtotal,
         ];
+
+        // deduct stock
+        $productVariation->stock -= $item['quantity'];
+        $productVariation->save();
       }
 
       $shippingPrice = $preferredDelivery['shipping_cost'];
@@ -117,6 +122,8 @@ class OrderController extends Controller {
       $order->save();
 
       if (!$response['success']) {
+        // bring the stock back
+        Stock::revert($order);
         // remove order data when unable to create transaction request
         $order->orderDetails()->delete();
         $order->delete();
