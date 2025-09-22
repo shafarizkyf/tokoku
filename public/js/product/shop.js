@@ -139,7 +139,7 @@ $(function(){
 
     if (operation === 'add') {
       const requestedQuantity = quantity + 1
-      if (requestedQuantity < stock) {
+      if (requestedQuantity <= stock) {
         quantity = requestedQuantity
       } else {
         toast({ text: 'Stok tidak mencukupi' });

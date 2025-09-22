@@ -142,6 +142,23 @@ $(function(){
     $('#grand-total').text(currencyFormat.format(getGrandTotal()));
   }
 
+  const updateDeliveryOptions = async () => {
+    $('#delivery-options').empty();
+    const postalCode = $('#postal_code').val();
+    deliveryOptions = await getDeliveryOptions(postalCode);
+    deliveryOptions.forEach((item, index) => {
+      const cardEl = DeliveryOptionCard({
+        name: `${item.shipping_name} - ${item.service_name}`,
+        cost: currencyFormat.format(item.shipping_cost),
+        estimation: item.etd,
+        index
+      });
+
+      $('#delivery-options').append(cardEl);
+      $('#delivery-options .card').eq(0).trigger('click');
+    });
+  }
+
   const toggleContainerVisibility = (hasItem = false) => {
     if (hasItem) {
       $('h1').removeClass('d-none');
@@ -153,11 +170,17 @@ $(function(){
     }
   }
 
-  const updateCartItem = (cartItemId, data = {}) => {
+  const updateCartItem = (el) => {
+    const card = el.closest('.card')
+    const cartItemId = card.data('id');
+    const quantity = card.find('[name="quantity"]').val();
+
     $.post(`/api/carts/items/${cartItemId}`, {
       _method: 'PATCH',
-      ...data
-    })
+      quantity,
+    }).then(() => {
+      updateDeliveryOptions();
+    });
   }
 
   const deleteCartItem = () => {
@@ -247,7 +270,7 @@ $(function(){
 
     if (operation === 'add') {
       const requestedQuantity = quantity + 1
-      if (requestedQuantity < stock) {
+      if (requestedQuantity <= stock) {
         quantity = requestedQuantity
       } else {
         toast({ text: 'Stok tidak mencukupi' });
@@ -272,7 +295,7 @@ $(function(){
   $(document).on('keyup', 'input[name="quantity"]', function(e) {
     const card = $(this).closest('.card');
     const stock = card.find('[name="quantity"]').attr('max');
-    const requestedQuantity = $(this).val();
+    const requestedQuantity = Number($(this).val()) || 1;
 
     if (requestedQuantity > stock) {
       toast({ text: 'Stok hanya tersedia: ' + stock });
@@ -282,17 +305,14 @@ $(function(){
     }
   });
 
-  // handler for updating quantity to BE and recalculate shipping cost
+  // handler for updating quantity to BE and recalculate shipping cost (by buttons)
   $(document).on('click', '.quantity > button', _.debounce(function(){
-    const card = $(this).closest('.card')
-    const cartItemId = card.data('id');
-    const quantity = card.find('[name="quantity"]').val();
+    updateCartItem($(this));
+  }, 500))
 
-    updateCartItem(cartItemId, {
-      quantity
-    });
-
-    console.log('update cart on db an recalculate the shipping cost')
+  // handler for updating quantity to BE and recalculate shipping cost (by text input)
+  $(document).on('keyup', 'input[name="quantity"]', _.debounce(function(){
+    updateCartItem($(this));
   }, 500))
 
   // modal confirmation when cart item is about to be removed
@@ -360,19 +380,8 @@ $(function(){
       return;
     }
 
-    $('#delivery-options').empty();
-    deliveryOptions = await getDeliveryOptions(value);
-    deliveryOptions.forEach((item, index) => {
-      const cardEl = DeliveryOptionCard({
-        name: `${item.shipping_name} - ${item.service_name}`,
-        cost: currencyFormat.format(item.shipping_cost),
-        estimation: item.etd,
-        index
-      });
 
-      $('#delivery-options').append(cardEl);
-      $('#delivery-options .card').eq(0).trigger('click');
-    });
+    updateDeliveryOptions();
   });
 
   $('#payment_method').on('change', function(){
