@@ -162,6 +162,11 @@ return [
             'path' => storage_path('logs/komerce.log'),
         ],
 
+        'whatsapp' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/whatsapp.log'),
+        ],
+
     ],
 
 ];

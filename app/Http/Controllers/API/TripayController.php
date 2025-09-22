@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\Gmail;
 use App\Helpers\Stock;
+use App\Helpers\Utils;
+use App\Helpers\WhatsApp;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +31,11 @@ class TripayController extends Controller {
           // email receipt
           $emailTemplate = view('email.order', compact('order'))->render();
           Gmail::send($order->user->email, config('app.name'). ": Kuitansi Pesanan", $emailTemplate);
+
+          // send notification to admin
+          $amount = Utils::currencyFormat($order->grand_total);
+          $notificationMessage = "Pesanan {$order->code} senilai: {$amount} telah dibayar." ;
+          WhatsApp::sendText($notificationMessage);
         break;
 
         case 'FAILED':

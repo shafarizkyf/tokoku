@@ -7,6 +7,7 @@ use App\Helpers\Komerce;
 use App\Helpers\Stock;
 use App\Helpers\Tripay;
 use App\Helpers\Utils;
+use App\Helpers\WhatsApp;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Cart;
@@ -139,6 +140,10 @@ class OrderController extends Controller {
         if ($cart) {
           $cart->items()->delete();
         }
+
+        $amount = Utils::currencyFormat($order->grand_total);
+        $notificationMessage = "Kamu mendapatkan pesanan baru ({$order->code}) senilai: {$amount}. Kamu sedang menunggu pembayaran" ;
+        WhatsApp::sendText($notificationMessage);
 
         $response = response([
           'success' => true,
