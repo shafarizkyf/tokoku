@@ -84,6 +84,12 @@
       <div class="col-md-3">
         <div class="card">
           <div class="card-body">
+            <dl class="row">
+              <dt class="col-4 text-muted fw-normal">Stok</dt>
+              <dd class="col-8 text-end"><span id="stock-amount">-</span></dd>
+              <dt class="col-4 text-muted fw-normal">Berat (Kg)</dt>
+              <dd class="col-8 text-end"><span id="weight-amount">-</span></dd>
+            </dl>
             <div class="d-grid gap-2">
               <button type="button" class="btn btn-primary" name="btn-add-to-cart">+ Keranjang</button>
             </div>
