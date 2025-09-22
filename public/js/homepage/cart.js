@@ -192,6 +192,7 @@ $(function(){
       subtotal: item.subtotal,
       subtotalOriginal: item.price * item.quantity,
       url: item.product_url,
+      stock: item.product_stock,
     })).join('');
 
     $('.cart-items').append(cartItemsCard);
@@ -240,11 +241,17 @@ $(function(){
     const card = $(this).closest('.card')
     const cartItemId = card.data('id');
     const quantityEl = card.find('[name="quantity"]');
+    const stock = card.find('[name="quantity"]').attr('max');
 
     let quantity = Number(quantityEl.val());
 
     if (operation === 'add') {
-      quantity += 1;
+      const requestedQuantity = quantity + 1
+      if (requestedQuantity < stock) {
+        quantity = requestedQuantity
+      } else {
+        toast({ text: 'Stok tidak mencukupi' });
+      }
     } else if (quantity > 1) {
       quantity -= 1;
     }

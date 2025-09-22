@@ -82,7 +82,7 @@ const TableRowVariantEditForm = ({ attributeLength, combination }) => {
   `
 }
 
-const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal, url }) => {
+const CartItemCard = ({ id, imageUrl, productName, productOptions, price, originalPrice, quantity, subtotal, subtotalOriginal, url, stock }) => {
   return `
     <div class="card" data-id="${id}">
       <div class="card-body">
@@ -101,7 +101,7 @@ const CartItemCard = ({ id, imageUrl, productName, productOptions, price, origin
         <div class="d-flex justify-content-between mt-3">
           <div class="d-flex gap-1 quantity">
             <button class="btn btn-sm btn-dark" name="substract">-</button>
-            <input type="number" name="quantity" class="form-control" placeholder="Qty" value="${quantity}">
+            <input type="number" name="quantity" class="form-control" placeholder="Qty" value="${quantity}" min="1" max="${stock}">
             <button class="btn btn-sm btn-dark" name="add">+</button>
           </div>
           <button class="btn btn-light" name="btn-remove-item">

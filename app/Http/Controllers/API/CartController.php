@@ -48,6 +48,7 @@ class CartController extends Controller {
           'product_image' => $cartItem->product->images->count() ? $cartItem->product->images[0] : null,
           'product_variation_id' => $cartItem->product_variation_id,
           'product_url' => route('products.details', ['productSlug' => $cartItem->product->slug]),
+          'product_stock' => $cartItem->productVariation->stock,
           'quantity' => $cartItem->quantity,
           'price' => $cartItem->price_at_time,
           'price_discount' => $cartItem->price_discount_at_time,
