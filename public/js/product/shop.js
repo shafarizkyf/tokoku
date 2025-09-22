@@ -102,6 +102,7 @@ $(function(){
 
     $('#stock-amount').text(variationOption.stock);
     $('#weight-amount').text((Number(variationOption.weight) / 1000).toFixed(2));
+    $('input[name="quantity"]').attr('max', variationOption.stock);
 
     toggleAddToCartButtonByStock(variationOption.stock);
   });
@@ -118,13 +119,49 @@ $(function(){
       product_variation_id: optionIds.length
         ? variationOptions[optionIds.join(',')]?.id // when product has variant options
         : $('meta[name="init-product-variation"]').attr('content'), // when product does not have variant option
-      quantity: 1,
+      quantity: $('input[name="quantity"]').val(),
     };
 
     $.post(`/api/carts`, data).then((response) => {
       refreshCartCounter();
       toast({ text: response.message });
     });
+  });
+
+  // handler for changing quantity (by button)
+  $(document).on('click', '.quantity > button', function(e){
+    e.preventDefault();
+    const operation = $(this).attr('name');
+    const quantityEl = $('[name="quantity"]');
+    const stock = quantityEl.attr('max');
+
+    let quantity = Number(quantityEl.val()) || 1;
+
+    if (operation === 'add') {
+      const requestedQuantity = quantity + 1
+      if (requestedQuantity < stock) {
+        quantity = requestedQuantity
+      } else {
+        toast({ text: 'Stok tidak mencukupi' });
+      }
+    } else if (quantity > 1) {
+      quantity -= 1;
+    }
+
+    quantityEl.val(quantity);
+  });
+
+  // handler for changing quantity (by text input)
+  $(document).on('keyup', 'input[name="quantity"]', function(e) {
+    const stock = $('[name="quantity"]').attr('max');
+    const requestedQuantity = $(this).val();
+
+    if (requestedQuantity > stock) {
+      toast({ text: 'Stok hanya tersedia: ' + stock });
+      $(this).val(stock);
+    } else if (requestedQuantity < 1) {
+      $(this).val('1');
+    }
   });
 
   // toggle full description

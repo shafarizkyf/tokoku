@@ -61,6 +61,14 @@
             @endforeach
           </div>
         @endif
+        <div class="mt-3">
+          <p class="mb-2"><span class="fw-bolder">Kuantitas</span>:</p>
+          <div class="d-flex gap-1 my-2 quantity align-items-center">
+            <button class="btn btn-sm btn-dark" name="substract">-</button>
+            <input type="number" name="quantity" class="form-control border border-dark" placeholder="Qty" value="1" min="1" max="1">
+            <button class="btn btn-sm btn-dark" name="add">+</button>
+          </div>
+        </div>
 
         <div class="d-grid gap-2 mt-5 description-wrapper">
           <h6 class="m-0">Deskripsi Produk</h6>
