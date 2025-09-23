@@ -57,6 +57,10 @@ class ProductVariation extends Model {
     return $this->discount_price ? number_format(100 - $this->discount_price / $this->price * 100, 0) : null;
   }
 
+  public function getWeightInKgAttribute() {
+    return $this->weight ? number_format($this->weight / 1000, 2) : 0;
+  }
+
   public function scopeOptions($query) {
     return $query->select(
         'variation_attributes.id as attribute_id',

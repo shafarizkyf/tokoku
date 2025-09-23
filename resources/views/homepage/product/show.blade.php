@@ -77,7 +77,7 @@
           <p class="mb-2"><span class="fw-bolder">Kuantitas</span>:</p>
           <div class="d-flex gap-1 my-2 quantity align-items-center">
             <button class="btn btn-sm btn-dark" name="substract">-</button>
-            <input type="number" name="quantity" class="form-control border border-dark" placeholder="Qty" value="1" min="1" max="1">
+            <input type="number" name="quantity" class="form-control border border-dark" placeholder="Qty" value="1" min="1" max="{{ count($variationOptions) ? 1 : $product->variation->stock }}">
             <button class="btn btn-sm btn-dark" name="add">+</button>
           </div>
         </div>
@@ -106,9 +106,9 @@
           <div class="card-body">
             <dl class="row">
               <dt class="col-4 text-muted fw-normal">Stok</dt>
-              <dd class="col-8 text-end"><span id="stock-amount">-</span></dd>
+              <dd class="col-8 text-end"><span id="stock-amount">{{ count($variationOptions) ? '-' : $product->variation->stock }}</span></dd>
               <dt class="col-4 text-muted fw-normal">Berat (Kg)</dt>
-              <dd class="col-8 text-end"><span id="weight-amount">-</span></dd>
+              <dd class="col-8 text-end"><span id="weight-amount">{{ count($variationOptions) ? '-' : ($product->variation->weight_in_kg ?? '-') }}</span></dd>
               <dt class="col-4 text-muted fw-normal">Subtotal</dt>
               <dd class="col-8 text-end"><span id="subtotal">-</span></dd>
             </dl>
