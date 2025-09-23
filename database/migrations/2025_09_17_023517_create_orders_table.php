@@ -27,6 +27,8 @@ return new class extends Migration
             $table->decimal('grand_total', 12);
             $table->string('courier', 50);
             $table->string('resi_number', 50)->nullable();
+            $table->text('resi_track_response')->nullable();
+            $table->timestamp('resi_last_track_at')->nullable();
             $table->string('recipient_name', 50);
             $table->string('recipient_phone', 20);
             $table->text('address_detail');

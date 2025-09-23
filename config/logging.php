@@ -167,6 +167,11 @@ return [
             'path' => storage_path('logs/whatsapp.log'),
         ],
 
+        'binderbyte' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/binderbyte.log'),
+        ],
+
     ],
 
 ];
