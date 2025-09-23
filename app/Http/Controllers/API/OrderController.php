@@ -94,14 +94,15 @@ class OrderController extends Controller {
       $order->grand_total = $grandTotal;
       $order->courier = $preferredDelivery['shipping_name'] . ' - ' . $preferredDelivery['service_name'];
       $order->recipient_name = $request->shipping['receiver_name'];
-      $order->recipient_phone = '0000';
+      $order->recipient_phone = $request->shipping['phone_number'];
+      $order->payment_expired_at = now()->add('hour', 1);
       $order->province_id = $request->shipping['province_id'];
       $order->regency_id = $request->shipping['regency_id'];
       $order->district_id = $request->shipping['district_id'];
       $order->village_id = $request->shipping['village_id'];
       $order->postal_code = $request->shipping['postal_code'];
       $order->address_detail = $request->shipping['address'];
-      $order->note = $request->shipping['shipping_note'];
+      $order->note = isset($request->shipping['note']) ? $request->shipping['note'] : null;
       $order->save();
 
       foreach($orderItems as $orderItem) {

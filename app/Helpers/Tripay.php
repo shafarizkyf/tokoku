@@ -61,10 +61,10 @@ class Tripay {
       'merchant_ref'    => $order->code,
       'amount'          => $order->grand_total,
       'customer_name'   => $order->recipient_name,
-      'customer_email'  => 'emailpelanggan@domain.com',
-      'customer_phone'  => '081234567890',
+      'customer_email'  => $order->user->email,
+      'customer_phone'  => $order->recipient_phone,
       'order_items'     => $orderItems,
-      'return_url'      => 'https://domainanda.com/redirect',
+      'return_url'      => route('orders.details', ['orderCode' => $order->code]),
       'expired_time'    => (time() + (24 * 60 * 60)), // 24 hour
       'signature'       => self::signature($order->code, $order->grand_total)
     ];

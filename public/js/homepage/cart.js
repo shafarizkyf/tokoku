@@ -408,7 +408,17 @@ $(function(){
     const order = {
       items: orderItems,
       payment_method: $('#payment_method').val(),
-      shipping: currentShippingForm,
+      shipping: {
+        receiver_name: currentShippingForm.name,
+        phone_number: currentShippingForm.phone_number,
+        address: currentShippingForm.address_detail,
+        province_id: currentShippingForm.province_id,
+        regency_id: currentShippingForm.regency_id,
+        district_id: currentShippingForm.district_id,
+        village_id: currentShippingForm.village_id,
+        postal_code: currentShippingForm.postal_code,
+        note: currentShippingForm.note,
+      },
       delivery: getPreferredDelivery(),
     }
 
