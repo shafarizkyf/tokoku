@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller {
 
   public function index() {
-    $orders = Order::select('id', 'code', 'recipient_name', 'grand_total', 'status', 'payment_status')
+    $orders = Order::select('id', 'code', 'recipient_name', 'grand_total', 'status', 'payment_status', 'resi_number')
       ->with([
         'orderDetails:id,order_id,product_id',
         'orderDetails.product:id,name,slug',
@@ -158,6 +158,28 @@ class OrderController extends Controller {
     });
 
     return $response;
+  }
+
+  public function updateResiNumber(Order $order) {
+    $data = request()->validate([
+      'resi_number' => 'required'
+    ]);
+
+    if ($order->status == 'completed') {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat merubah resi. Pesanan sudah selesai'
+      ]);
+    }
+
+    $order->resi_number = $data['resi_number'];
+    $order->status = 'shipped';
+    $order->save();
+
+    return response([
+      'success' => true,
+      'message' => 'Tersimpan'
+    ]);
   }
 
 }

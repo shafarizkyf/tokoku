@@ -22,6 +22,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
   Route::prefix('orders')->group(function(){
     Route::get('', [OrderController::class, 'index']);
     Route::post('', [OrderController::class, 'store']);
+    Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber']);
   });
 
   Route::prefix('payments')->group(function(){

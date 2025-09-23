@@ -37,4 +37,12 @@
       </div>
     </div>
   </div>
+  @component('components.modal', ['title' => 'Nomor Resi', 'id' => 'resiNumberModal'])
+    <div class="modal-body">
+      <input type="text" class="form-control mb-3" name="resi_number" id="resi_number" placeholder="Masukan nomor resi">
+      <div class="d-grid">
+        <button class="btn btn-primary" name="btn-save-resi-number">Simpan</button>
+      </div>
+    </div>
+  @endcomponent
 @endsection
