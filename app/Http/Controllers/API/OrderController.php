@@ -22,11 +22,12 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller {
 
   public function index() {
-    $orders = Order::with([
-      'orderDetails:id,order_id,product_id',
-      'orderDetails.product:id,name,slug',
-      'orderDetails.product.image',
-    ]);
+    $orders = Order::select('id', 'code', 'recipient_name', 'grand_total', 'status', 'payment_status')
+      ->with([
+        'orderDetails:id,order_id,product_id',
+        'orderDetails.product:id,name,slug',
+        'orderDetails.product.image',
+      ]);
 
     return DataTable::ajaxTable($orders);
   }
