@@ -169,3 +169,37 @@ img.tiny {
 .carousel-item {
   height: 32rem;
 }
+
+
+/* Small devices (potrait phones) */
+@media (min-width: 375px) {
+  .product-list > .product {
+    width: calc(100% / 2 - 1rem);
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .product-list > .product {
+    width: calc(100% / 5 - 1rem);
+  }
+}
+
+/* Extra large devices (1200px and up) */
+@media (min-width: 1200px) {
+
+}
+
+/* Ultra wide screens (1400px and up) */
+@media (min-width: 1400px) {
+
+}
