@@ -6,7 +6,7 @@ const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, c
         <h5 class="card-title text-ellipsis">
           <span>${title}</span>
         </h5>
-        <div class="d-flex align-items-center gap-1 mb-3">
+        <div class="d-flex flex-wrap align-items-center gap-1 mb-3">
           ${discountPrice
               ? `<p class="badge text-bg-danger m-0">${discountPrice}</p> <p class="fs-6 m-0 text-muted text-decoration-line-through">${normalPrice}</p>`
               : `<p class="m-0">${normalPrice}</p>`}
