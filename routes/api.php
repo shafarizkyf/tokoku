@@ -7,6 +7,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
 use App\Http\Controllers\API\TripayController;
+use App\Http\Controllers\API\UserAddressController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function(){
@@ -37,6 +38,10 @@ Route::middleware(['auth:sanctum'])->group(function(){
 
   Route::prefix('shipping')->group(function(){
     Route::post('calculate', [ShippingController::class, 'calculate']);
+  });
+
+  Route::prefix('users')->group(function(){
+    Route::apiResource('addresses', UserAddressController::class);
   });
 });
 

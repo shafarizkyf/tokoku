@@ -3,19 +3,12 @@ $(function(){
   let cartItems = [];
   let deliveryOptions = [];
   let paymentChannels = [];
+  let currentShippingForm;
 
   // for cart item deletion
   let tempCartItemId;
   let tempCartItemEl;
   let shouldUpdateCart = false;
-
-  let currentShippingForm = localStorage.getItem(LOCAL_KEY.SHIPPING)
-    ? JSON.parse(localStorage.getItem(LOCAL_KEY.SHIPPING))
-    : null
-
-  if (currentShippingForm) {
-    $('#selected-address').text(`${currentShippingForm.receiver_name} - ${currentShippingForm.address_full}`);
-  }
 
   const selectizeConfig = {
     valueField: 'id',
@@ -40,6 +33,8 @@ $(function(){
   }
 
   const saveShippingForm = () => {
+    const userAddressId = $('#user_address_id').val();
+
     const address_full = $('#address').val().trim() + ', '
       +  $('#village_id').text().trim() + ', '
       +  $('#district_id').text().trim() + ', '
@@ -48,20 +43,25 @@ $(function(){
       +  '(' + $('#postal_code').val().trim() + ')'
 
     const data = {
-      receiver_name: $('#receiver_name').val(),
+      name: $('#receiver_name').val(),
       province_id: $('#province_id').val(),
       regency_id: $('#regency_id').val(),
       district_id: $('#district_id').val(),
       village_id: $('#village_id').val(),
       postal_code: $('#postal_code').val(),
-      address: $('#address').val(),
-      shipping_note: $('#shipping_note').val(),
-      address_full,
+      address_detail: $('#address').val(),
+      note: $('#shipping_note').val(),
+      phone_number: $('#phone_number').val(),
+      _method: userAddressId ? 'PATCH' : 'POST'
     };
 
-    console.log(data);
-    localStorage.setItem(LOCAL_KEY.SHIPPING, JSON.stringify(data));
-    $('#selected-address').text(`${data.receiver_name} - ${data.address_full}`);
+    $.post(userAddressId ? `/api/users/addresses/${userAddressId}` : '/api/users/addresses', data);
+
+    $('#selected-address').text(`${data.name} (${data.phone_number}) - ${address_full}`);
+  }
+
+  const getAddresses = async () => {
+    return await $.getJSON('/api/users/addresses');
   }
 
   const getDeliveryOptions = async (postalCode) => {
@@ -430,12 +430,24 @@ $(function(){
     })
   });
 
-  getProvinces().then(response => {
-    appendOptions(proviceSelectEl, response, currentShippingForm?.province_id);
-    $('#receiver_name').val(currentShippingForm?.receiver_name || '');
-    $('#address').val(currentShippingForm?.address || '');
-    $('#shipping_note').val(currentShippingForm?.shipping_note || '');
+  Promise.all([
+    getProvinces(),
+    getAddresses(),
+    getPaymentChannels(),
+  ]).then(allResponses => {
+    const [provinces, addresses] = allResponses
+    currentShippingForm = addresses.length ? addresses[0] : null;
+
+    appendOptions(proviceSelectEl, provinces, currentShippingForm?.province_id);
+    $('#receiver_name').val(currentShippingForm?.name || '');
+    $('#address').val(currentShippingForm?.address_detail || '');
+    $('#shipping_note').val(currentShippingForm?.note || '');
+    $('#phone_number').val(currentShippingForm?.phone_number || '');
+    $('#user_address_id').val(currentShippingForm?.id || '');
+
+    if (currentShippingForm) {
+      $('#selected-address').text(`${currentShippingForm.name} (${currentShippingForm?.phone_number}) - ${currentShippingForm.full_address}`);
+    }
   });
 
-  getPaymentChannels();
 });

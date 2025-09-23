@@ -35,6 +35,7 @@
                 </div>
               </div>
               <div class="d-grid gap-2 d-none" id="shipping-form">
+                <input type="hidden" name="user_address_id" id="user_address_id" value="">
                 <input type="text" class="form-control" name="receiver_name" id="receiver_name" placeholder="Nama Penerima">
                 <select class="" name="province_id" id="province_id">
                   <option value="">Provinsi</option>
@@ -53,6 +54,7 @@
                 </select>
                 <input type="text" class="form-control" placeholder="Alamat (contoh: Jl. Ahmad Yani RT.01 RW.01)" name="address" id="address">
                 <input type="text" class="form-control" placeholder="Catatan tambahan" name="shipping_note" id="shipping_note" maxlength="100">
+                <input type="text" class="form-control" placeholder="Nomor HP" name="phone_number" id="phone_number" maxlength="20">
               </div>
               <div class="d-grid gap-2" id="delivery-options">
               </div>
