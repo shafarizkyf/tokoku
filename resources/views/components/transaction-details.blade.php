@@ -1,6 +1,6 @@
 <div class="d-grid">
   <h6>Rincian Transaksi</h6>
-  <dl class="row">
+  <dl class="row mb-0">
     @if (isset($paymentMethod))
       <dt class="col-sm-8 fw-normal">Metode Pembayaran</dt>
       <dd class="col-sm-4 text-md-end">{{ $paymentMethod }}</dd>
