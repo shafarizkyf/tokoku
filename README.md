@@ -9,7 +9,8 @@ Dengan TokoKu, pelaku usaha:
 
 ### Integrasi Fitur
 - **Gerbang Pembayaran**: [TriPay](tripay.co.id). Digunakan untuk menerima pembayaran melalui Bank/MiniMart/QRIS.
-- **Cek ongkir**: [Komerce](komerce.id) *(dulunya RajaOngkir)*
+- **Cek Ongkir**: [Komerce](komerce.id) *(dulunya RajaOngkir)*
+- **Cek Resi**: [BinderByte](binderbyte.com). Digunakan untuk mendapatkan update pengiriman paket dari ekspedisi
 - **Autentikasi**: Google OAuth. Digunakan untuk memasukan barang ke keranjang, checkout, dan melihat status order.
 - **Notifikasi**:
   - Gmail: Digunakan untuk mengirim salinan kuitansi kepada kostumer saat pesanan telah dibayar

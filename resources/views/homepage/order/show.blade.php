@@ -48,6 +48,19 @@
               </dl>
             </div>
           </div>
+          @if($order->resi_track)
+            <div class="card">
+              <div class="card-body">
+                <h6>Lacak Paket</h6>
+                <dl class="row">
+                  @foreach ($order->resi_track->history as $track)
+                    <dt class="col-3 text-muted fw-normal">{{ Carbon\Carbon::parse($track->date)->format('d M Y H:i') }}</dt>
+                    <dd class="col-9">{{ $track->desc }}</dd>
+                  @endforeach
+                </dl>
+              </div>
+            </div>
+          @endif
         </div>
       </div>
       <div class="col-md-4">

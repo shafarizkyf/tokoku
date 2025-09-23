@@ -37,6 +37,10 @@ class Order extends Model {
     return $this->payment_response && isset($this->payment_response->data) ? $this->payment_response->data->total_fee : 0;
   }
 
+  public function getResiTrackAttribute() {
+    return $this->resi_track_response ? json_decode($this->resi_track_response)->data : null;
+  }
+
   public function getGrandTotalAttribute($value) {
     return $value + $this->payment_fee;
   }
