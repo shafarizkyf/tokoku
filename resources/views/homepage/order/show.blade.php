@@ -76,8 +76,16 @@
                 <dl class="row">
                   <dt class="col-sm-4 fw-normal">Metode</dt>
                   <dd class="col-sm-8 text-md-end">{{ $order->payment_response->data->payment_name }}</dd>
-                  <dt class="col-sm-4 fw-normal">Nomor</dt>
-                  <dd class="col-sm-8 text-md-end">{{ $order->payment_response->data->pay_code }}</dd>
+                  @if(str_contains($order->payment_method, 'VA'))
+                    <dt class="col-sm-4 fw-normal">Nomor</dt>
+                    <dd class="col-sm-8 text-md-end">{{ $order->payment_response->data->pay_code }}</dd>
+                  @endif
+                  @if(str_contains($order->payment_method, 'QR'))
+                    <dt class="col-sm-4 fw-normal">QR</dt>
+                    <dd class="col-sm-8 text-md-end">
+                      <img src="{{ $order->payment_response->data->qr_url }}" class="tiny" />
+                    </dd>
+                  @endif
                 </dl>
               </div>
             </div>
