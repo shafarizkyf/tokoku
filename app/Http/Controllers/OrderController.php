@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller {
@@ -18,6 +19,13 @@ class OrderController extends Controller {
 
   public function orderEmailPreview(Order $order) {
     return view('email.order', compact('order'));
+  }
+
+  public function invoice($orderCode) {
+    $order = Order::whereCode($orderCode)->firstOrFail();
+    $pdf = Pdf::loadView('pdf.invoice', compact('order'));
+    $filename = config('app.name') . "_{$order->code}.pdf";
+    return $pdf->download($filename);
   }
 
 }

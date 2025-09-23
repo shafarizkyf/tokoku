@@ -29,6 +29,7 @@ Route::prefix('emails')->group(function(){
 
 Route::prefix('orders')->group(function(){
   Route::get('', [OrderController::class, 'index'])->name('orders.index');
+  Route::get('{orderCode}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
   Route::get('{orderCode}', [OrderController::class, 'show'])->name('orders.details');
 });
 

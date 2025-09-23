@@ -41,8 +41,10 @@
                 <dt class="col-md-2 fw-normal text-muted">Alamat</dt>
                 <dd class="col-md-10">
                   <span class="fw-medium">{{ $order->recipient_name }}</span>
-                  <p class="m-9">{{ $order->full_address }}</p>
+                  <p class="m-0">{{ $order->full_address }}</p>
                 </dd>
+                <dt class="col-md-2 fw-normal text-muted">Phone Number</dt>
+                <dd class="col-md-10">{{ $order->recipient_phone }}</dd>
               </dl>
             </div>
           </div>
@@ -72,7 +74,13 @@
                 'costShipping' => App\Helpers\Utils::currencyFormat($order->shipping_price),
                 'costProcessing' => App\Helpers\Utils::currencyFormat($order->payment_fee),
                 'grandTotal' => App\Helpers\Utils::currencyFormat($order->grand_total)
-              ]) @endcomponent
+              ])
+                @if($order->payment_status == 'paid')
+                  <div class="d-grid">
+                    <a class="btn btn-dark" href="{{ route('orders.invoice', ['orderCode' => $order->code])}}" target="_blank">Download Invoice</a>
+                  </div>
+                @endif
+              @endcomponent
             </div>
           </div>
         </div>
