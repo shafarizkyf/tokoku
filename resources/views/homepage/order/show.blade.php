@@ -87,6 +87,9 @@
                     </dd>
                   @endif
                 </dl>
+                <div class="d-grid">
+                  <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#howToPay">Cara Bayar</button>
+                </div>
               </div>
             </div>
           @endif
@@ -112,4 +115,29 @@
       </div>
     </div>
   </div>
+
+  @component('components.modal', ['title' => 'Panduan Cara Bayar', 'id' => 'howToPay'])
+    <div class="modal-body">
+      <div class="accordion" id="accordionHowToPay">
+        @foreach($order->payment_response->data->instructions as $index => $instruction)
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {{ $index == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}" aria-controls="collapse{{ $index }}">
+                {{ $instruction->title }}
+              </button>
+            </h2>
+            <div id="collapse{{ $index }}" class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}" data-bs-parent="#accordionHowToPay">
+              <div class="accordion-body">
+                <ul>
+                  @foreach ($instruction->steps as $step)
+                    <li>{!! $step !!}</li>
+                  @endforeach
+                </ul>
+              </div>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  @endcomponent
 @endsection
