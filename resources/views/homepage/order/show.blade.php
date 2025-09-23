@@ -48,16 +48,20 @@
               </dl>
             </div>
           </div>
-          @if($order->resi_track)
+          @if($order->resi_number)
             <div class="card">
               <div class="card-body">
                 <h6>Lacak Paket</h6>
-                <dl class="row">
-                  @foreach ($order->resi_track->history as $track)
-                    <dt class="col-3 text-muted fw-normal">{{ Carbon\Carbon::parse($track->date)->format('d M Y H:i') }}</dt>
-                    <dd class="col-9">{{ $track->desc }}</dd>
-                  @endforeach
-                </dl>
+                @if($order->resi_track)
+                  <dl class="row">
+                    @foreach ($order->resi_track->history as $track)
+                      <dt class="col-3 text-muted fw-normal">{{ Carbon\Carbon::parse($track->date)->format('d M Y H:i') }}</dt>
+                      <dd class="col-9">{{ $track->desc }}</dd>
+                    @endforeach
+                  </dl>
+                @else
+                  <p class="m-0 text-muted">Data belum tersedia</p>
+                @endif
               </div>
             </div>
           @endif
