@@ -30,7 +30,7 @@ class GoogleOAuthController extends Controller {
 
     Auth::login($user);
     $user->tokens()->delete();
-    $token = $user->createToken('customer');
+    $token = $user->createToken('api', [$user->user_type]);
     session()->put('token', $token->plainTextToken);
     return redirect('/');
   }

@@ -39,9 +39,9 @@ Route::middleware(['auth'])->group(function(){
       Route::get('add', [ProductController::class, 'add'])->name('products.add');
       Route::get('{product}/edit', [ProductController::class, 'edit']);
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
-      Route::get('{productSlug}', [ProductController::class, 'show'])->name('products.details');
     });
   });
 });
 
+Route::get('products/{productSlug}', [ProductController::class, 'show'])->name('products.details');
 Route::get('image-downloader', [ImageDownloadController::class, 'download']);

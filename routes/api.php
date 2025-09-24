@@ -22,11 +22,19 @@ Route::middleware(['auth:sanctum'])->group(function(){
   Route::prefix('orders')->group(function(){
     Route::get('', [OrderController::class, 'index']);
     Route::post('', [OrderController::class, 'store']);
-    Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber']);
+    Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber'])->middleware('ability:admin');
   });
 
   Route::prefix('payments')->group(function(){
     Route::get('channels', [PaymentController::class, 'channels']);
+  });
+
+  Route::middleware('ability:admin')->group(function(){
+    Route::prefix('products')->group(function(){
+      Route::post('', [ProductController::class, 'store']);
+      Route::patch('{product}', [ProductController::class, 'update']);
+      Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+    });
   });
 
   Route::prefix('region')->group(function(){
@@ -50,9 +58,6 @@ Route::prefix('products')->group(function(){
   Route::get('', [ProductController::class, 'index']);
   Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
   Route::get('{product}', [ProductController::class, 'show']);
-  Route::post('', [ProductController::class, 'store']);
-  Route::patch('{product}', [ProductController::class, 'update']);
-  Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
 });
 
 Route::get('search', [ProductController::class, 'search']);
