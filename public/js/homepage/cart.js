@@ -55,6 +55,9 @@ $(function(){
       _method: userAddressId ? 'PATCH' : 'POST'
     };
 
+    currentShippingForm = {...data};
+    delete currentShippingForm._method;
+
     $.post(userAddressId ? `/api/users/addresses/${userAddressId}` : '/api/users/addresses', data);
 
     $('#selected-address').text(`${data.name} (${data.phone_number}) - ${address_full}`);

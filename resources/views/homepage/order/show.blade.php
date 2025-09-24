@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-  'type' => 'homepage'
+  'type' => 'admin'
 ])
 
 @section('css')
@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-  <div class="container order">
+  <div class="container py-5">
     <h1 class="h3">Rincian Transaksi</h1>
     <div class="row mt-3">
       <div class="col-md-8">
@@ -95,6 +95,12 @@
           @endif
           <div class="card">
             <div class="card-body">
+              @if($order->status != 'pending')
+                <dl class="row mb-3">
+                  <dt class="col-6 fw-normal">Status</dt>
+                  <dd class="col-6 fw-bold text-end">{{ $order->order_status }}</dd>
+                </dl>
+              @endif
               @component('components.transaction-details', [
                 'paymentMethod' => !$order->status == 'pending' ? $order->payment_response->data->payment_name : null,
                 'itemCount' => $order->orderDetails->count(),

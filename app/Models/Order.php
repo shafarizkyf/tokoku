@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\UserOwnedScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ScopedBy([UserOwnedScope::class])]
 class Order extends Model {
 
   public $appends = [

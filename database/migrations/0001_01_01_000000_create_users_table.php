@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('provider', ['default', 'google']);
             $table->string('password')->nullable();
+            $table->enum('user_type', ['admin', 'staff', 'customer'])->default('customer');
             $table->rememberToken();
             $table->timestamps();
         });

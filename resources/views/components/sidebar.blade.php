@@ -11,23 +11,22 @@
         Order
       </a>
     </li>
+    @if($user->user_type == 'admin')
     <li class="nav-item">
       <a href="{{ route('products.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'products.index' ? 'active' : '' }}" aria-current="page">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
         Produk
       </a>
     </li>
+    @endif
   </ul>
   <hr>
   <div class="dropdown">
     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-      <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
-      <strong>Admin</strong>
+      <strong>{{ $user->name }}</strong>
     </a>
     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-      <li><a class="dropdown-item" href="#">Settings</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="#">Sign out</a></li>
+      <li><a class="dropdown-item" href="{{ route('logout') }}">Logout</a></li>
     </ul>
   </div>
 </div>

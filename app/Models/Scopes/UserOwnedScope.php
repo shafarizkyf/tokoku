@@ -15,7 +15,9 @@ class UserOwnedScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         if ($user = Auth::user()) {
-            $builder->where('user_id', $user->id);
+            if ($user->user_type == 'customer') {
+                $builder->where('user_id', $user->id);
+            }
         }
     }
 }
