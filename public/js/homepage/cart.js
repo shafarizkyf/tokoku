@@ -422,11 +422,13 @@ $(function(){
         postal_code: currentShippingForm.postal_code,
         note: currentShippingForm.note,
       },
-      delivery: getPreferredDelivery(),
+      delivery: { ...getPreferredDelivery() },
     }
 
-    delete order.delivery.shipping_cost;
-    delete order.delivery.etd;
+    if (order.delivery) {
+      delete order.delivery.shipping_cost;
+      delete order.delivery.etd;
+    }
 
     console.info('order', order);
 
