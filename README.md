@@ -37,3 +37,8 @@ Dengan TokoKu, pelaku usaha:
    - Admin mendapatkan notifikasi pesanan masuk
    - Admin memproses pesanan
    - Admin memberikan nomor resi pada order
+
+### Kebutuhan Instalasi
+- PHP 8.4
+- MySQL 8.0
+- Composer 2.8
