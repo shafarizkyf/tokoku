@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="token" content="{{ session('token') }}">
+  <meta name="user-type" content="{{ $user ? $user->user_type : 'guest' }}">
   @if(isset($productId))
     <meta name="product-id" content="{{ $productId }}">
   @endif

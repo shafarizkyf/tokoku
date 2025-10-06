@@ -35,7 +35,10 @@ $(function(){
                   <div class="btn-group" role="group">
                     <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu">
-                      <li><button name="btn-show-resi-number" class="dropdown-item" data-id="${item.id}" data-resi-number="${item.resi_number}">Atur Pengiriman</a></li>
+                      ${userType === 'admin'
+                          ? '<li><button name="btn-show-resi-number" class="dropdown-item" data-id="${item.id}" data-resi-number="${item.resi_number}">Atur Pengiriman</a></li>'
+                          : ''
+                      }
                       <li><button class="dropdown-item text-danger" href="#">Batalkan Order</button></li>
                     </ul>
                   </div>
