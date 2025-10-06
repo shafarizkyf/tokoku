@@ -39,6 +39,7 @@ Dengan TokoKu, pelaku usaha:
    - Admin memberikan nomor resi pada order
 
 ### Kebutuhan Instalasi
-- PHP 8.4
-- MySQL 8.0
-- Composer 2.8
+- [PHP 8.4](https://www.php.net/downloads.php)
+- [MySQL 8.0](https://www.mysql.com/downloads/)
+- [Composer 2.8](https://getcomposer.org/download/)
+- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia)
