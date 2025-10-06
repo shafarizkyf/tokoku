@@ -23,6 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::get('', [OrderController::class, 'index']);
     Route::post('', [OrderController::class, 'store']);
     Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber'])->middleware('ability:admin');
+    Route::patch('{order}/cancel', [OrderController::class, 'cancel']);
   });
 
   Route::prefix('payments')->group(function(){

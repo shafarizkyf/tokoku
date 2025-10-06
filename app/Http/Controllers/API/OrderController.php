@@ -182,4 +182,21 @@ class OrderController extends Controller {
     ]);
   }
 
+  public function cancel(Order $order) {
+    if (!$order->is_cancelable) {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat membatalkan pesanan'
+      ], 400);
+    }
+
+    $order->status = 'cancelled';
+    $order->save();
+
+    return response([
+      'success' => true,
+      'message' => 'Pesanan dibatalkan'
+    ]);
+  }
+
 }

@@ -1,4 +1,5 @@
 const token = $('meta[name="token"]').attr('content');
+const userType = $('meta[name="user-type"]').attr('content');
 
 const currencyFormat = new Intl.NumberFormat('id-ID', {
   style: 'currency',

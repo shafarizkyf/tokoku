@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model {
 
   public $appends = [
-    'order_status'
+    'order_status',
+    'is_cancelable',
   ];
 
   protected function casts() {
@@ -30,6 +31,10 @@ class Order extends Model {
       $this->regency->name . ', ' .
       $this->province->name . ' ' .
       "({$this->postal_code})";
+  }
+
+  public function getIsCancelableAttribute() {
+    return $this->status == 'pending';
   }
 
   public function getPaymentResponseAttribute($value){
