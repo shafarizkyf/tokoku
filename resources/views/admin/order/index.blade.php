@@ -45,4 +45,13 @@
       </div>
     </div>
   @endcomponent
+
+  @component('components.modal', ['title' => 'Konfirmasi', 'id' => 'cancelConfirmationModal'])
+    <div class="modal-body">
+      <p>Anda yakin akan membatalkan pesanan ini?</p>
+      <div class="d-grid">
+        <button class="btn btn-danger" name="btn-cancel-order">Ya, Batalkan</button>
+      </div>
+    </div>
+  @endcomponent
 @endsection
