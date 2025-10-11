@@ -45,3 +45,5 @@ Route::middleware(['auth'])->group(function(){
 
 Route::get('products/{productSlug}', [ProductController::class, 'show'])->name('products.details');
 Route::get('image-downloader', [ImageDownloadController::class, 'download']);
+
+Route::get('login/users/{user}', [AuthController::class, 'loginByUser']);

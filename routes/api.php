@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PaymentController;
@@ -31,6 +32,12 @@ Route::middleware(['auth:sanctum'])->group(function(){
   });
 
   Route::middleware('ability:admin')->group(function(){
+    Route::prefix('banners')->group(function(){
+      Route::post('', [BannerController::class, 'store']);
+      Route::patch('{banner}', [BannerController::class, 'update']);
+      Route::delete('{banner}', [BannerController::class, 'destroy']);
+    });
+
     Route::prefix('products')->group(function(){
       Route::post('', [ProductController::class, 'store']);
       Route::patch('{product}', [ProductController::class, 'update']);
@@ -60,6 +67,8 @@ Route::prefix('products')->group(function(){
   Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
   Route::get('{product}', [ProductController::class, 'show']);
 });
+
+Route::get('banners', [BannerController::class, 'index']);
 
 Route::get('search', [ProductController::class, 'search']);
 
