@@ -158,6 +158,7 @@ img.tiny {
 /* Carousel base class */
 .carousel {
   margin-bottom: 4rem;
+  margin-top: 59px;
 }
 /* Since positioning the image, we need to help out the caption */
 .carousel-caption {
@@ -167,9 +168,14 @@ img.tiny {
 
 /* Declare heights because of positioning of img element */
 .carousel-item {
-  height: 32rem;
+  height: 18rem;
 }
 
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 /* Small devices (potrait phones) */
 @media (min-width: 375px) {

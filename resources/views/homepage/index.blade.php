@@ -7,7 +7,7 @@
 
 @section('content')
   <div class="container">
-    @component('components.carousel') @endcomponent
+    @component('components.carousel', compact('banners')) @endcomponent
     <div class="row">
       <div class="col-md-12">
         <div class="product-list d-flex gap-3 flex-wrap"></div>
