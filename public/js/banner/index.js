@@ -18,6 +18,7 @@ $(function(){
   $(document).on('click', 'button[name="btn-edit"]', function(e){
     e.preventDefault();
     banner = banners[$(this).data('index')];
+    $('.modal-title').text('Edit Banner');
 
     $('#link').val(banner.link);
     $('#description').val(banner.description);
@@ -28,6 +29,7 @@ $(function(){
   $('button[name="btn-create-new"]').on('click', function(e){
     e.preventDefault();
     banner = null;
+    $('.modal-title').text('Buat Banner');
     $('input, textarea').val('');
 
     $('#bannerInputModal').modal('show');
