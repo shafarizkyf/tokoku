@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\OrderController;
@@ -34,6 +35,7 @@ Route::middleware(['auth'])->group(function(){
   });
 
   Route::middleware(EnsureUserTypeIsValid::class . ':admin')->group(function(){
+    Route::get('banners', [BannerController::class, 'index'])->name('banners.index');
     Route::prefix('products')->group(function(){
       Route::get('', [ProductController::class, 'index'])->name('products.index');
       Route::get('add', [ProductController::class, 'add'])->name('products.add');
