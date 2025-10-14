@@ -8,7 +8,15 @@ $(function(){
       const previews = response.map((banner, index) => `
           <div class="d-flex flex-column align-items-start gap-2">
             <img src="${banner.url}" class="banner-preview">
-            <button class="btn btn-sm btn-dark" name="btn-edit" data-index="${index}">Edit</button>
+            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+              <button class="btn btn-sm btn-dark" name="btn-edit" data-index="${index}">Edit</button>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu">
+                  <li><button class="dropdown-item text-danger" name="btn-delete-confirmation" data-index="${index}">Hapus</button></li>
+                </ul>
+              </div>
+            </div>
           </div>
         `);
       $('#previews').empty().append(previews.join(''));
@@ -26,6 +34,12 @@ $(function(){
     $('#bannerInputModal').modal('show');
   });
 
+  $(document).on('click', 'button[name="btn-delete-confirmation"]', function(e){
+    e.preventDefault();
+    banner = banners[$(this).data('index')];
+    $('#confirmModal').modal('show');
+  });
+
   $('button[name="btn-create-new"]').on('click', function(e){
     e.preventDefault();
     banner = null;
@@ -33,6 +47,17 @@ $(function(){
     $('input, textarea').val('');
 
     $('#bannerInputModal').modal('show');
+  });
+
+  $('button[name="btn-confirm-modal"]').on('click', function(e){
+    e.preventDefault();
+    $.post(`/api/banners/${banner.id}`, {
+      _method: 'DELETE'
+    }).then(response => {
+      toast({ text: response.message });
+      fetchBanners();
+    });
+    $('#confirmModal').modal('hide');
   });
 
   $('button[name="btn-save-banner"]').on('click', function(e){

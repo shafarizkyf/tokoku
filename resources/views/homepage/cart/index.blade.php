@@ -84,5 +84,7 @@
     </div>
   </div>
 
-  @component('components.modal-confirm') @endcomponent
+  @component('components.modal-confirm')
+    <p>Hapus produk dari keranjang?</p>
+  @endcomponent
 @endsection

@@ -42,4 +42,8 @@
       </div>
     </div>
   @endcomponent
+
+  @component('components.modal-confirm')
+    <p>Hapus banner ini?</p>
+  @endcomponent
 @endsection
