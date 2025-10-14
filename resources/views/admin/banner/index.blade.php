@@ -14,7 +14,7 @@
               <h5 class="card-title m-0">Data Produk</h5>
               <button class="btn btn-primary" name="btn-create-new">Buat Baru</button>
             </div>
-            <div class="d-flex gap-3" id="previews">
+            <div class="d-flex flex-wrap gap-3" id="previews">
 
             </div>
           </div>

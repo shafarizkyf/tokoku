@@ -23,7 +23,7 @@ class StoreBannerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' =>'required|file|image|max:500',
+            'image' => [$this->banner ? 'nullable' : 'required', 'file', 'image', 'max:500'],
             'link' => 'nullable',
             'description' => 'nullable',
         ];
