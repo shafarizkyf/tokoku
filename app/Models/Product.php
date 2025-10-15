@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class Product extends Model {
 
-  use Searchable;
+  use Searchable, SoftDeletes;
 
   protected $fillable = [
     'store_id',
@@ -17,6 +18,10 @@ class Product extends Model {
     'sold_count',
     'created_by',
     'source',
+  ];
+
+  protected $hidden = [
+    'deleted_at'
   ];
 
   public function toSearchableArray() {

@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariation extends Model {
+
+  use SoftDeletes;
 
   protected $fillable = [
     'product_id',
@@ -39,7 +42,8 @@ class ProductVariation extends Model {
   protected $hidden = [
     'product_id',
     'created_at',
-    'updated_at'
+    'updated_at',
+    'deleted_at'
   ];
 
   public $appends = [

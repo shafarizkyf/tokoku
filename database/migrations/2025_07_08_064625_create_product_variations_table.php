@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('stock')->default(0);
             $table->decimal('weight')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
