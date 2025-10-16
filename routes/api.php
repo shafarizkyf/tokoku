@@ -5,6 +5,7 @@ use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\ProductImageController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
 use App\Http\Controllers\API\TripayController;
@@ -40,6 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
 
     Route::prefix('products')->group(function(){
       Route::post('', [ProductController::class, 'store']);
+      Route::post('{product}/images', [ProductImageController::class, 'store']);
       Route::patch('{product}', [ProductController::class, 'update']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
     });

@@ -3,6 +3,7 @@ $(function(){
   let product;
   let productVariants = [];
   let isEditForm = location.pathname.includes('/edit');
+  let imageFiles = [];
 
   const getProductDetail = () => {
     const productId = location.pathname.split('/')[2];
@@ -37,7 +38,7 @@ $(function(){
           });
         });
 
-        appendImageThumbnails(product.images.map(item => item.url));
+        appendImageThumbnails(product.images.map(item => item.url), 'local');
 
         // wait for table rows generation
         _.delay(() => {
@@ -101,9 +102,14 @@ $(function(){
     $('#table-variants tbody').empty().append(updatedRows);
   }
 
-  const appendImageThumbnails = (imageUrls = []) => {
-    const imagesEl = imageUrls.map(imageUrl => `<img src="${imageUrl}" class="img-thumbnail tiny" />`);
-    $('.images').empty().append(imagesEl.join(''));
+  const appendImageThumbnails = (imageUrls = [], sourceType, clearFirst = false) => {
+    const imagesEl = imageUrls.map((imageUrl, index) => ImagePreviewTiny({ imageUrl, index, sourceType }));
+
+    if (clearFirst) {
+      $('.images').empty();
+    }
+
+    $('.images').append(imagesEl.join(''));
   }
 
   const toggleParentPriceAndStock = (isVisible) => {
@@ -186,12 +192,18 @@ $(function(){
         selection[0].selectize.setValue(variant.options.map(option => option.name));
       });
 
-      appendImageThumbnails(product.images);
+      appendImageThumbnails(product.images, 'external');
 
       generateTableHead(variantAttributes.map(item => item.text));
       generateTableRowsCombination();
     });
   };
+
+  const previewImage = () => {
+    const images = imageFiles.map(file => URL.createObjectURL(file));
+    $('.image-container > button[data-source="tmp"]').parent().remove();
+    appendImageThumbnails(images, 'tmp');
+  }
 
   $('#btn-import').on('click', function(){
     $('#imported-file').click();
@@ -235,6 +247,32 @@ $(function(){
 
     // show table variants
     $('#table-variants').parent().removeClass('d-none');
+  });
+
+  $('button[name="btn-add-image"]').on('click', function(e){
+    e.preventDefault();
+    $('#file-picker').trigger('click');
+  });
+
+  $('#file-picker').on('change', function(e){
+    e.preventDefault();
+    const files = $(this)[0].files;
+    for(let i=0; i<files.length; i++) {
+      imageFiles.push(files[0]);
+    }
+    previewImage();
+  });
+
+  $('.images').on('click', 'button[name="btn-remove-img"]', function(e){
+    e.preventDefault();
+    const source = $(this).data('source');
+    const index = $(this).data('index');
+
+    if (source === 'tmp') {
+      imageFiles.splice(index, 1);
+    }
+
+    $(this).parent().remove();
   });
 
   $('#variant-options').on('click', 'button[name="btn-remove-variant"]', function(e){
@@ -330,13 +368,28 @@ $(function(){
     }
 
     if (isEditForm) {
-      $.post(`/api/products/${product.id}`, {
-        ...productDetails,
-        _method: 'PATCH'
-      });
-    } else {
-      $.post(`/api/products`, productDetails);
+      productDetails._method = 'PATCH';
     }
+
+
+    $.post(isEditForm ? `/api/products/${product.id}` : '/api/products', productDetails)
+      .then(response => {
+
+        const formData = new FormData;
+        imageFiles.forEach((image, index) => {
+          formData.append(`images[${index}]`, image);
+        });
+
+        $.ajax({
+          url: `/api/products/${response.data.product_id}/images`,
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+        });
+
+        toast({ text: response.message });
+      });
   });
 
   if (isEditForm) {

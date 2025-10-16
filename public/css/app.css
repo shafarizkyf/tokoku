@@ -152,6 +152,36 @@ img.tiny {
   width: 100px;
 }
 
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container img {
+  display: block;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-container:hover .remove-btn {
+  opacity: 1;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 

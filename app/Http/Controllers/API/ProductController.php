@@ -45,7 +45,12 @@ class ProductController extends Controller {
   public function store(ProductUpdateRequest $productUpdateRequest) {
     Log::channel('product')->info('store', $productUpdateRequest->toArray());
 
-    DB::transaction(function() use (&$productUpdateRequest) {
+    $response = response([
+      'success' => false,
+      'message' => 'Unexpected Error'
+    ], 500);
+
+    DB::transaction(function() use ($productUpdateRequest, &$response) {
       $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
 
       $product = new Product;
@@ -68,15 +73,28 @@ class ProductController extends Controller {
       } else {
         $this->saveProductVariations($product, $productUpdateRequest);
       }
+
+      $response = response([
+        'success' => true,
+        'message' => 'Tersimpan',
+        'data' => [
+          'product_id' => $product->id,
+        ],
+      ]);
     });
 
-    return response([]);
+    return $response;
   }
 
   public function update(Product $product, ProductUpdateRequest $productUpdateRequest) {
     Log::channel('product')->info('update', $productUpdateRequest->toArray());
 
-    DB::transaction(function() use ($product, &$productUpdateRequest) {
+    $response = response([
+      'success' => false,
+      'message' => 'Unexpected Error'
+    ], 500);
+
+    DB::transaction(function() use ($product, $productUpdateRequest, &$response) {
       $prevSlug = $product->slug;
       $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
 
@@ -124,9 +142,17 @@ class ProductController extends Controller {
           }
         }
       }
+
+      $response = response([
+        'success' => true,
+        'message' => 'Tersimpan',
+        'data' => [
+          'product_id' => $product->id,
+        ],
+      ]);
     });
 
-    return response([]);
+    return $response;
   }
 
   public function getProductVariationByOptions($productId) {
