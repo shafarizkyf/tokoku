@@ -375,18 +375,20 @@ $(function(){
     $.post(isEditForm ? `/api/products/${product.id}` : '/api/products', productDetails)
       .then(response => {
 
-        const formData = new FormData;
-        imageFiles.forEach((image, index) => {
-          formData.append(`images[${index}]`, image);
-        });
+        if (imageFiles.length) {
+          const formData = new FormData;
+          imageFiles.forEach((image, index) => {
+            formData.append(`images[${index}]`, image);
+          });
 
-        $.ajax({
-          url: `/api/products/${response.data.product_id}/images`,
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-        });
+          $.ajax({
+            url: `/api/products/${response.data.product_id}/images`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+          });
+        }
 
         toast({ text: response.message });
       });
