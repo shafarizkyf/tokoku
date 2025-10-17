@@ -12,7 +12,6 @@ class ProductImage extends Model {
   ];
 
   protected $hidden = [
-    'id',
     'product_id',
     'path',
     'created_at',

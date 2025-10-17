@@ -143,6 +143,16 @@ class ProductController extends Controller {
         }
       }
 
+      if ($productUpdateRequest->deleted_images) {
+        foreach($productUpdateRequest->deleted_images as $imageId) {
+          $image = ProductImage::find($imageId);
+          if ($image) {
+            Storage::disk('public')->delete($image->path);
+            $image->delete();
+          }
+        }
+      }
+
       $response = response([
         'success' => true,
         'message' => 'Tersimpan',

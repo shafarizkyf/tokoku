@@ -4,6 +4,7 @@ $(function(){
   let productVariants = [];
   let isEditForm = location.pathname.includes('/edit');
   let imageFiles = [];
+  let deletedImageIds = [];
 
   const getProductDetail = () => {
     const productId = location.pathname.split('/')[2];
@@ -270,6 +271,9 @@ $(function(){
 
     if (source === 'tmp') {
       imageFiles.splice(index, 1);
+    } else if (source === 'local') {
+      const image = product.images[index];
+      deletedImageIds.push(image.id);
     }
 
     $(this).parent().remove();
@@ -360,6 +364,7 @@ $(function(){
       condition: $('[name="product-condition"]:checked').val(),
       variations,
       image_urls: imageUrls,
+      deleted_images: deletedImageIds,
     };
 
     if (!variations.length) {
