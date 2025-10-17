@@ -6,7 +6,9 @@ use App\Helpers\DataTable;
 use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DestroyProductRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
@@ -147,7 +149,6 @@ class ProductController extends Controller {
         foreach($productUpdateRequest->deleted_images as $imageId) {
           $image = ProductImage::find($imageId);
           if ($image) {
-            Storage::disk('public')->delete($image->path);
             $image->delete();
           }
         }
@@ -165,6 +166,28 @@ class ProductController extends Controller {
     return $response;
   }
 
+  public function destroy(Product $product, DestroyProductRequest $request) {
+    $hasOrder = OrderDetail::whereProductId($product->id)->count();
+    if ($hasOrder) {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat menghapus produk, hanya dapat me-non-aktifkan produk ini'
+      ], 400);
+    }
+
+    ProductVariation::whereProductId($product->id)->delete();
+
+    foreach($product->images as $image) {
+      $image->delete();
+    }
+
+    $product->delete();
+
+    return response([
+      'success' => true,
+      'message' => 'Dihapus'
+    ]);
+  }
   public function getProductVariationByOptions($productId) {
     $variationOptionId = explode(',', request('variation_option_id'));
     $count = count($variationOptionId);

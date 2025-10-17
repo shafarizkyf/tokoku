@@ -376,6 +376,11 @@ $(function(){
       productDetails._method = 'PATCH';
     }
 
+    if (!productDetails.image_urls.length && !imageFiles.length) {
+      toast({ text: 'Mohon sediakan setidaknya 1 gambar' });
+      return;
+    }
+
 
     $.post(isEditForm ? `/api/products/${product.id}` : '/api/products', productDetails)
       .then(response => {

@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
       Route::post('', [ProductController::class, 'store']);
       Route::post('{product}/images', [ProductImageController::class, 'store']);
       Route::patch('{product}', [ProductController::class, 'update']);
+      Route::delete('{product}', [ProductController::class, 'destroy']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
     });
   });
