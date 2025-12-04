@@ -43,3 +43,8 @@ Dengan TokoKu, pelaku usaha:
 - [MySQL 8.0](https://www.mysql.com/downloads/)
 - [Composer 2.8](https://getcomposer.org/download/)
 - [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia)
+
+
+### Instalasi
+- Docker
+  `docker compose --env-file .env.docker.dev up -d`
