@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedInteger('review_count')->default(0);
             $table->unsignedInteger('sold_count')->default(0);
             $table->text('source')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

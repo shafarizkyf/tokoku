@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ProductActive;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Scout\Searchable;
 
+#[ScopedBy([ProductActive::class])]
 class Product extends Model {
 
   use Searchable, SoftDeletes;
@@ -23,6 +27,15 @@ class Product extends Model {
   protected $hidden = [
     'deleted_at'
   ];
+
+  protected static function booted(): void {
+    static::updated(function(Product $product){
+      if (!$product->is_active) {
+        CartItem::whereProductId($product->id)->delete();
+        Cache::tags(['cartItems'])->flush();
+      }
+    });
+  }
 
   public function toSearchableArray() {
     return [

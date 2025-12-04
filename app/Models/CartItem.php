@@ -38,19 +38,19 @@ class CartItem extends Model {
     $cacheKey = "cartItems.{$userId}";
 
     static::created(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::saved(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::updated(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::deleted(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
   }
 

@@ -11,8 +11,8 @@ $(function(){
               <img src="${item.image?.url}" alt="" />
               <h5>${item.name}</h5>
             </div>`,
-            0,
-            0,
+            currencyFormat.format(item.variation.price),
+            item.variation.stock,
             `
               <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

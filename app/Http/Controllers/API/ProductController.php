@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use App\Models\ProductVariationOption;
+use App\Models\Scopes\ProductActive;
 use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
@@ -27,6 +28,7 @@ class ProductController extends Controller {
     $products = Product::with(['image', 'variation']);
 
     if (request('view') == 'datatable') {
+      $products = $products->withoutGlobalScope(ProductActive::class);
       return DataTable::ajaxTable($products);
     }
 
@@ -188,6 +190,23 @@ class ProductController extends Controller {
       'message' => 'Dihapus'
     ]);
   }
+
+  public function toggleActive($productId) {
+    $data = request()->validate([
+      'is_active' => 'required|boolean'
+    ]);
+
+    $product = Product::withoutGlobalScopes()->findOrFail($productId);
+
+    $product->is_active = $data['is_active'];
+    $product->save();
+
+    return response([
+      'success' => true,
+      'message' => "Produk telah " . ($product->is_active ? 'aktif' : 'di nonaktifkan')
+    ]);
+  }
+
   public function getProductVariationByOptions($productId) {
     $variationOptionId = explode(',', request('variation_option_id'));
     $count = count($variationOptionId);
