@@ -50,4 +50,8 @@ class ProductController extends Controller {
     return view('admin.product.form', compact('product'));
   }
 
+  public function bulkDiscountPage() {
+    return view('admin.product.bulk_discount');
+  }
+
 }

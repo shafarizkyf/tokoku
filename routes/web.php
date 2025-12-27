@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function(){
       Route::get('add', [ProductController::class, 'add'])->name('products.add');
       Route::get('{product}/edit', [ProductController::class, 'edit']);
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
+      Route::get('bulk-discount', [ProductController::class, 'bulkDiscountPage'])->name('products.bulk_discount');
     });
   });
 });

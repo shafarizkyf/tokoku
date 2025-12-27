@@ -23,6 +23,7 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="{{ route('products.import') }}">Import</a></li>
+                  <li><a class="dropdown-item" href="{{ route('products.bulk_discount') }}">Diskon Massal</a></li>
                 </ul>
               </div>
             </div>
