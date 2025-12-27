@@ -244,7 +244,7 @@ class ProductController extends Controller {
 
       $store = Shop::create([
         'name' => $productsRequest->store->name,
-        'description' => $productsRequest->store->meta->description,
+        'description' => Str::limit(strip_tags($productsRequest->store->meta->description), 255),
         'image_path' => $path,
       ]);
 
