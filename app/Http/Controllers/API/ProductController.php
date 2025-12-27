@@ -8,6 +8,8 @@ use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DestroyProductRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Http\Requests\BulkDiscountRequest;
+
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -457,6 +459,34 @@ class ProductController extends Controller {
         ]);
       }
     }
+  }
+
+  public function bulkDiscount(BulkDiscountRequest $request) {
+    DB::transaction(function() use ($request) {
+      $productVariations = ProductVariation::whereIn('product_id', $request->product_ids)->get();
+
+      foreach($productVariations as $variation) {
+        $discountPrice = 0;
+        if ($request->discount_type == 'fixed') {
+          $discountPrice = $variation->price - $request->discount_value;
+        } else if ($request->discount_type == 'percentage') {
+          $discountPrice = $variation->price - ($variation->price * ($request->discount_value / 100));
+        }
+
+        // Ensure discount price is not negative or zero if you want (but usually it shouldn't be negative)
+        // If discount price is greater than normal price, it's weird, but formula above handles it (it would be negative).
+        // Let's cap at 0.
+        if ($discountPrice < 0) $discountPrice = 0;
+
+        $variation->discount_price = $discountPrice;
+        $variation->save();
+      }
+    });
+
+    return response([
+      'success' => true,
+      'message' => 'Diskon berhasil diterapkan'
+    ]);
   }
 
 }

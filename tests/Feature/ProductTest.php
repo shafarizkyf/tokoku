@@ -281,4 +281,60 @@ class ProductTest extends TestCase
         $response = $this->getJson("/api/products/99999");
         $response->assertStatus(404);
     }
+
+    public function test_admin_can_bulk_discount_products()
+    {
+        Sanctum::actingAs($this->admin, ['admin']);
+
+        // Create 2 products
+        $product1 = Product::create([
+            'store_id' => $this->shop->id,
+            'created_by' => $this->admin->id,
+            'name' => 'Discount Product 1',
+            'slug' => 'discount-product-1',
+            'is_active' => true,
+        ]);
+        $variation1 = ProductVariation::create([
+            'product_id' => $product1->id,
+            'sku' => 'DP-1',
+            'price' => 100000,
+            'stock' => 10
+        ]);
+
+        $product2 = Product::create([
+            'store_id' => $this->shop->id,
+            'created_by' => $this->admin->id,
+            'name' => 'Discount Product 2',
+            'slug' => 'discount-product-2',
+            'is_active' => true,
+        ]);
+        $variation2 = ProductVariation::create([
+            'product_id' => $product2->id,
+            'sku' => 'DP-2',
+            'price' => 200000,
+            'stock' => 10
+        ]);
+
+        // Apply 20% discount
+        $payload = [
+            'product_ids' => [$product1->id, $product2->id],
+            'discount_type' => 'percentage',
+            'discount_value' => 20
+        ];
+
+        $response = $this->postJson('/api/products/bulk-discount', $payload);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        // Verify databases
+        $this->assertDatabaseHas('product_variations', [
+            'id' => $variation1->id,
+            'discount_price' => 80000 // 100k - 20%
+        ]);
+        $this->assertDatabaseHas('product_variations', [
+            'id' => $variation2->id,
+            'discount_price' => 160000 // 200k - 20%
+        ]);
+    }
 }

@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
       Route::patch('{product}', [ProductController::class, 'update']);
       Route::delete('{product}', [ProductController::class, 'destroy']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+      Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
     });
   });
 
