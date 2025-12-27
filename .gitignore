@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+storage/google-oauth-credentials.json
+
+storage/google-oauth-token.json

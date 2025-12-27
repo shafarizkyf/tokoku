@@ -1,0 +1,17 @@
+.container.cart {
+  margin-top: 100px;
+}
+
+.cart-items .card:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.card .img-thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.card .variation {
+  font-size: 12px;
+}

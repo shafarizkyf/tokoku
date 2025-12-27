@@ -1,0 +1,248 @@
+#content-wrapper {
+  width: calc(100% - 280px);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-ellipsis {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.position-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+#dropzone {
+    width: 100%;
+    height: 200px;
+    border: 2px #939393 dashed;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+}
+
+#dropzone p {
+    font-size: 12px;
+    text-align: center;
+    font-style: italic;
+}
+
+.import-container {
+  position: sticky;
+  top: 0;
+}
+
+#brand-container img {
+  width: 120px;
+}
+
+.product.card h5 > a {
+  font-size: 16px;
+  color: var(--bs-card-title-color);
+  text-decoration: none;
+}
+
+.product.card p.fs-6 {
+  font-size: 10px !important;
+}
+
+.product.card .card-title {
+  height: 50px;
+}
+
+table td img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+table td h5 {
+  font-size: 0.8rem;
+}
+
+#main-img-preview img {
+  width: 350px;
+  height: 350px;
+  object-fit: cover;
+}
+
+.search-result {
+  position: absolute;
+  background: white;
+  border-radius: 6px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 0px;
+}
+
+.search-result li {
+  list-style: none;
+  padding: 6px 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result li > a {
+  text-decoration: none;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.search-result li:hover {
+  background-color: #f1f1f1;
+}
+
+#delivery-options {
+  max-height: 270px;
+  overflow-y: auto;
+}
+
+.description {
+  height: 250px;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.description.expand {
+  height: auto;
+}
+
+.btn-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-toggle .icon {
+  transition: transform 0.3s ease;
+}
+
+.description.expand + .btn-toggle .icon {
+  transform: rotate(180deg);
+}
+
+img.tiny {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.quantity > button {
+  width: 30px;
+}
+
+.quantity > input {
+  width: 100px;
+}
+
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container img {
+  display: block;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-container:hover .remove-btn {
+  opacity: 1;
+}
+
+/* CUSTOMIZE THE CAROUSEL
+-------------------------------------------------- */
+
+/* Carousel base class */
+.carousel {
+  margin-bottom: 4rem;
+  margin-top: 59px;
+}
+/* Since positioning the image, we need to help out the caption */
+.carousel-caption {
+  bottom: 3rem;
+  z-index: 10;
+}
+
+/* Declare heights because of positioning of img element */
+.carousel-item {
+  height: 18rem;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-preview {
+  width: 300px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Small devices (potrait phones) */
+@media (min-width: 375px) {
+  .product-list > .product {
+    width: calc(100% / 2 - 1rem);
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .product-list > .product {
+    width: calc(100% / 5 - 1rem);
+  }
+}
+
+/* Extra large devices (1200px and up) */
+@media (min-width: 1200px) {
+
+}
+
+/* Ultra wide screens (1400px and up) */
+@media (min-width: 1400px) {
+
+}

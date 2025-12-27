@@ -1,0 +1,468 @@
+$(function(){
+  let isEditShippingForm = false;
+  let cartItems = [];
+  let deliveryOptions = [];
+  let paymentChannels = [];
+  let currentShippingForm;
+
+  // for cart item deletion
+  let tempCartItemId;
+  let tempCartItemEl;
+  let shouldUpdateCart = false;
+
+  const selectizeConfig = {
+    valueField: 'id',
+    labelField: 'name',
+    searchField: 'name',
+  };
+
+  const proviceSelectEl = $('#province_id').selectize(selectizeConfig);
+  const regencySelectEl = $('#regency_id').selectize(selectizeConfig);
+  const districtSelectEl = $('#district_id').selectize(selectizeConfig);
+  const villageSelectEl = $('#village_id').selectize(selectizeConfig);
+  const postalSelectEl = $('#postal_code').selectize(selectizeConfig);
+  const paymentMethodSelectEl = $('#payment_method').selectize(selectizeConfig);
+
+  const appendOptions = (selectizeEl, options, initValue = null) => {
+    const control = selectizeEl[0].selectize;
+    options.forEach(item => {
+      control.addOption(item);
+    });
+
+    control.setValue([initValue]);
+  }
+
+  const saveShippingForm = () => {
+    const userAddressId = $('#user_address_id').val();
+
+    const address_full = $('#address').val().trim() + ', '
+      +  $('#village_id').text().trim() + ', '
+      +  $('#district_id').text().trim() + ', '
+      +  $('#regency_id').text().trim() + ', '
+      +  $('#province_id').text().trim() + ' '
+      +  '(' + $('#postal_code').val().trim() + ')'
+
+    const data = {
+      name: $('#receiver_name').val(),
+      province_id: $('#province_id').val(),
+      regency_id: $('#regency_id').val(),
+      district_id: $('#district_id').val(),
+      village_id: $('#village_id').val(),
+      postal_code: $('#postal_code').val(),
+      address_detail: $('#address').val(),
+      note: $('#shipping_note').val(),
+      phone_number: $('#phone_number').val(),
+      _method: userAddressId ? 'PATCH' : 'POST'
+    };
+
+    currentShippingForm = {...data};
+    delete currentShippingForm._method;
+
+    $.post(userAddressId ? `/api/users/addresses/${userAddressId}` : '/api/users/addresses', data);
+
+    $('#selected-address').text(`${data.name} (${data.phone_number}) - ${address_full}`);
+  }
+
+  const getAddresses = async () => {
+    return await $.getJSON('/api/users/addresses');
+  }
+
+  const getDeliveryOptions = async (postalCode) => {
+    return await $.post(`/api/shipping/calculate`, {
+      postal_code: postalCode
+    });
+  }
+
+  const getPaymentChannels = async () => {
+    paymentChannels = await $.getJSON(`/api/payments/channels`);
+    const remapChannels = paymentChannels.map(item => ({ id: item.code, name: item.name }));
+    appendOptions(paymentMethodSelectEl, remapChannels);
+  }
+
+  const getPreferredDelivery = () => {
+    const selectedDeliveryIndex = $('.card.delivery-option.border-primary').data('index');
+    return deliveryOptions[selectedDeliveryIndex]
+  }
+
+  const getPreferredPayment = () => {
+    const channelId = $('#payment_method').val();
+    return paymentChannels.find(item => item.code === channelId);
+  }
+
+  const getCostOfItems = () => {
+    return cartItems.reduce((a, b) => a + b.quantity * (b.price_discount || b.price), 0);
+  }
+
+  const getCostOfShipping = () => {
+    const preferredDelivery = getPreferredDelivery();
+    return preferredDelivery ? preferredDelivery['shipping_cost'] : 0;
+  }
+
+  const getCostOfProcessing = () => {
+    const preferredPayment = getPreferredPayment();
+    let totalFee = 0;
+    if (preferredPayment) {
+      const { flat, percent } = preferredPayment.total_fee;
+      totalFee = flat;
+      if (Number(percent)) {
+        const feeAmount = (getCostOfItems() + getCostOfShipping()) * Number(percent) / 100;
+        totalFee += feeAmount;
+      }
+    }
+
+    return totalFee;
+  }
+
+  const getGrandTotal = () => {
+    return getCostOfItems() +
+      getCostOfShipping() +
+      getCostOfProcessing()
+  }
+
+  const updateCostOfItems = () => {
+    $('#item-count').text(cartItems.length);
+    $('#cost-items').text(currencyFormat.format(getCostOfItems()));
+    // need to update because some has % fee
+    updateCostOfProcessing();
+
+    updateGrandTotal();
+  }
+
+  const updateCostOfShipping = () => {
+    $('#cost-shipping').text(currencyFormat.format(getCostOfShipping()));
+    // need to update because some has % fee
+    updateCostOfProcessing();
+
+    updateGrandTotal();
+  }
+
+  const updateCostOfProcessing = () => {
+    $('#cost-proccessing').text(currencyFormat.format(getCostOfProcessing()));
+
+    updateGrandTotal();
+  }
+
+  const updateGrandTotal = () => {
+    $('#grand-total').text(currencyFormat.format(getGrandTotal()));
+  }
+
+  const updateDeliveryOptions = async () => {
+    $('#delivery-options').empty();
+    const postalCode = $('#postal_code').val();
+    deliveryOptions = await getDeliveryOptions(postalCode);
+    deliveryOptions.forEach((item, index) => {
+      const cardEl = DeliveryOptionCard({
+        name: `${item.shipping_name} - ${item.service_name}`,
+        cost: currencyFormat.format(item.shipping_cost),
+        estimation: item.etd,
+        index
+      });
+
+      $('#delivery-options').append(cardEl);
+      $('#delivery-options .card').eq(0).trigger('click');
+    });
+  }
+
+  const toggleContainerVisibility = (hasItem = false) => {
+    if (hasItem) {
+      $('h1').removeClass('d-none');
+      $('#cart-content').removeClass('d-none');
+    } else {
+      $('#cart-empty-content').removeClass('d-none');
+      $('#cart-content').addClass('d-none');
+      $('h1').addClass('d-none');
+    }
+  }
+
+  const updateCartItem = (el) => {
+    const card = el.closest('.card')
+    const cartItemId = card.data('id');
+    const quantity = card.find('[name="quantity"]').val();
+
+    $.post(`/api/carts/items/${cartItemId}`, {
+      _method: 'PATCH',
+      quantity,
+    }).then(() => {
+      updateDeliveryOptions();
+    });
+  }
+
+  const deleteCartItem = () => {
+    $('#confirmModal').modal('hide');
+    $.post(`/api/carts/items/${tempCartItemId}`, {
+      _method: 'DELETE'
+    }).then(response => {
+      cartItems = cartItems.filter(item => item.cart_item_id !== tempCartItemId);
+      toggleContainerVisibility(cartItems.length > 0);
+
+      tempCartItemEl.closest('.card').remove();
+    }).always(() => {
+      refreshCartCounter();
+      updateCostOfItems();
+      updateGrandTotal();
+    });
+  }
+
+  $.getJSON('/api/carts').then(response => {
+    cartItems = response;
+
+    toggleContainerVisibility(response.length > 0)
+
+    const cartItemsCard = response.map(item => CartItemCard({
+      imageUrl: item.product_image?.url,
+      price: item.price_discount || item.price,
+      originalPrice: item.price,
+      productName: item.product_name,
+      productOptions: item.options,
+      id: item.cart_item_id,
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+      subtotalOriginal: item.price * item.quantity,
+      url: item.product_url,
+      stock: item.product_stock,
+    })).join('');
+
+    $('.cart-items').append(cartItemsCard);
+
+    updateCostOfItems();
+  });
+
+  $('#btn-set-shipping').on('click', function(){
+    if (!isEditShippingForm) {
+      $(this).text('Simpan');
+      $('#btn-pay').addClass('d-none');
+      $('#selected-address').addClass('d-none');
+      $('#delivery-options').addClass('d-none');
+      $('#shipping-form').removeClass('d-none');
+      isEditShippingForm = true;
+    } else {
+      $(this).text('Atur alamat');
+      saveShippingForm();
+      $('#btn-pay').removeClass('d-none');
+      $('#selected-address').removeClass('d-none');
+      $('#delivery-options').removeClass('d-none');
+      $('#shipping-form').addClass('d-none');
+      isEditShippingForm = false;
+    }
+  });
+
+  // handler for removing cart item
+  $(document).on('click', 'button[name="btn-remove-item"]', function(e){
+    e.preventDefault();
+    tempCartItemId = $(this).closest('.card').data('id');
+    tempCartItemEl = $(this);
+    $('#confirmModal').modal('show');
+  });
+
+  // handler for changing shipping courier
+  $(document).on('click', '.card.delivery-option', function(){
+    $('.card.delivery-option').removeClass('border-primary');
+    $(this).addClass('border-primary');
+    updateCostOfShipping();
+  });
+
+  // handler for changing quantity (by button)
+  $(document).on('click', '.quantity > button', function(e){
+    e.preventDefault();
+    const operation = $(this).attr('name');
+    const card = $(this).closest('.card')
+    const cartItemId = card.data('id');
+    const quantityEl = card.find('[name="quantity"]');
+    const stock = card.find('[name="quantity"]').attr('max');
+
+    let quantity = Number(quantityEl.val()) || 1;
+
+    if (operation === 'add') {
+      const requestedQuantity = quantity + 1
+      if (requestedQuantity <= stock) {
+        quantity = requestedQuantity
+        shouldUpdateCart = true;
+      } else {
+        shouldUpdateCart = false;
+        toast({ text: 'Stok tidak mencukupi' });
+      }
+    } else if (quantity > 1) {
+      shouldUpdateCart = true;
+      quantity -= 1;
+    }
+
+    cartItems = cartItems.map(item => {
+      if (item.cart_item_id === Number(cartItemId)) {
+        item.quantity = quantity;
+      }
+      return item;
+    });
+
+    card.find('.display-quantity').text(quantity);
+    quantityEl.val(quantity);
+    updateCostOfItems();
+  });
+
+  // handler for changing quantity (by text input)
+  $(document).on('keyup', 'input[name="quantity"]', function(e) {
+    const card = $(this).closest('.card');
+    const stock = card.find('[name="quantity"]').attr('max');
+    const requestedQuantity = Number($(this).val()) || 1;
+
+    if (requestedQuantity > stock) {
+      shouldUpdateCart = false;
+      toast({ text: 'Stok hanya tersedia: ' + stock });
+      $(this).val(stock);
+    } else if (requestedQuantity < 1) {
+      shouldUpdateCart = true;
+      $(this).val('1');
+    }
+  });
+
+  // handler for updating quantity to BE and recalculate shipping cost (by buttons)
+  $(document).on('click', '.quantity > button', _.debounce(function(){
+    if (shouldUpdateCart) {
+      updateCartItem($(this));
+    }
+  }, 500))
+
+  // handler for updating quantity to BE and recalculate shipping cost (by text input)
+  $(document).on('keyup', 'input[name="quantity"]', _.debounce(function(){
+    if (shouldUpdateCart) {
+      updateCartItem($(this));
+    }
+  }, 500))
+
+  // modal confirmation when cart item is about to be removed
+  $('button[name="btn-confirm-modal"]').on('click', function(e){
+    e.preventDefault();
+    deleteCartItem();
+  });
+
+  $('#province_id').on('change', function(){
+    const provinceId = $(this).val();
+    regencySelectEl[0].selectize.clearOptions();
+    districtSelectEl[0].selectize.clearOptions();
+    villageSelectEl[0].selectize.clearOptions();
+    postalSelectEl[0].selectize.clearOptions();
+
+    if (provinceId) {
+      getRegencies(provinceId).then(response => {
+        appendOptions(regencySelectEl, response, currentShippingForm?.regency_id);
+      })
+    }
+  });
+
+  $('#regency_id').on('change', function(){
+    const provinceId = $('#province_id').val();
+    const regencyId = $(this).val();
+    districtSelectEl[0].selectize.clearOptions();
+    villageSelectEl[0].selectize.clearOptions();
+    postalSelectEl[0].selectize.clearOptions();
+
+    if (provinceId && regencyId) {
+      getDistricts(provinceId, regencyId).then(response => appendOptions(districtSelectEl, response, currentShippingForm?.district_id))
+    }
+  });
+
+  $('#district_id').on('change', function(){
+    const provinceId = $('#province_id').val();
+    const regencyId = $('#regency_id').val();
+    const districtId = $('#district_id').val();
+
+    villageSelectEl[0].selectize.clearOptions();
+    postalSelectEl[0].selectize.clearOptions();
+
+    if (provinceId && regencyId && districtId) {
+      getVillages(provinceId, regencyId, districtId).then(response => appendOptions(villageSelectEl, response, currentShippingForm?.village_id))
+    }
+  });
+
+  $('#village_id').on('change', function(){
+    const villageId = $(this).val();
+    postalSelectEl[0].selectize.clearOptions();
+
+    if (villageId) {
+      getPostalCode(villageId).then(response => {
+        const remapOptions = response.map(item => ({id: item[0], name: item[0]}));
+        appendOptions(postalSelectEl, remapOptions, currentShippingForm?.postal_code)
+      });
+    }
+  });
+
+  $('#postal_code').on('change', async function(){
+    const value = $(this).val();
+
+    // to not fetch delivery options
+    if (!value || !cartItems.length) {
+      return;
+    }
+
+
+    updateDeliveryOptions();
+  });
+
+  $('#payment_method').on('change', function(){
+    updateCostOfProcessing();
+  });
+
+  $('#btn-pay').on('click', function(e){
+    e.preventDefault();
+    const orderItems = cartItems.map(item => ({
+      product_variation_id: item.product_variation_id,
+      quantity: item.quantity,
+    }));
+
+    const order = {
+      items: orderItems,
+      payment_method: $('#payment_method').val(),
+      shipping: {
+        receiver_name: currentShippingForm.name,
+        phone_number: currentShippingForm.phone_number,
+        address: currentShippingForm.address_detail,
+        province_id: currentShippingForm.province_id,
+        regency_id: currentShippingForm.regency_id,
+        district_id: currentShippingForm.district_id,
+        village_id: currentShippingForm.village_id,
+        postal_code: currentShippingForm.postal_code,
+        note: currentShippingForm.note,
+      },
+      delivery: { ...getPreferredDelivery() },
+    }
+
+    if (order.delivery) {
+      delete order.delivery.shipping_cost;
+      delete order.delivery.etd;
+    }
+
+    console.info('order', order);
+
+    $(this).text('Mohon tunggu...');
+    $(this).attr('disabled', 'disabled');
+    $.post('/api/orders', order).then(response => {
+      if (response.success && response?.data?.url) {
+        location.href = response.data.url;
+      }
+    }).fail((error) => {
+      $(this).text('Bayar');
+      $(this).removeAttr('disabled', 'disabled');
+      console.error(error);
+    })
+  });
+
+  Promise.all([
+    getProvinces(),
+    getAddresses(),
+    getPaymentChannels(),
+  ]).then(allResponses => {
+    const [provinces, addresses] = allResponses
+    currentShippingForm = addresses.length ? addresses[0] : null;
+
+    appendOptions(proviceSelectEl, provinces, currentShippingForm?.province_id);
+    $('#receiver_name').val(currentShippingForm?.name || '');
+    $('#address').val(currentShippingForm?.address_detail || '');
+    $('#shipping_note').val(currentShippingForm?.note || '');
+    $('#phone_number').val(currentShippingForm?.phone_number || '');
+    $('#user_address_id').val(currentShippingForm?.id || '');
+
+    if (currentShippingForm) {
+      $('#selected-address').text(`${currentShippingForm.name} (${currentShippingForm?.phone_number}) - ${currentShippingForm.full_address}`);
+    }
+  });
+
+});

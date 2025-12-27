@@ -127,6 +127,51 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'product' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/product.log'),
+        ],
+
+        'cart' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/cart.log'),
+        ],
+
+        'tripay' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/tripay.log'),
+        ],
+
+        'order' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/order.log'),
+        ],
+
+        'oauth' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/oauth.log'),
+        ],
+
+        'email' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/email.log'),
+        ],
+
+        'komerce' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/komerce.log'),
+        ],
+
+        'whatsapp' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/whatsapp.log'),
+        ],
+
+        'binderbyte' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/binderbyte.log'),
+        ],
+
     ],
 
 ];
