@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\OrderController;
@@ -34,14 +35,18 @@ Route::middleware(['auth'])->group(function(){
   });
 
   Route::middleware(EnsureUserTypeIsValid::class . ':admin')->group(function(){
+    Route::get('banners', [BannerController::class, 'index'])->name('banners.index');
     Route::prefix('products')->group(function(){
       Route::get('', [ProductController::class, 'index'])->name('products.index');
       Route::get('add', [ProductController::class, 'add'])->name('products.add');
       Route::get('{product}/edit', [ProductController::class, 'edit']);
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
+      Route::get('bulk-discount', [ProductController::class, 'bulkDiscountPage'])->name('products.bulk_discount');
     });
   });
 });
 
 Route::get('products/{productSlug}', [ProductController::class, 'show'])->name('products.details');
 Route::get('image-downloader', [ImageDownloadController::class, 'download']);
+
+Route::get('login/users/{user}', [AuthController::class, 'loginByUser']);

@@ -12,7 +12,6 @@ class ProductImage extends Model {
   ];
 
   protected $hidden = [
-    'id',
     'product_id',
     'path',
     'created_at',
@@ -22,6 +21,12 @@ class ProductImage extends Model {
   public $appends = [
     'url'
   ];
+
+  protected static function booted() {
+    static::deleted(function(ProductImage $productImage){
+      Storage::disk('public')->delete($productImage->path);
+    });
+  }
 
   public function getUrlAttribute() {
     return str_contains($this->path, 'http') // path may still refer to origin host

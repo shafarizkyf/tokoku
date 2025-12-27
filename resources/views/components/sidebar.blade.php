@@ -7,15 +7,18 @@
   <ul class="nav nav-pills flex-column mb-auto">
     <li class="nav-item">
       <a href="{{ route('orders.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'orders.index' ? 'active' : '' }}" aria-current="page">
-        <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
         Order
       </a>
     </li>
     @if($user->user_type == 'admin')
     <li class="nav-item">
       <a href="{{ route('products.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'products.index' ? 'active' : '' }}" aria-current="page">
-        <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
-        Produk
+        <span class="ml-3">Produk</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{{ route('banners.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'banners.index' ? 'active' : '' }}" aria-current="page">
+        Banner
       </a>
     </li>
     @endif

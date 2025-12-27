@@ -18,7 +18,7 @@ class CartController extends Controller {
 
   public function index() {
     $user = Auth::user();
-    return Cache::remember("cartItems.{$user->id}", now()->add('hour', 1), function() use ($user) {
+    return Cache::tags(['cartItems'])->remember("cartItems.{$user->id}", now()->add('hour', 1), function() use ($user) {
       $cart = Cart::with([
         'items.product:id,name,slug',
         'items.productVariation.variationOptions.variationOption'

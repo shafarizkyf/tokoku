@@ -6,11 +6,16 @@ use App\Helpers\DataTable;
 use App\Helpers\Image;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DestroyProductRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Http\Requests\BulkDiscountRequest;
+
+use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use App\Models\ProductVariationOption;
+use App\Models\Scopes\ProductActive;
 use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
@@ -25,6 +30,7 @@ class ProductController extends Controller {
     $products = Product::with(['image', 'variation']);
 
     if (request('view') == 'datatable') {
+      $products = $products->withoutGlobalScope(ProductActive::class);
       return DataTable::ajaxTable($products);
     }
 
@@ -45,7 +51,12 @@ class ProductController extends Controller {
   public function store(ProductUpdateRequest $productUpdateRequest) {
     Log::channel('product')->info('store', $productUpdateRequest->toArray());
 
-    DB::transaction(function() use (&$productUpdateRequest) {
+    $response = response([
+      'success' => false,
+      'message' => 'Unexpected Error'
+    ], 500);
+
+    DB::transaction(function() use ($productUpdateRequest, &$response) {
       $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
 
       $product = new Product;
@@ -68,15 +79,28 @@ class ProductController extends Controller {
       } else {
         $this->saveProductVariations($product, $productUpdateRequest);
       }
+
+      $response = response([
+        'success' => true,
+        'message' => 'Tersimpan',
+        'data' => [
+          'product_id' => $product->id,
+        ],
+      ]);
     });
 
-    return response([]);
+    return $response;
   }
 
   public function update(Product $product, ProductUpdateRequest $productUpdateRequest) {
     Log::channel('product')->info('update', $productUpdateRequest->toArray());
 
-    DB::transaction(function() use ($product, &$productUpdateRequest) {
+    $response = response([
+      'success' => false,
+      'message' => 'Unexpected Error'
+    ], 500);
+
+    DB::transaction(function() use ($product, $productUpdateRequest, &$response) {
       $prevSlug = $product->slug;
       $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
 
@@ -124,9 +148,65 @@ class ProductController extends Controller {
           }
         }
       }
+
+      if ($productUpdateRequest->deleted_images) {
+        foreach($productUpdateRequest->deleted_images as $imageId) {
+          $image = ProductImage::find($imageId);
+          if ($image) {
+            $image->delete();
+          }
+        }
+      }
+
+      $response = response([
+        'success' => true,
+        'message' => 'Tersimpan',
+        'data' => [
+          'product_id' => $product->id,
+        ],
+      ]);
     });
 
-    return response([]);
+    return $response;
+  }
+
+  public function destroy(Product $product, DestroyProductRequest $request) {
+    $hasOrder = OrderDetail::whereProductId($product->id)->count();
+    if ($hasOrder) {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat menghapus produk, hanya dapat me-non-aktifkan produk ini'
+      ], 400);
+    }
+
+    ProductVariation::whereProductId($product->id)->delete();
+
+    foreach($product->images as $image) {
+      $image->delete();
+    }
+
+    $product->delete();
+
+    return response([
+      'success' => true,
+      'message' => 'Dihapus'
+    ]);
+  }
+
+  public function toggleActive($productId) {
+    $data = request()->validate([
+      'is_active' => 'required|boolean'
+    ]);
+
+    $product = Product::withoutGlobalScopes()->findOrFail($productId);
+
+    $product->is_active = $data['is_active'];
+    $product->save();
+
+    return response([
+      'success' => true,
+      'message' => "Produk telah " . ($product->is_active ? 'aktif' : 'di nonaktifkan')
+    ]);
   }
 
   public function getProductVariationByOptions($productId) {
@@ -164,7 +244,7 @@ class ProductController extends Controller {
 
       $store = Shop::create([
         'name' => $productsRequest->store->name,
-        'description' => $productsRequest->store->meta->description,
+        'description' => Str::limit(strip_tags($productsRequest->store->meta->description), 255),
         'image_path' => $path,
       ]);
 
@@ -379,6 +459,34 @@ class ProductController extends Controller {
         ]);
       }
     }
+  }
+
+  public function bulkDiscount(BulkDiscountRequest $request) {
+    DB::transaction(function() use ($request) {
+      $productVariations = ProductVariation::whereIn('product_id', $request->product_ids)->get();
+
+      foreach($productVariations as $variation) {
+        $discountPrice = 0;
+        if ($request->discount_type == 'fixed') {
+          $discountPrice = $variation->price - $request->discount_value;
+        } else if ($request->discount_type == 'percentage') {
+          $discountPrice = $variation->price - ($variation->price * ($request->discount_value / 100));
+        }
+
+        // Ensure discount price is not negative or zero if you want (but usually it shouldn't be negative)
+        // If discount price is greater than normal price, it's weird, but formula above handles it (it would be negative).
+        // Let's cap at 0.
+        if ($discountPrice < 0) $discountPrice = 0;
+
+        $variation->discount_price = $discountPrice;
+        $variation->save();
+      }
+    });
+
+    return response([
+      'success' => true,
+      'message' => 'Diskon berhasil diterapkan'
+    ]);
   }
 
 }

@@ -11,6 +11,14 @@ class Regency extends Model {
 
   protected $table = 'reg_regencies';
 
+  protected $fillable = [
+    'id',
+    'province_id',
+    'name',
+  ];
+
+  public $timestamps = false;
+
   public function districts() {
     return $this->hasMany(District::class);
   }

@@ -1,6 +1,6 @@
-const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self' }) => {
+const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self', style }) => {
   return `
-    <a href="${viewUrl}" target="${target}" class="product text-decoration-none card">
+    <a href="${viewUrl}" target="${target}" class="product text-decoration-none card" style="${style}">
       <img src="${imageUrl}" class="card-img-top" alt="${title}">
       <div class="card-body">
         <h5 class="card-title text-ellipsis">
@@ -26,6 +26,7 @@ const ImportProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, view
     viewUrl,
     index,
     target: '_blank',
+    style: 'width: calc(100% / 5 - 1rem);',
     children: `
       <div class="form-check">
         <input class="form-check-input" type="checkbox" value="" id="item-${index}" checked>
@@ -128,4 +129,17 @@ const DeliveryOptionCard = ({ name, cost, estimation, index }) => {
       </div>
     </div>
   `;
+}
+
+const ImagePreviewTiny = ({imageUrl, sourceType, index}) => {
+  return `
+    <div class="image-container">
+      <img src="${imageUrl}" class="img-thumbnail tiny">
+      <button class="remove-btn" name="btn-remove-img" data-index="${index}" data-source="${sourceType}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+      </button>
+    </div>
+  `
 }

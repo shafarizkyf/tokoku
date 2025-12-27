@@ -1,6 +1,6 @@
 @component('components.modal', ['id' => 'confirmModal', 'title' => 'Konfirmasi'])
   <div class="modal-body">
-    <p>Hapus produk dari keranjang?</p>
+    {{ $slot }}
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>

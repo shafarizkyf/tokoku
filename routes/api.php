@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\ProductImageController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
 use App\Http\Controllers\API\TripayController;
@@ -31,10 +33,20 @@ Route::middleware(['auth:sanctum'])->group(function(){
   });
 
   Route::middleware('ability:admin')->group(function(){
+    Route::prefix('banners')->group(function(){
+      Route::post('', [BannerController::class, 'store']);
+      Route::patch('{banner}', [BannerController::class, 'update']);
+      Route::delete('{banner}', [BannerController::class, 'destroy']);
+    });
+
     Route::prefix('products')->group(function(){
       Route::post('', [ProductController::class, 'store']);
+      Route::post('{product}/images', [ProductImageController::class, 'store']);
+      Route::patch('{productId}/toggle-active', [ProductController::class, 'toggleActive']);
       Route::patch('{product}', [ProductController::class, 'update']);
+      Route::delete('{product}', [ProductController::class, 'destroy']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+      Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
     });
   });
 
@@ -60,6 +72,8 @@ Route::prefix('products')->group(function(){
   Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
   Route::get('{product}', [ProductController::class, 'show']);
 });
+
+Route::get('banners', [BannerController::class, 'index']);
 
 Route::get('search', [ProductController::class, 'search']);
 

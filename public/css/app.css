@@ -152,12 +152,43 @@ img.tiny {
   width: 100px;
 }
 
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container img {
+  display: block;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-container:hover .remove-btn {
+  opacity: 1;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 
 /* Carousel base class */
 .carousel {
   margin-bottom: 4rem;
+  margin-top: 59px;
 }
 /* Since positioning the image, we need to help out the caption */
 .carousel-caption {
@@ -167,9 +198,21 @@ img.tiny {
 
 /* Declare heights because of positioning of img element */
 .carousel-item {
-  height: 32rem;
+  height: 18rem;
 }
 
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-preview {
+  width: 300px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
 
 /* Small devices (potrait phones) */
 @media (min-width: 375px) {

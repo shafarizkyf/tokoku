@@ -9,6 +9,29 @@ use Illuminate\Database\Eloquent\Model;
 #[ScopedBy([UserOwnedScope::class])]
 class Order extends Model {
 
+  protected $fillable = [
+    'user_id',
+    'code',
+    'recipient_name',
+    'address_detail',
+    'province_id',
+    'regency_id',
+    'district_id',
+    'village_id',
+    'postal_code',
+    'status',
+    'total_price',
+    'total_weight',
+    'shipping_price',
+    'courier',
+    'payment_method',
+    'payment_status',
+    'payment_response',
+    'resi_track_response',
+    'grand_total',
+    'recipient_phone'
+  ];
+
   public $appends = [
     'order_status',
     'is_cancelable',

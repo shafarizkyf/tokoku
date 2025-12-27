@@ -16,14 +16,14 @@
       <div class="col-md-12">
         <div id="brand-container" class="text-center">
           <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg">
-          <h1 class="display-5 fw-bold">Your Store Name</h1>
+          <h1 class="display-5 fw-bold">Nama Toko</h1>
           <div class="col-lg-6 mx-auto">
-            <p class="lead mb-4">This section will be generated once you import your JSON file</p>
+            <p class="lead mb-4">Bagian ini akan dihasilkan setelah Anda mengimpor file JSON Anda. Silahkan kunjungi halaman <a href="https://github.com/shafarizkyf/toko-product-exporter" target="_blank">ini</a> untuk panduan export data product dari Shopee/Tokopedia.</p>
           </div>
         </div>
         <div class="import-container pt-3">
           <div class="mb-3" id="dropzone">
-            <p>Select/Drop JSON file to import your products</p>
+            <p>Pilih/Jatuhkan file JSON untuk mengimpor produk Anda</p>
           </div>
         </div>
         <div class="d-grid mb-3 position-sticky-top bg-light py-3 d-none">
@@ -53,12 +53,7 @@
               <div class="badge bg-primary d-none" role="alert" id="import-information">
                 <span id="item-selected-count">1</span>/<span id="item-total-count">100</span> Selected
               </div>
-              <button class="btn btn-primary d-none" id="btn-import">
-                <div class="d-flex align-items-center">
-                  <span style="opacity: 0.2;">Please Wait</span>
-                  <span class="loader-2"></span>
-                </div>
-              </button>
+              <button class="btn btn-primary d-none" id="btn-import">Import</button>
               <button class="btn btn-outline-secondary d-none" id="btn-reset">Reset</button>
             </div>
           </div>

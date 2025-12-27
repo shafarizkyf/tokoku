@@ -11,6 +11,13 @@ class Province extends Model {
 
   protected $table = 'reg_provinces';
 
+  protected $fillable = [
+    'id',
+    'name',
+  ];
+
+  public $timestamps = false;
+
   public function regencies() {
     return $this->hasMany(Regency::class);
   }

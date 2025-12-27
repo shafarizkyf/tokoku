@@ -81,7 +81,18 @@
     </div>
     <div class="card mb-3">
       <div class="card-body">
-        <h5 class="card-title">Gambar</h5>
+        <div class="row align-items-center">
+          <div class="col-md-10">
+            <h5 class="card-title">Gambar</h5>
+            <p>Pastikan gambar yang kamu pilih sesuai dengan produk dan deskripsi ya!</p>
+          </div>
+          <div class="col-md-2 d-grid">
+            <div class="d-none">
+              <input type="file" name="file-picker" id="file-picker" accept=".jpg, .jpeg, .png">
+            </div>
+            <button type="button" class="btn btn-outline-secondary" name="btn-add-image">Tambah</button>
+          </div>
+        </div>
         <div class="images d-flex gap-2"></div>
       </div>
     </div>
@@ -92,10 +103,8 @@
             <h5 class="card-title">Varian</h5>
             <p>Tambah varian agar pembeli dapat memilih produk yang sesuai, yuk!</p>
           </div>
-          <div class="col-md-2">
-            <div class="d-grid">
-              <button type="button" class="btn btn-outline-secondary" name="btn-add-variant">Tambah</button>
-            </div>
+          <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-outline-secondary" name="btn-add-variant">Tambah</button>
           </div>
           <hr />
         </div>

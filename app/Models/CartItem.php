@@ -14,6 +14,7 @@ class CartItem extends Model {
     'product_variation_id',
     'price_at_time',
     'price_discount_at_time',
+    'quantity',
   ];
 
   protected $hidden = [
@@ -38,19 +39,19 @@ class CartItem extends Model {
     $cacheKey = "cartItems.{$userId}";
 
     static::created(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::saved(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::updated(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
 
     static::deleted(function() use ($cacheKey) {
-      Cache::forget($cacheKey);
+      Cache::tags(['cartItems'])->forget($cacheKey);
     });
   }
 

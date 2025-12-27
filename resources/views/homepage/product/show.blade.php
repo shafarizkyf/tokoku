@@ -10,7 +10,7 @@
     'description' => "Temukan {$product->name} harga murah hanya di " . config('app.name'),
     'url' => route('products.details', ['productSlug' => $product->slug]),
     'productName' => $product->name,
-    'imageUrl' => $product->image->url,
+    'imageUrl' => $product->image?->url,
   ])
 
   @endcomponent
@@ -31,9 +31,11 @@
   <div class="container product" data-init-options="{{ json_encode($defaultVariantOptions) }}">
     <div class="row">
       <div class="col-md-4">
-        <div class="mb-3" id="main-img-preview">
-          <img src="{{ $product->image->url }}" alt="{{ $product->name }}">
-        </div>
+        @if($product->image)
+          <div class="mb-3" id="main-img-preview">
+            <img src="{{ $product->image->url }}" alt="{{ $product->name }}">
+          </div>
+        @endif
         @if($product->images->count() > 1)
           <div class="swiper" id="image-slider">
             <div class="swiper-wrapper">
@@ -129,7 +131,7 @@
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": "{{ $product->name }}",
-    "image": ["{{ $product->image->url }}"],
+    "image": ["{{ $product->image?->url }}"],
     "description": "{{ $product->description }}",
     "brand": {
       "@type": "Brand",

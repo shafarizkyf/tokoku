@@ -89,6 +89,46 @@ class ImportCardElement {
       const text = e.target.result;
       fileContent = JSON.parse(text);
 
+      // --- SCHEMA VALIDATION ---
+      const validateShopeeSchema = (data) => {
+        if (!data.origin || !data.store || !Array.isArray(data.data)) return false;
+        // Check required store fields
+        if (!data.store.name || !data.store.imageUrl) return false;
+        // Check at least one product with required fields
+        if (data.data.length > 0) {
+          const p = data.data[0];
+          if (!p.name || !p.url || !p.imageUrl) return false;
+        }
+        return true;
+      };
+
+      const validateTokopediaSchema = (data) => {
+        if (!data.origin || !data.store || !Array.isArray(data.data)) return false;
+        // Add more checks as needed for Tokopedia
+        if (!data.store.name || !data.store.imageUrl) return false;
+        if (data.data.length > 0) {
+          const p = data.data[0];
+          if (!p.name || !p.url || !p.imageUrl) return false;
+        }
+        return true;
+      };
+
+      let isValid = false;
+      if (fileContent.origin && fileContent.origin.includes('shopee')) {
+        isValid = validateShopeeSchema(fileContent);
+      } else if (fileContent.origin && fileContent.origin.includes('tokopedia')) {
+        isValid = validateTokopediaSchema(fileContent);
+      } else {
+        isValid = false;
+      }
+
+      if (!isValid) {
+        alert('Invalid or unsupported import file schema.');
+        location.reload();
+        return;
+      }
+      // --- END SCHEMA VALIDATION ---
+
       ImportCardElement.renderCards(fileContent.data);
 
       document.querySelector('#brand-container > img').setAttribute('src', fileContent.store.imageUrl);
