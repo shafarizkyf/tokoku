@@ -60,8 +60,8 @@ class Cart extends Model {
         $price = $cartItem->price_discount_at_time ?? $cartItem->price_at_time;
       }
 
-      $totalWeight += $weight * $cartItem->quantity;
-      $totalValue += $price * $cartItem->quantity;
+      $totalWeightInGrams += $weight * $cartItem->quantity;
+      $totalItemValue += $price * $cartItem->quantity;
     }
 
     $totalWeightInKg = $totalWeightInGrams / 1000;
