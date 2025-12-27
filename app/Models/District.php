@@ -11,6 +11,14 @@ class District extends Model {
 
   protected $table = 'reg_districts';
 
+  protected $fillable = [
+    'id',
+    'regency_id',
+    'name',
+  ];
+
+  public $timestamps = false;
+
   public function regency() {
     return $this->belongsTo(Regency::class);
   }
