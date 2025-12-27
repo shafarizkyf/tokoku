@@ -57,4 +57,30 @@ class CartTest extends TestCase
         // (8000*2 + 20000*1) = 36000
         $this->assertEquals(36000, $result['package_value']);
     }
+
+    public function test_calculate_weight_and_value_returns_zero_for_empty_cart() {
+        $userId = 2;
+        Cart::create(['user_id' => $userId]);
+        $result = Cart::calculateWeightAndValue($userId);
+        $this->assertEquals(0, $result['weight_in_kg']);
+        $this->assertEquals(0, $result['package_value']);
+    }
+
+    public function test_calculate_weight_and_value_handles_missing_product_variation() {
+        $userId = 3;
+        $cart = Cart::create(['user_id' => $userId]);
+        // CartItem with no valid productVariation (simulate missing relation)
+        CartItem::create([
+            'cart_id' => $cart->id,
+            'product_id' => 3,
+            'product_variation_id' => 9999, // non-existent
+            'quantity' => 2,
+            'price_at_time' => 15000,
+            'price_discount_at_time' => null
+        ]);
+        $result = Cart::calculateWeightAndValue($userId);
+        // Should fallback to default weight (500) and price_at_time
+        $this->assertEquals(1, $result['weight_in_kg']); // 500*2=1000g=1kg
+        $this->assertEquals(30000, $result['package_value']); // 15000*2
+    }
 }
