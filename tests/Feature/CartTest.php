@@ -49,7 +49,7 @@ class CartTest extends TestCase
             'stock' => 10,
             'weight' => 500,
         ]);
-        
+
         // Setup variation options necessary for resource loading
         $attribute = VariationAttribute::create(['name' => 'Color']);
         $option = VariationOption::create(['variation_attribute_id' => $attribute->id, 'value' => 'Red']);
@@ -82,10 +82,10 @@ class CartTest extends TestCase
                     'subtotal'
                 ]
             ]);
-            
+
         $this->assertEquals(2, $response->json()[0]['quantity']);
     }
-    
+
     public function test_user_can_add_item_to_cart()
     {
         $payload = [
@@ -174,7 +174,7 @@ class CartTest extends TestCase
 
         // Route: /api/carts/count
         $response = $this->getJson('/api/carts/count');
-        
+
         $response->assertStatus(200)
              ->assertJson(['items_count' => 1]); // 1 item type
     }
