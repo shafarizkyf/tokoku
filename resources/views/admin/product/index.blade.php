@@ -34,6 +34,7 @@
                     <th>Product</th>
                     <th>Harga</th>
                     <th>Stok</th>
+                    <th>Status</th>
                     <th></th>
                   </tr>
                 </thead>
