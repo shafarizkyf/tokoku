@@ -1,6 +1,6 @@
-const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self' }) => {
+const ProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, viewUrl, children = '', target = '_self', style }) => {
   return `
-    <a href="${viewUrl}" target="${target}" class="product text-decoration-none card">
+    <a href="${viewUrl}" target="${target}" class="product text-decoration-none card" style="${style}">
       <img src="${imageUrl}" class="card-img-top" alt="${title}">
       <div class="card-body">
         <h5 class="card-title text-ellipsis">
@@ -26,6 +26,7 @@ const ImportProductCardEl = ({ imageUrl, title, normalPrice, discountPrice, view
     viewUrl,
     index,
     target: '_blank',
+    style: 'width: calc(100% / 5 - 1rem);',
     children: `
       <div class="form-check">
         <input class="form-check-input" type="checkbox" value="" id="item-${index}" checked>
