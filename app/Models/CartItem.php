@@ -14,6 +14,7 @@ class CartItem extends Model {
     'product_variation_id',
     'price_at_time',
     'price_discount_at_time',
+    'quantity',
   ];
 
   protected $hidden = [

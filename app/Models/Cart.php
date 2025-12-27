@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Cart extends Model {
 
@@ -39,12 +40,11 @@ class Cart extends Model {
     $totalWeightInGrams = 0;
     $totalItemValue = 0;
 
-    $cart = self::whereUserId($userId)->first();
-    if ($cart) {
-      foreach($cart->items as $cartItem) {
-        $totalWeightInGrams += ($cartItem->productVariation->weight ?? 500) * $cartItem->quantity;
-        $totalItemValue += ($cartItem->productVariation->discount_price ?? $cartItem->productVariation->price) * $cartItem->quantity;
-      }
+    $cart = self::whereUserId($userId)->get();
+    $cartItems = CartItem::whereIn('cart_id', $cart->pluck('id'))->get();
+    foreach($cartItems as $cartItem) {
+      $totalWeightInGrams += ($cartItem->productVariation->weight ?? 500) * $cartItem->quantity;
+      $totalItemValue += ($cartItem->productVariation->discount_price ?? $cartItem->productVariation->price) * $cartItem->quantity;
     }
 
     $totalWeightInKg = $totalWeightInGrams / 1000;
