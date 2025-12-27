@@ -41,10 +41,27 @@ class Cart extends Model {
     $totalItemValue = 0;
 
     $cart = self::whereUserId($userId)->get();
+    if (!count($cart)) {
+        return [
+            'weight_in_kg' => 0,
+            'package_value' => 0
+        ];
+    }
+
     $cartItems = CartItem::whereIn('cart_id', $cart->pluck('id'))->get();
     foreach($cartItems as $cartItem) {
-      $totalWeightInGrams += ($cartItem->productVariation->weight ?? 500) * $cartItem->quantity;
-      $totalItemValue += ($cartItem->productVariation->discount_price ?? $cartItem->productVariation->price) * $cartItem->quantity;
+      $variation = $cartItem->productVariation;
+      if ($variation) {
+        $weight = $variation->weight;
+        $price = $variation->discount_price ?? $variation->price;
+      } else {
+        // Fallback values if ProductVariation is missing
+        $weight = 500;
+        $price = $cartItem->price_discount_at_time ?? $cartItem->price_at_time;
+      }
+
+      $totalWeight += $weight * $cartItem->quantity;
+      $totalValue += $price * $cartItem->quantity;
     }
 
     $totalWeightInKg = $totalWeightInGrams / 1000;
