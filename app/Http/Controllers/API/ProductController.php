@@ -267,6 +267,7 @@ class ProductController extends Controller {
           'sku' => Str::slug($productRequest->name),
           'price' => $productRequest->normalPrice,
           'discount_price' => $productRequest->discountPrice,
+          'weight' => 500,
         ]);
 
         if ($index < 15) {
