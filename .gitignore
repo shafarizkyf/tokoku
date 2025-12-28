@@ -26,3 +26,5 @@ Thumbs.db
 storage/google-oauth-credentials.json
 
 storage/google-oauth-token.json
+
+k6/results/
