@@ -38,10 +38,6 @@ Dengan TokoKu, pelaku usaha:
    - Admin memproses pesanan
    - Admin memberikan nomor resi pada order
 
-
-### Database Tambahan
-- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia/tree/master/mysql%20(mariadb))
-
 ### Kebutuhan Instalasi (Non-Docker)
 - [PHP 8.4](https://www.php.net/downloads.php)
 - [MySQL 8.0](https://www.mysql.com/downloads/)
@@ -56,4 +52,4 @@ Dengan TokoKu, pelaku usaha:
 - Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
 - Buka webapp di: `host:7890`
 - Buka phpmyadmin di: `host:8081`
-- Import table wilayah indonesia
+- Import table wilayah indonesia (storage > indonesia.sql). [Credit Source](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia/tree/master/mysql%20(mariadb)), dimodifikasi agar dapat di import sesuai dengan definisi table pada migration file
