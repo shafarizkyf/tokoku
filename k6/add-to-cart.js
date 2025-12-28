@@ -3,19 +3,19 @@ import { check, sleep } from "k6";
 import { BASE_URL, DEFAULT_HEADERS } from "./config.js";
 
 export const options = {
-  scenarios: {
-    cart_load: {
-      executor: "constant-vus",
-      vus: 100,
-      duration: "2m",
-    },
-  },
-  stages: [
-    { duration: "10s", target: 0 },
-    { duration: "10s", target: 300 },
-    { duration: "30s", target: 300 },
-    { duration: "10s", target: 0 },
-  ],
+  // scenarios: {
+  //   cart_load: {
+  //     executor: "constant-vus",
+  //     vus: 100,
+  //     duration: "2m",
+  //   },
+  // },
+  // stages: [
+  //   { duration: "10s", target: 0 },
+  //   { duration: "10s", target: 300 },
+  //   { duration: "30s", target: 300 },
+  //   { duration: "10s", target: 0 },
+  // ],
   thresholds: {
     http_req_duration: ["p(95)<800"],
     http_req_failed: ["rate<0.01"],
