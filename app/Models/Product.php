@@ -22,6 +22,7 @@ class Product extends Model {
     'sold_count',
     'created_by',
     'source',
+    'is_active'
   ];
 
   protected $hidden = [
