@@ -46,5 +46,8 @@ Dengan TokoKu, pelaku usaha:
 
 
 ### Instalasi
+- Download project file: `git clone https://github.com/shafarizkyf/tokoku.git`
+- Copy env file: `mv .env.example .env`
+- Buka .env file: `nano .env`, lalu sesuaikan variabel didalamnya
 - Docker
   `docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d`
