@@ -73,6 +73,31 @@ services:
     depends_on:
       - mysql
 
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: tokoku_queue
+    restart: unless-stopped
+    command: [
+      "php",
+      "artisan",
+      "queue:work",
+      "--sleep=3",
+      "--tries=3",
+      "--timeout=90"
+    ]
+    volumes:
+      - app_data:/var/www/html
+    depends_on:
+      - mysql
+      - redis
+      - meilisearch
+    healthcheck:
+      test: ["CMD", "php", "artisan", "queue:monitor", "default"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 volumes:
   app_data:
   mysql_data:
