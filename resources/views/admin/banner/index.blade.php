@@ -11,7 +11,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="card-title m-0">Data Produk</h5>
+              <h5 class="card-title m-0">Banner</h5>
               <button class="btn btn-primary" name="btn-create-new">Buat Baru</button>
             </div>
             <div class="d-flex flex-wrap gap-3" id="previews">
