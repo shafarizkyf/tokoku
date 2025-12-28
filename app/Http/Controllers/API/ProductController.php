@@ -258,6 +258,7 @@ class ProductController extends Controller {
           'sold_count' => $productRequest->soldCount,
           'source' => $productRequest->url,
           'created_by' => 1,
+          'is_active' => false,
         ]);
 
         ProductVariation::create([
