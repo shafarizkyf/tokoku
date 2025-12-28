@@ -79,22 +79,20 @@ class CartController extends Controller {
       ]));
     }
 
+    $productVariation = ProductVariation::find($request->product_variation_id);
+
+    $cartItem = CartItem::where([
+      'cart_id' => $cart->id,
+      'product_id' => $request->product_id,
+      'product_variation_id' => $request->product_variation_id,
+    ])->first();
+
     $response = response([
       'success' => false,
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function() use ($request, &$response, $cart) {
-      $productVariation = ProductVariation::where('id', $request->product_variation_id)
-        ->lockForUpdate()
-        ->first();
-
-      $cartItem = CartItem::where([
-        'cart_id' => $cart->id,
-        'product_id' => $request->product_id,
-        'product_variation_id' => $request->product_variation_id,
-      ])->lockForUpdate()->first();
-
+    DB::transaction(function() use ($request, &$response, $cart, $productVariation, $cartItem) {
       if (!$cartItem) {
         if ($request->quantity > $productVariation->stock) {
           $response = response([
