@@ -68,32 +68,32 @@ class CartController extends Controller {
 
     // fallback create cart if not exist during login
     if (!$cart) {
-      $cart = Cart::create(['user_id' => $user->id]);
+      $cart = Cart::firstOrCreate(
+        ['user_id' => $user->id]
+      );
     }
 
-
-    if (Utils::randomNumber() !== 1) {
+    if (!app()->environment('production')) {
       Log::channel('cart')->info('atc', array_merge(request()->all(), [
         'user_id' => $user->id
       ]));
     }
-
-    $productVariation = ProductVariation::where('id', $request->product_variation_id)
-      ->lockForUpdate()
-      ->first();
-
-    $cartItem = CartItem::where([
-      'cart_id' => $cart->id,
-      'product_id' => $request->product_id,
-      'product_variation_id' => $request->product_variation_id,
-    ])->lockForUpdate()->first();
 
     $response = response([
       'success' => false,
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function() use ($request, &$response, $cart, $productVariation, $cartItem) {
+    DB::transaction(function() use ($request, &$response, $cart) {
+      $productVariation = ProductVariation::where('id', $request->product_variation_id)
+        ->lockForUpdate()
+        ->first();
+
+      $cartItem = CartItem::where([
+        'cart_id' => $cart->id,
+        'product_id' => $request->product_id,
+        'product_variation_id' => $request->product_variation_id,
+      ])->lockForUpdate()->first();
 
       if (!$cartItem) {
         if ($request->quantity > $productVariation->stock) {
