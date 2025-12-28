@@ -17,12 +17,12 @@ $(function () {
                             <small class="text-muted">${item.slug}</small>
                         </div>
                     </div>`,
-                        item.variation.discount_price
-                            ? `<span>${currencyFormat.format(item.variation.discount_price)}</span>
+                        item.cheapest_variation.discount_price
+                            ? `<span>${currencyFormat.format(item.cheapest_variation.discount_price)}</span>
                                 <br>
-                                <span class="text-muted text-decoration-line-through">${currencyFormat.format(item.variation.price)}</span>`
-                            : currencyFormat.format(item.variation.price),
-                        item.variation.stock
+                                <span class="text-muted text-decoration-line-through">${currencyFormat.format(item.cheapest_variation.price)}</span>`
+                            : currencyFormat.format(item.cheapest_variation.price),
+                        item.cheapest_variation.stock
                     ];
                 });
             }

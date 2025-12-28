@@ -31,7 +31,16 @@ class Product extends Model {
   ];
 
   protected static function booted(): void {
+    static::created(function(Product $product){
+      Cache::tags(['products'])->flush();
+    });
+
+    static::saved(function(Product $product){
+      Cache::tags(['products'])->flush();
+    });
+
     static::updated(function(Product $product){
+      Cache::tags(['products'])->flush();
       if (!$product->is_active) {
         CartItem::whereProductId($product->id)->delete();
         Cache::tags(['cartItems'])->flush();
@@ -54,6 +63,11 @@ class Product extends Model {
 
   public function getDescriptionAttribute($value) {
     return strip_tags($value);
+  }
+
+  public function cheapestVariation() {
+    return $this->hasOne(ProductVariation::class)
+      ->ofMany('price', 'min');
   }
 
   public function image() {

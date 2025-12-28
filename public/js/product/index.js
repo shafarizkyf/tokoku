@@ -11,12 +11,12 @@ $(function () {
               <img src="${item.image?.url}" alt="" />
               <h5>${item.name}</h5>
             </div>`,
-            item.variation.discount_price
-              ? `<span>${currencyFormat.format(item.variation.discount_price)}</span>
+            item.cheapest_variation.discount_price
+              ? `<span>${currencyFormat.format(item.cheapest_variation.discount_price)}</span>
                     <br>
-                    <span class="text-muted text-decoration-line-through">${currencyFormat.format(item.variation.price)}</span>`
-              : currencyFormat.format(item.variation.price),
-            item.variation.stock,
+                    <span class="text-muted text-decoration-line-through">${currencyFormat.format(item.cheapest_variation.price)}</span>`
+              : currencyFormat.format(item.cheapest_variation.price),
+            item.cheapest_variation.stock,
             `
               <div class="form-check form-switch">
                 <input class="form-check-input toggle-active" type="checkbox" role="switch" data-id="${item.id}" ${item.is_active ? 'checked' : ''}>

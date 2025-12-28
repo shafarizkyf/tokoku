@@ -27,6 +27,8 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('is_active', 'products_is_active');
         });
     }
 
