@@ -12,32 +12,41 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reg_provinces', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->string('name');
+            $table->char('id', 2)->primary();
+            $table->string('name', 255);
         });
 
         Schema::create('reg_regencies', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->unsignedBigInteger('province_id');
-            $table->string('name');
-            
-            $table->foreign('province_id')->references('id')->on('reg_provinces')->onDelete('cascade');
+            $table->char('id', 4)->primary();
+            $table->char('province_id', 2);
+            $table->string('name', 255);
+
+            $table->foreign('province_id')
+                ->references('id')
+                ->on('reg_provinces')
+                ->cascadeOnDelete();
         });
 
         Schema::create('reg_districts', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->unsignedBigInteger('regency_id');
-            $table->string('name');
-            
-            $table->foreign('regency_id')->references('id')->on('reg_regencies')->onDelete('cascade');
+            $table->char('id', 6)->primary();
+            $table->char('regency_id', 4);
+            $table->string('name', 255);
+
+            $table->foreign('regency_id')
+                ->references('id')
+                ->on('reg_regencies')
+                ->cascadeOnDelete();
         });
 
         Schema::create('reg_villages', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->unsignedBigInteger('district_id');
-            $table->string('name');
-            
-            $table->foreign('district_id')->references('id')->on('reg_districts')->onDelete('cascade');
+            $table->char('id', 10)->primary();
+            $table->char('district_id', 6);
+            $table->string('name', 255);
+
+            $table->foreign('district_id')
+                ->references('id')
+                ->on('reg_districts')
+                ->cascadeOnDelete();
         });
     }
 
