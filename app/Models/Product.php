@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\ProductActive;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
@@ -12,7 +13,7 @@ use Laravel\Scout\Searchable;
 #[ScopedBy([ProductActive::class])]
 class Product extends Model {
 
-  use Searchable, SoftDeletes;
+  use Searchable, SoftDeletes, HasFactory;
 
   protected $fillable = [
     'store_id',
