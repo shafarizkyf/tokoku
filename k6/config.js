@@ -1,6 +1,7 @@
-export const BASE_URL = __ENV.BASE_URL || 'http://localhost:8000';
+export const BASE_URL = __ENV.BASE_URL || 'http://192.168.0.219:7890';
 
 export const DEFAULT_HEADERS = {
+  'Accept': 'application/json',
   'Content-Type': 'application/json',
 };
 
