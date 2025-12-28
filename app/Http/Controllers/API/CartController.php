@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteCartRequest;
 use App\Http\Requests\StoreCartRequest;
@@ -63,42 +64,65 @@ class CartController extends Controller {
 
   public function store(StoreCartRequest $request) {
     $user = Auth::user();
-    Log::channel('cart')->info('atc', array_merge(request()->all(), [
-      'user_id' => $user->id
-    ]));
+    $cart = $user->cart;
+
+    // fallback create cart if not exist during login
+    if (!$cart) {
+      $cart = Cart::create(['user_id' => $user->id]);
+    }
+
+
+    if (Utils::randomNumber() !== 1) {
+      Log::channel('cart')->info('atc', array_merge(request()->all(), [
+        'user_id' => $user->id
+      ]));
+    }
+
+    $productVariation = ProductVariation::where('id', $request->product_variation_id)
+      ->lockForUpdate()
+      ->first();
+
+    $cartItem = CartItem::where([
+      'cart_id' => $cart->id,
+      'product_id' => $request->product_id,
+      'product_variation_id' => $request->product_variation_id,
+    ])->lockForUpdate()->first();
 
     $response = response([
       'success' => false,
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function() use ($request, &$response, $user) {
-      $cart = Cart::updateOrCreate([
-        'user_id' => $user->id,
-      ]);
+    DB::transaction(function() use ($request, &$response, $cart, $productVariation, $cartItem) {
 
-      $productVariation = ProductVariation::find($request->product_variation_id);
+      if (!$cartItem) {
+        if ($request->quantity > $productVariation->stock) {
+          $response = response([
+            'success' => false,
+            'message' => 'Stok tidak mencukupi'
+          ], 400);
+          return;
+        }
 
-      $cartItem = CartItem::firstOrNew([
-        'cart_id' => $cart->id,
-        'product_id' => $request->product_id,
-        'product_variation_id' => $request->product_variation_id,
-      ]);
+        CartItem::create([
+          'cart_id' => $cart->id,
+          'product_id' => $request->product_id,
+          'product_variation_id' => $request->product_variation_id,
+          'quantity' => $request->quantity,
+          'price_at_time' => $productVariation->price,
+          'price_discount_at_time' => $productVariation->discount_price,
+        ]);
+      } else {
+        if ($cartItem->quantity + $request->quantity > $productVariation->stock) {
+          $response = response([
+            'success' => false,
+            'message' => 'Stok tidak mencukupi'
+          ], 400);
+          return;
+        }
 
-      $requestedQuantity = $cartItem->quantity + $request->quantity;
-      if ($requestedQuantity > $productVariation->stock) {
-        $response = response([
-          'success' => false,
-          'message' => 'Stok tidak mencukupi'
-        ], 400);
-
-        return;
+        $cartItem->increment('quantity', $request->quantity);
       }
-
-      $cartItem->price_at_time = $productVariation->price;
-      $cartItem->price_discount_at_time = $productVariation->discount_price;
-      $cartItem->quantity = $requestedQuantity;
-      $cartItem->save();
 
       $response = response([
         'success' => true,
