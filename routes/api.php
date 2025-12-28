@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\HealthCheckController;
@@ -81,3 +82,4 @@ Route::get('banners', [BannerController::class, 'index']);
 Route::get('search', [ProductController::class, 'search']);
 
 Route::post('tripay/callback', [TripayController::class, 'callback']);
+Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
