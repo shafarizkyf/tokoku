@@ -20,6 +20,7 @@ use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -28,14 +29,17 @@ use Illuminate\Support\Str;
 class ProductController extends Controller {
 
   public function index() {
-    $products = Product::with(['image', 'variation']);
-
     if (request('view') == 'datatable') {
-      $products = $products->withoutGlobalScope(ProductActive::class);
+      $products = Product::with(['image', 'cheapestVariation'])
+        ->withoutGlobalScope(ProductActive::class);
+
       return DataTable::ajaxTable($products);
     }
 
-    return $products->paginate(30);
+    return Cache::tags(['products'])->remember('products.page.' . request('page', 1), now()->addSeconds(30), function () {
+      return Product::with(['image', 'cheapestVariation'])
+        ->paginate(30);
+    });
   }
 
   public function search() {

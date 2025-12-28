@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('weight')->default(500);
             $table->timestamps();
             $table->softDeletes();
+            $table->index(['product_id', 'price'], 'product_variations_product_price');
         });
     }
 

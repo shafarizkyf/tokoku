@@ -15,8 +15,8 @@ $(function(){
     const productsEl = response.data.map((product, index) => {
       return ProductCardEl({
         imageUrl: product.image?.url || '#',
-        discountPrice: product.variation.discount_price ? currencyFormat.format(product.variation.discount_price) : null,
-        normalPrice: currencyFormat.format(product.variation.price),
+        discountPrice: product.cheapest_variation.discount_price ? currencyFormat.format(product.cheapest_variation.discount_price) : null,
+        normalPrice: currencyFormat.format(product.cheapest_variation.price),
         title: product.name,
         viewUrl: `/products/${product.slug}`
       })
