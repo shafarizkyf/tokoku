@@ -315,4 +315,44 @@ class OrderTest extends TestCase
             'status' => 'shipped'
         ]);
     }
+    public function test_order_fails_with_insufficient_stock()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $product = Product::factory()->create();
+        $variation = ProductVariation::factory()->create([
+            'product_id' => $product->id,
+            'stock' => 1,
+            'price' => 100000,
+        ]);
+
+        $payload = [
+            'items' => [
+                [
+                    'product_variation_id' => $variation->id,
+                    'quantity' => 2
+                ]
+            ],
+            'payment_method' => 'BNIVA',
+            'shipping' => [
+                'receiver_name' => 'Test User',
+                'province_id' => '33',
+                'regency_id' => '3302',
+                'district_id' => '330227',
+                'village_id' => '3302271003',
+                'postal_code' => '53125',
+                'address' => 'Jl. Test',
+                'note' => 'Test note',
+                'phone_number' => '08123456789',
+            ],
+            'delivery' => [
+                'shipping_name' => 'JNE',
+                'service_name' => 'JNEReg',
+            ]
+        ];
+
+        $response = $this->postJson('/api/orders', $payload);
+        $response->assertStatus(422);
+    }
 }
