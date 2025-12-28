@@ -21,6 +21,14 @@ class ProductVariation extends Model {
   ];
 
   protected static function booted() {
+    static::creating(function(ProductVariation $productVariation) {
+      $productVariation->weight = $productVariation->weight ?? 0;
+    });
+
+    static::saving(function(ProductVariation $productVariation) {
+      $productVariation->weight = $productVariation->weight ?? 0;
+    });
+
     static::updated(function(ProductVariation $productVariation){
       CartItem::whereProductVariationId($productVariation->id)->update([
         'price_at_time' => $productVariation->price,
