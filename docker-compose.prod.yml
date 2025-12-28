@@ -68,8 +68,8 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: mysql
-      PMA_USER: ${DB_USERNAME}
-      PMA_PASSWORD: ${DB_PASSWORD}
+      # PMA_USER: ${DB_USERNAME}
+      # PMA_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - mysql
 
