@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('price', 10);
             $table->decimal('discount_price', 10)->nullable();
             $table->unsignedInteger('stock')->default(0);
-            $table->decimal('weight')->nullable();
+            $table->decimal('weight')->default(500);
             $table->timestamps();
             $table->softDeletes();
         });
