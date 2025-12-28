@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\HealthCheckController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProductController;
@@ -72,6 +73,8 @@ Route::prefix('products')->group(function(){
   Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
   Route::get('{product}', [ProductController::class, 'show']);
 });
+
+Route::get('health', [HealthCheckController::class, 'index']);
 
 Route::get('banners', [BannerController::class, 'index']);
 
