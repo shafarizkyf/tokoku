@@ -14,10 +14,16 @@ COPY . .
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --no-interaction --no-progress --prefer-dist
 
-# Permissions and caches
-RUN chown -R www-data:www-data storage bootstrap/cache \
- && php artisan config:cache \
- && php artisan route:cache
+# Ensure storage/framework subfolders exist and are writable
+# Ensure storage/framework subfolders exist and are writable
+RUN set -eux; \
+    mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views; \
+    chown -R www-data:www-data storage bootstrap/cache
+
+RUN php artisan config:cache \
+ && php artisan route:cache \
+ && php artisan view:cache \
+ && php artisan storage:link
 
 EXPOSE 9000
 CMD ["php-fpm"]

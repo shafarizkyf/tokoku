@@ -47,4 +47,4 @@ Dengan TokoKu, pelaku usaha:
 
 ### Instalasi
 - Docker
-  `docker compose --env-file .env.docker.dev up -d`
+  `docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d`
