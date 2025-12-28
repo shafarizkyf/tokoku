@@ -38,18 +38,21 @@ Dengan TokoKu, pelaku usaha:
    - Admin memproses pesanan
    - Admin memberikan nomor resi pada order
 
-### Kebutuhan Instalasi
+
+### Database Tambahan
+- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia)
+
+### Kebutuhan Instalasi (Non-Docker)
 - [PHP 8.4](https://www.php.net/downloads.php)
 - [MySQL 8.0](https://www.mysql.com/downloads/)
 - [Composer 2.8](https://getcomposer.org/download/)
-- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia)
 
-
-### Instalasi
+### Instalasi Menggunakan Docker
 - Download project file: `git clone https://github.com/shafarizkyf/tokoku.git`
-- Copy env file: `mv .env.example .env`
+- Rename file: `mv .env.example .env`
 - Buka .env file: `nano .env`, lalu sesuaikan variabel didalamnya
 - Jalankan Container: `docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d`
+- Generate APP_KEY: `docker exec -it tokoku_app php artisan key:generate`
 - Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
 - Buka webapp di: `host:7890`
 - Buka phpmyadmin di: `host:8081`
