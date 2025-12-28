@@ -46,5 +46,11 @@ Dengan TokoKu, pelaku usaha:
 
 
 ### Instalasi
-- Docker
-  `docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d`
+- Download project file: `git clone https://github.com/shafarizkyf/tokoku.git`
+- Copy env file: `mv .env.example .env`
+- Buka .env file: `nano .env`, lalu sesuaikan variabel didalamnya
+- Jalankan Container: `docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d`
+- Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
+- Buka webapp di: `host:7890`
+- Buka phpmyadmin di: `host:8081`
+- Import table wilayah indonesia
