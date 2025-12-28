@@ -19,6 +19,7 @@ use App\Models\Scopes\ProductActive;
 use App\Models\Shop;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -65,7 +66,7 @@ class ProductController extends Controller {
       $product->slug = Utils::slug(Product::class, $productUpdateRequest->name);
       $product->description = $productUpdateRequest->description;
       $product->condition = $productUpdateRequest->condition;
-      $product->created_by = 1;
+      $product->created_by = Auth::id();
       $product->save();
 
       if (!$hasVariations) {
@@ -257,7 +258,7 @@ class ProductController extends Controller {
           'review_avg' => $productRequest->ratingAvg,
           'sold_count' => $productRequest->soldCount,
           'source' => $productRequest->url,
-          'created_by' => 1,
+          'created_by' => Auth::id(),
           'is_active' => false,
         ]);
 
@@ -315,7 +316,7 @@ class ProductController extends Controller {
       $product->review_avg = $productRequest->reviewAvg;
       $product->review_count = $productRequest->reviewCount;
       $product->sold_count = $productRequest->soldCount;
-      $product->created_by = 1;
+      $product->created_by = Auth::id();
       $product->save();
 
       $activeSelection = [];
