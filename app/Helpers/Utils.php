@@ -44,4 +44,8 @@ class Utils {
     $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
     return $formatter->formatCurrency($amount, 'IDR');
   }
+
+  public static function randomNumber($a = 1, $b = 100) {
+    return random_int($a, $b);
+  }
 }
