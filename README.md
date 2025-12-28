@@ -40,7 +40,7 @@ Dengan TokoKu, pelaku usaha:
 
 
 ### Database Tambahan
-- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia)
+- [Data Wilayah Indonesia](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia/tree/master/mysql%20(mariadb))
 
 ### Kebutuhan Instalasi (Non-Docker)
 - [PHP 8.4](https://www.php.net/downloads.php)
