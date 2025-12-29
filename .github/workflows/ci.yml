@@ -20,7 +20,7 @@ jobs:
     - name: Setup CI env
       run: |
         docker compose -f docker-compose.ci.yml exec -T app \
-          cp .env.ci .env
+          cp .env.example .env
 
     - name: Install dependencies
       run: |

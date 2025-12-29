@@ -34,7 +34,7 @@ class Tripay {
   }
 
   public static function requestTransaction(Order $order) {
-    if (Utils::hasTestHeaderKey()) {
+    if (Utils::hasTestHeaderKey() || env('APP_ENV') == 'testing') {
       Log::info('Tripay::requestTransaction - returning mock data for order ' . $order->code);
       $data = json_decode(file_get_contents(storage_path('mock/tripay_request_transaction.json')), true);
       $data['data']['reference'] .= "-{$order->code}"; // table is unique so this is just for performance tests

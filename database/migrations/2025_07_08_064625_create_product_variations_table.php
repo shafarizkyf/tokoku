@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('product_variations', function (Blueprint $table) {
             $table->id();
-            // make product_id nullable so tests can create variations without a product
-            $table->foreignId('product_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('sku')->nullable();
-            $table->decimal('price', 10);
-            $table->decimal('discount_price', 10)->nullable();
-            $table->unsignedInteger('stock')->default(0);
-            $table->decimal('weight')->default(500);
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->string('sku')->unique()->nullable();
+            $table->unsignedInteger('price');
+            $table->unsignedInteger('discount_price')->nullable();
+            $table->unsignedMediumInteger('stock')->default(0);
+            $table->unsignedMediumInteger('weight')->default(500)->comment('Weight in grams');
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['product_id', 'price'], 'product_variations_product_price');
+
+            $table->index(['product_id', 'price', 'stock']);
         });
     }
 
