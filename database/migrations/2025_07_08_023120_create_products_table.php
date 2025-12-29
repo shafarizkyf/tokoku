@@ -13,22 +13,22 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('store_id');
+            $table->unsignedInteger('store_id')->index();
             $table->string('name')->index();
-            $table->string('slug')->index();
+            $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->enum('condition', ['new', 'used'])->default('new');
-            $table->decimal('review_avg', 5)->nullable();
+            $table->decimal('review_avg', 3, 2)->default(0);
             $table->unsignedInteger('review_count')->default(0);
             $table->unsignedInteger('sold_count')->default(0);
             $table->text('source')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->boolean('is_active')->default(true)->index();
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('is_active', 'products_is_active');
+            $table->index(['is_active', 'condition']);
         });
     }
 

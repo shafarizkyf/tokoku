@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,13 +15,14 @@ class ProductTest extends TestCase
 
     public function test_product_with_variations_and_images_returns_expected_data()
     {
+        $user = User::factory()->create();
         $product = Product::create([
             'store_id' => 1,
             'name' => 'Test Product',
             'slug' => 'test-product',
             'review_avg' => 4.5,
             'sold_count' => 10,
-            'created_by' => 1,
+            'created_by' => $user->id,
             'source' => 'test',
         ]);
         $variation = ProductVariation::create([
@@ -42,13 +44,14 @@ class ProductTest extends TestCase
 
     public function test_product_with_no_variations_or_images_returns_empty_relations()
     {
+        $user = User::factory()->create();
         $product = Product::create([
             'store_id' => 1,
             'name' => 'No Variations',
             'slug' => 'no-variations',
             'review_avg' => 0,
             'sold_count' => 0,
-            'created_by' => 1,
+            'created_by' => $user->id,
             'source' => 'test',
         ]);
         $this->assertEmpty($product->variations);
@@ -58,13 +61,14 @@ class ProductTest extends TestCase
 
     public function test_product_with_soft_deleted_variation_and_external_image_url()
     {
+        $user = User::factory()->create();
         $product = Product::create([
             'store_id' => 1,
             'name' => 'Edge Product',
             'slug' => 'edge-product',
             'review_avg' => 3.0,
             'sold_count' => 1,
-            'created_by' => 1,
+            'created_by' => $user->id,
             'source' => 'test',
         ]);
         $variation = ProductVariation::create([
