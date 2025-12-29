@@ -1,0 +1,115 @@
+{
+  "success": true,
+  "message": "",
+  "data": {
+    "reference": "DEV-T454512914512EBML",
+    "merchant_ref": "INV20250922QUJ",
+    "payment_selection_type": "static",
+    "payment_method": "BNIVA",
+    "payment_name": "BNI Virtual Account",
+    "customer_name": "Kiki",
+    "customer_email": "emailpelanggan@domain.com",
+    "customer_phone": "081234567890",
+    "callback_url": null,
+    "return_url": "https://domainanda.com/redirect",
+    "amount": 5712750,
+    "fee_merchant": 0,
+    "fee_customer": 4250,
+    "total_fee": 4250,
+    "amount_received": 5708500,
+    "pay_code": "810791351119808",
+    "pay_url": null,
+    "checkout_url": "https://tripay.co.id/checkout/DEV-T454512914512EBML",
+    "status": "UNPAID",
+    "expired_time": 1758628581,
+    "order_items": [
+      {
+        "sku": "jetblackaluminiums/m",
+        "name": "Apple Watch Series 10 GPS 42mm with Sport Band",
+        "price": 5699000,
+        "quantity": 1,
+        "subtotal": 5699000,
+        "product_url": "http://localhost:8000/products/apple-watch-series-10-gps-42mm-with-sport-band",
+        "image_url": "https://tokokamu.com/product/nama-produk-1.jpg"
+      },
+      {
+        "sku": null,
+        "name": "Pengiriman",
+        "price": 9500,
+        "quantity": 1,
+        "subtotal": 9500,
+        "product_url": null,
+        "image_url": null
+      }
+    ],
+    "instructions": [
+      {
+        "title": "Wondr By BNI",
+        "steps": [
+          "Buka Aplikasi Wondr By BNI",
+          "Pilih menu <b>Virtual Account</b>",
+          "Pilih <b>Tujuan Baru</b>",
+          "Masukkan Nomor <b>Virtual Account</b>",
+          "Klik tombol <b>Lanjut</b>",
+          "Akan ditampikan detail transaksi, Pilih rekening sumber dana",
+          "Klik tombol <b>Lanjut</b>",
+          "Pastikan semua informasi sudah sesuai kemudian klik <b>Transaksi Sekarang</b>",
+          "Masukan PIN Anda",
+          "Transaksi selesai, simpan bukti pembayaran Anda"
+        ]
+      },
+      {
+        "title": "Internet Banking",
+        "steps": [
+          "Login ke internet banking Bank BNI Anda",
+          "Pilih menu <b>Transaksi</b> lalu klik menu <b>Virtual Account Billing</b>",
+          "Masukkan Nomor VA (<b>810791351119808</b>) lalu pilih <b>Rekening Debit</b>",
+          "Detail transaksi akan ditampilkan, pastikan data sudah sesuai",
+          "Masukkan respon key BNI appli 2",
+          "Transaksi sukses, simpan bukti transaksi Anda"
+        ]
+      },
+      {
+        "title": "ATM BNI",
+        "steps": [
+          "Masukkan kartu Anda",
+          "Pilih Bahasa",
+          "Masukkan PIN ATM Anda",
+          "Kemudian, pilih <b>Menu Lainnya</b>",
+          "Pilih <b>Transfer</b> dan pilih jenis rekening yang akan digunakan (Contoh: Dari rekening Tabungan)",
+          "Pilih <b>Virtual Account Billing</b>. Masukkan Nomor VA (<b>810791351119808</b>)",
+          "Tagihan yang harus dibayarkan akan muncul pada layar konfirmasi",
+          "Konfirmasi, apabila telah selesai, lanjutkan transaksi",
+          "Transaksi Anda telah selesai"
+        ]
+      },
+      {
+        "title": "Mobile Banking BNI",
+        "steps": [
+          "Akses BNI Mobile Banking dari handphone kemudian masukkan <b>User ID dan Password</b>",
+          "Pilih menu <b>Transfer</b>",
+          "Pilih menu <b>Virtual Account Billing</b> kemudian pilih rekening debet",
+          "Masukkan Nomor <b>Virtual Account</b>",
+          "Tagihan yang harus dibayarkan akan muncul pada layar konfirmasi",
+          "Konfirmasi transaksi dan masukkan Password Transaksi",
+          "Pembayaran Anda Telah Berhasil"
+        ]
+      }
+    ]
+  },
+  "callback": {
+    "reference": "DEV-T4545129089376AGW",
+    "merchant_ref": "INV20250922QUJ",
+    "payment_method": "BNI Virtual Account",
+    "payment_method_code": "BNIVA",
+    "total_amount": 8261250,
+    "fee_merchant": 0,
+    "fee_customer": 4250,
+    "total_fee": 4250,
+    "amount_received": 8257000,
+    "is_closed_payment": 1,
+    "status": "PAID",
+    "paid_at": 1758438261,
+    "note": null
+  }
+}
