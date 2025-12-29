@@ -26,21 +26,17 @@ jobs:
       run: |
         docker compose -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist
 
-    - name: Wait for database
+    - name: Wait for MySQL
       run: |
-        docker compose -f docker-compose.ci.yml exec -T app \
-          php -r "
-            for ($i=0; $i<30; $i++) {
-              try {
-                new PDO('mysql:host=mysql;dbname=tokoku_ci', 'root', 'root');
-                echo 'DB ready\n';
-                exit(0);
-              } catch (Exception $e) {
-                sleep(1);
-              }
-            }
-            exit(1);
-          "
+        for i in {1..30}; do
+          if docker compose -f docker-compose.ci.yml exec -T mysql \
+            mysqladmin ping -utokoku_ci -ptokoku_ci --silent; then
+            echo "DB ready"
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
 
     - name: Wait for Meilisearch
       run: |
