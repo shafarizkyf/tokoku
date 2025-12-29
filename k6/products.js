@@ -4,8 +4,8 @@ import { BASE_URL, THRESHOLDS } from './config.js';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 10 },
-    { duration: '1m', target: 30 },
+    { duration: '30s', target: 100 },
+    { duration: '1m', target: 300 },
     { duration: '30s', target: 0 },
   ],
   thresholds: THRESHOLDS,

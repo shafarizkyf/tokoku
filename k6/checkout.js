@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { SharedArray } from 'k6/data';
-import { BASE_URL, DEFAULT_HEADERS, getRandomInt } from './config.js';
+import { BASE_URL, DEFAULT_HEADERS, THRESHOLDS, getRandomInt } from './config.js';
 
 let token; // VU-local memory
 let hasCheckedOut = false;
@@ -13,12 +13,12 @@ export const options = {
   scenarios: {
     checkout_load: {
       executor: 'constant-vus',
-      vus: 50,          // start lower than cart
+      vus: 100,          // start lower than cart
       duration: '2m',
     },
   },
   thresholds: {
-    http_req_failed: ['rate<0.01'],
+    ...THRESHOLDS,
     http_req_duration: ['p(95)<3000'], // checkout is slower by nature
   },
 };
@@ -44,6 +44,11 @@ export default function () {
       'login ok': (r) => r.status === 200,
     });
 
+    if (loginRes.status !== 200) {
+      console.error(`VU ${__VU} - Login failed: ${loginRes.status} - ${loginRes.body}`);
+      return;
+    }
+
     token = loginRes.json().token;
   }
 
@@ -52,7 +57,7 @@ export default function () {
     return;
   }
 
-  const variationId = getRandomInt(1, 30);
+  const variationId = getRandomInt(1, 60);
 
   const payload = JSON.stringify({
     items: [
