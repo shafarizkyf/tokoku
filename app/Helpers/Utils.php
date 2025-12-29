@@ -48,4 +48,8 @@ class Utils {
   public static function randomNumber($a = 1, $b = 100) {
     return random_int($a, $b);
   }
+
+  public static function hasTestHeaderKey() {
+    return request()->header('X-Test-Key') === env('TEST_KEY');
+  }
 }

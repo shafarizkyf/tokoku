@@ -35,16 +35,13 @@ class OrderController extends Controller {
   public function store(StoreOrderRequest $request) {
     Log::channel('order')->info('store', $request->all());
 
-    $response = response([
-      'success' => false,
-      'message' => 'Unexpected Error'
-    ], 500);
-
     $cart = Cart::calculateWeightAndValue(Auth::id());
     $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     $preferredDelivery = array_find($deliveryOptions, function($item)use ($request) {
       return $item['service_name'] == $request->delivery['service_name'] && $item['shipping_name'] == $request->delivery['shipping_name'];
     });
+
+    $order = null;
 
     if (!$preferredDelivery) {
       return response([
@@ -53,12 +50,49 @@ class OrderController extends Controller {
       ], 400);
     }
 
-    DB::transaction(function()use ($request, $preferredDelivery, &$response){
+    $response = response([
+      'success' => false,
+      'message' => 'Unexpected Error'
+    ], 500);
+
+    DB::transaction(function()use ($request, $preferredDelivery, &$response, &$order) {
       $totalPrice = 0;
       $totalWeightInGrams = 0;
       $orderItems = [];
       foreach($request->items as $item) {
-        $productVariation = ProductVariation::with(['product'])->find($item['product_variation_id']);
+        // Lock the product_variation row for update
+        $productVariation = ProductVariation::with(['product'])
+          ->where('id', $item['product_variation_id'])
+          ->lockForUpdate()
+          ->first();
+
+        if (!$productVariation) {
+          $response = response([
+            'success' => false,
+            'message' => 'Product variation not found',
+          ], 400);
+          DB::rollBack();
+          return;
+        }
+
+        if (!$productVariation->product) {
+          $response = response([
+            'success' => false,
+            'message' => 'Product not found',
+          ], 400);
+          DB::rollBack();
+          return;
+        }
+
+        if ($productVariation->stock < $item['quantity']) {
+          $response = response([
+            'success' => false,
+            'message' => 'Stok tidak mencukupi',
+          ], 400);
+          DB::rollBack();
+          return;
+        }
+
         $price = $productVariation->discount_price ?? $productVariation->price;
         $subtotal = floor($price * $item['quantity']);
 
@@ -119,43 +153,50 @@ class OrderController extends Controller {
         $orderDetail->weight = 500;
         $orderDetail->save();
       }
-
-      $response = Tripay::requestTransaction($order);
-      $order->payment_response = json_encode($response);
-      $order->save();
-
-      if (!$response['success']) {
-        // bring the stock back
-        Stock::revert($order);
-        // remove order data when unable to create transaction request
-        $order->orderDetails()->delete();
-        $order->delete();
-
-        $response = response([
-          'success' => false,
-          'message' => $response['message'],
-        ], 400);
-      } else {
-
-        // clear cart items
-        $cart = Cart::whereUserId(Auth::id())->first();
-        if ($cart) {
-          $cart->items()->delete();
-        }
-
-        $amount = Utils::currencyFormat($order->grand_total);
-        $notificationMessage = "Kamu mendapatkan pesanan baru ({$order->code}) senilai: {$amount}. Kamu sedang menunggu pembayaran" ;
-        WhatsApp::sendText($notificationMessage);
-
-        $response = response([
-          'success' => true,
-          'message' => 'Pesanan diterima',
-          'data' => [
-            'url' => route('orders.details', ['orderCode' => $order->code]),
-          ],
-        ], 200);
-      }
     });
+
+    if (!$order) {
+      return $response;
+    }
+
+    $response = Tripay::requestTransaction($order);
+    $order->payment_response = json_encode($response);
+    $order->save();
+
+    if (!$response['success']) {
+      // bring the stock back
+      Stock::revert($order);
+      // remove order data when unable to create transaction request
+      $order->orderDetails()->delete();
+      $order->delete();
+
+      $response = response([
+        'success' => false,
+        'message' => $response['message'],
+      ], 400);
+    } else {
+
+      // clear cart items
+      $cart = Cart::whereUserId(Auth::id())->first();
+      if ($cart) {
+        $cart->items()->delete();
+      }
+
+      $amount = Utils::currencyFormat($order->grand_total);
+      $notificationMessage = "Kamu mendapatkan pesanan baru ({$order->code}) senilai: {$amount}. Kamu sedang menunggu pembayaran" ;
+
+      if (!Utils::hasTestHeaderKey()) {
+        WhatsApp::sendText($notificationMessage);
+      }
+
+      $response = response([
+        'success' => true,
+        'message' => 'Pesanan diterima',
+        'data' => [
+          'url' => route('orders.details', ['orderCode' => $order->code]),
+        ],
+      ], 200);
+    }
 
     return $response;
   }

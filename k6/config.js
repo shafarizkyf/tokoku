@@ -9,3 +9,9 @@ export const THRESHOLDS = {
   http_req_failed: ['rate<0.01'],
   http_req_duration: ['p(95)<800'],
 };
+
+export const getRandomInt = (min, max) => {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+};
