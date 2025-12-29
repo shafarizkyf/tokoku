@@ -22,26 +22,30 @@ export const options = {
   },
 };
 
+let token; // VU-local memory
 const users = JSON.parse(open("./data/users.json"));
 
 export default function () {
-  // Each VU gets a stable user
-  const user = users[__VU % users.length];
+  if (!token) {
+    const user = users[__VU % users.length];
 
-  // Login once per VU
-  if (!__ENV[`TOKEN_${__VU}`]) {
     const loginRes = http.post(
       `${BASE_URL}/api/test/login/${user.id}`,
-      undefined,
-      { headers: { ...DEFAULT_HEADERS, "X-Test-Key": __ENV.TEST_KEY } }
+      null,
+      {
+        headers: {
+          ...DEFAULT_HEADERS,
+          'X-Test-Key': __ENV.TEST_KEY,
+        },
+      }
     );
 
-    const token = loginRes.json().token;
+    check(loginRes, {
+      'login ok': (r) => r.status === 200,
+    });
 
-    __ENV[`TOKEN_${__VU}`] = token;
+    token = loginRes.json().token;
   }
-
-  const token = __ENV[`TOKEN_${__VU}`];
 
   const product_id = Math.floor(Math.random() * 30) + 1;
   const payload = JSON.stringify({
