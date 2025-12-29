@@ -35,6 +35,7 @@ class OrderController extends Controller {
   public function store(StoreOrderRequest $request) {
     Log::channel('order')->info('store', $request->all());
 
+    $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(3);
     $cart = Cart::calculateWeightAndValue(Auth::id());
     $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     $preferredDelivery = array_find($deliveryOptions, function($item)use ($request) {
@@ -55,16 +56,15 @@ class OrderController extends Controller {
       'message' => 'Unexpected Error'
     ], 500);
 
-    DB::transaction(function()use ($request, $preferredDelivery, &$response, &$order) {
+    DB::transaction(function()use ($request, $preferredDelivery, &$response, &$order, $orderCode) {
       $totalPrice = 0;
       $totalWeightInGrams = 0;
       $orderItems = [];
       foreach($request->items as $item) {
+
         // Lock the product_variation row for update
         $productVariation = ProductVariation::with(['product'])
-          ->where('id', $item['product_variation_id'])
-          ->lockForUpdate()
-          ->first();
+          ->find($item['product_variation_id']);
 
         if (!$productVariation) {
           $response = response([
@@ -112,8 +112,18 @@ class OrderController extends Controller {
         ];
 
         // deduct stock
-        $productVariation->stock -= $item['quantity'];
-        $productVariation->save();
+        $affected = ProductVariation::where('id', $productVariation->id)
+          ->where('stock', '>=', $item['quantity'])
+          ->decrement('stock', $item['quantity']);
+
+        if ($affected === 0) {
+          $response = response([
+            'success' => false,
+            'message' => 'Stok tidak mencukupi',
+          ], 400);
+          DB::rollBack();
+          return;
+        }
       }
 
       $shippingPrice = $preferredDelivery['shipping_cost'];
@@ -121,7 +131,7 @@ class OrderController extends Controller {
 
       $order = new Order;
       $order->user_id = Auth::id();
-      $order->code = 'INV' . now()->format('Ymd')  . Utils::generateRandomCode(3);
+      $order->code = $orderCode;
       $order->payment_method = $request->payment_method;
       $order->total_price = $totalPrice;
       $order->total_weight = $totalWeightInGrams;
@@ -160,6 +170,7 @@ class OrderController extends Controller {
     }
 
     $response = Tripay::requestTransaction($order);
+    $order->payment_reference = isset($response['data']['reference']) ? $response['data']['reference'] : null;
     $order->payment_response = json_encode($response);
     $order->save();
 

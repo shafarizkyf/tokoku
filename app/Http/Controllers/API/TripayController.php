@@ -26,6 +26,7 @@ class TripayController extends Controller {
         case 'PAID':
           $order->status = 'paid';
           $order->payment_status = 'paid';
+          $order->paid_at = now();
           $order->save();
 
           // email receipt
