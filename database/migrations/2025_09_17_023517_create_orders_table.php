@@ -14,17 +14,19 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('code', 20)->unique();
+            $table->string('code', 30)->unique();
             $table->enum('status', ['pending', 'paid', 'shipped', 'completed', 'cancelled'])->default('pending');
             $table->string('payment_method', 20);
+            $table->string('payment_reference', 100)->nullable()->unique();
             $table->enum('payment_status', ['unpaid', 'paid', 'expired', 'failed'])->default('unpaid');
             $table->text('payment_response')->nullable();
             $table->dateTime('payment_expired_at')->nullable();
-            $table->decimal('total_price', 12);
+            $table->timestamp('paid_at')->nullable();
+            $table->unsignedBigInteger('total_price');
             $table->unsignedMediumInteger('total_weight');
-            $table->decimal('shipping_price', 12);
-            $table->decimal('total_discount', 12)->default(0);
-            $table->decimal('grand_total', 12);
+            $table->unsignedBigInteger('shipping_price');
+            $table->unsignedBigInteger('total_discount')->default(0);
+            $table->unsignedBigInteger('grand_total');
             $table->string('courier', 50);
             $table->string('resi_number', 50)->nullable();
             $table->text('resi_track_response')->nullable();
@@ -39,6 +41,12 @@ return new class extends Migration
             $table->unsignedInteger('postal_code');
             $table->text('note')->nullable();
             $table->timestamps();
+            // Indexes for performance
+            $table->index('user_id');
+            $table->index('created_at');
+            $table->index(['status', 'payment_status']);
+            $table->index('code');
+            $table->index('payment_reference');
         });
     }
 

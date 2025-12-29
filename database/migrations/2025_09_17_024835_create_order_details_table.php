@@ -18,12 +18,19 @@ return new class extends Migration
             $table->unsignedBigInteger('product_variation_id');
             $table->string('name_snapshot');
             $table->string('variation_snapshot')->nullable();
-            $table->decimal('price', 12);
+            $table->unsignedBigInteger('price');
             $table->unsignedMediumInteger('quantity');
-            $table->decimal('discount', 12)->default(0);
-            $table->decimal('subtotal', 12);
+            $table->unsignedBigInteger('discount')->default(0);
+            $table->unsignedBigInteger('subtotal');
             $table->unsignedMediumInteger('weight');
             $table->timestamps();
+            // Indexes for performance
+            $table->index('order_id');
+            $table->index('product_id');
+            $table->index('product_variation_id');
+            $table->index('name_snapshot');
+
+            $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
         });
     }
 
