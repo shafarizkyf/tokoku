@@ -1,0 +1,44 @@
+[
+    {
+        "shipping_name": "NINJA",
+        "service_name": "Standard",
+        "shipping_cost": 24000,
+        "etd": "-"
+    },
+    {
+        "shipping_name": "SICEPAT",
+        "service_name": "REG",
+        "shipping_cost": 21000,
+        "etd": "2-3 day"
+    },
+    {
+        "shipping_name": "JNE",
+        "service_name": "JNEFlat",
+        "shipping_cost": 28500,
+        "etd": ""
+    },
+    {
+        "shipping_name": "SAP",
+        "service_name": "UDRREG",
+        "shipping_cost": 31500,
+        "etd": "2-4 day"
+    },
+    {
+        "shipping_name": "IDEXPRESS",
+        "service_name": "STD",
+        "shipping_cost": 25800,
+        "etd": "-"
+    },
+    {
+        "shipping_name": "JNT",
+        "service_name": "EZ",
+        "shipping_cost": 21000,
+        "etd": "-"
+    },
+    {
+        "shipping_name": "LION",
+        "service_name": "REGPACK",
+        "shipping_cost": 21000,
+        "etd": "1-3 day"
+    }
+]

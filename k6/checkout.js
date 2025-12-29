@@ -83,10 +83,15 @@ export default function () {
 
   const headers = {
     ...DEFAULT_HEADERS,
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
+    'X-Test-Key': __ENV.TEST_KEY,
   };
 
   const res = http.post(`${BASE_URL}/api/orders`, payload, { headers });
+
+  if (res.status !== 200) {
+    console.error(`Checkout failed for VU ${__VU}: ${res.status} - ${res.body}`);
+  }
 
   check(res, {
     'status is 200': (r) => r.status === 200,

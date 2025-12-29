@@ -35,7 +35,8 @@ class Tripay {
 
   public static function requestTransaction(Order $order) {
     if (Utils::hasTestHeaderKey()) {
-      return json_decode(file_get_contents(storage_path('app/mock/tripay_request_transaction.json')), true);
+      Log::info('Tripay::requestTransaction - returning mock data for order ' . $order->code);
+      return json_decode(file_get_contents(storage_path('mock/tripay_request_transaction.json')), true);
     }
 
     $instance = new self();
