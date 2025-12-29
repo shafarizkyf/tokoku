@@ -31,7 +31,7 @@ class BannerTest extends TestCase
     public function test_banner_create()
     {
         Storage::fake('public');
-        $file = UploadedFile::fake()->image('banner.jpg');
+        $file = UploadedFile::fake()->create('banner.jpg', 100, 'image/jpeg');
         $path = $file->store('banners', 'public');
         $banner = Banner::create([
             'path' => $path,
