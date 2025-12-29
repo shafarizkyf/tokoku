@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->uuid('session_id')->nullable();
+            $table->unsignedBigInteger('user_id')->default(0)->index();
+            $table->uuid('session_id')->nullable(); // ignore this, currently not used
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
