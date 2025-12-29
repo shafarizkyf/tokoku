@@ -33,14 +33,20 @@ class OrderController extends Controller {
   }
 
   public function store(StoreOrderRequest $request) {
-    Log::channel('order')->info('store', $request->all());
+    if (app()->environment() !== 'production') {
+      Log::channel('order')->info('store', $request->all());
+    }
 
-    $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(3);
     $cart = Cart::calculateWeightAndValue(Auth::id());
     $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     $preferredDelivery = array_find($deliveryOptions, function($item)use ($request) {
       return $item['service_name'] == $request->delivery['service_name'] && $item['shipping_name'] == $request->delivery['shipping_name'];
     });
+
+    // Ensure $orderCode is unique and not used
+    do {
+      $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(3);
+    } while (Order::where('code', $orderCode)->exists());
 
     $order = null;
 
