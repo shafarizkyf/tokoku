@@ -43,6 +43,12 @@ class CartController extends Controller {
           $options[] = $variationOption->variationOption->value;
         }
 
+        // purge cart item if product no longer exist/inactive
+        if (!$cartItem->product) {
+          $cartItem->delete();
+          continue;
+        }
+
         $cartItems[] = [
           'cart_item_id' => $cartItem->id,
           'product_name' => $cartItem->product->name,

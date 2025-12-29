@@ -22,6 +22,11 @@ class EnsureStockExist implements ValidationRule
 
         if (!$variation) {
             $variationRef = ProductVariation::withTrashed()->find($this->productVariationId);
+            if (!$variationRef || !$variationRef->product) {
+                $fail("Produk sudah tidak tersedia");
+                return;
+            }
+
             $fail("Produk '{$variationRef->product->name}' sudah tidak tersedia");
         } else if ($variation->stock < $value) {
             $fail($variation->product->name . ': Stok tidak mencukupi.');
