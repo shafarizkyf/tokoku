@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build and start services
+      run: |
+        docker compose -f docker-compose.ci.yml up -d --build
+
+    - name: Setup CI env
+      run: |
+        docker compose -f docker-compose.ci.yml exec -T app \
+          cp .env.ci .env
+
+    - name: Install dependencies
+      run: |
+        docker compose -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist
+
+    - name: Wait for MySQL
+      run: |
+        for i in {1..30}; do
+          if docker compose -f docker-compose.ci.yml exec -T mysql \
+            mysqladmin ping -utokoku_ci -ptokoku_ci --silent; then
+            echo "DB ready"
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
+
+    - name: Wait for Meilisearch
+      run: |
+        for i in {1..20}; do
+          if docker compose -f docker-compose.ci.yml exec -T app \
+            curl -fs http://meilisearch:7700/health > /dev/null; then
+            echo "Meilisearch ready"
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
+
+    - name: Prepare application
+      run: |
+        docker compose -f docker-compose.ci.yml exec -T app php artisan key:generate --force
+        docker compose -f docker-compose.ci.yml exec -T app php artisan migrate:fresh --seed
+
+    - name: Run tests
+      run: |
+        docker compose -f docker-compose.ci.yml exec -T app php artisan test --parallel
+
+    - name: Show logs on failure
+      if: failure()
+      run: |
+        docker compose -f docker-compose.ci.yml logs --tail=200
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f docker-compose.ci.yml down -v
