@@ -16,10 +16,18 @@ return new class extends Migration
             $table->unsignedBigInteger('cart_id');
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('product_variation_id');
-            $table->unsignedInteger('quantity')->default(1);
-            $table->decimal('price_at_time', 12);
-            $table->decimal('price_discount_at_time', 12)->nullable();
+            $table->unsignedSmallInteger('quantity')->default(1);
+            $table->unsignedInteger('price_at_time');
+            $table->unsignedInteger('price_discount_at_time')->nullable();
             $table->timestamps();
+
+            $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_variation_id')->references('id')->on('product_variations')->onDelete('cascade');
+
+            $table->index('cart_id');
+            $table->index('product_id');
+            $table->index(['cart_id', 'product_id']);
         });
     }
 
