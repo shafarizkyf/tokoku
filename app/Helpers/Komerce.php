@@ -42,6 +42,7 @@ class Komerce {
 
   public static function calculateByPostalCode(string $postalCode, float $weight, int $itemValue): array {
     if (Utils::hasTestHeaderKey()) {
+      Log::info('Komerce::calculateByPostalCode - returning mock data for postal code ' . $postalCode);
       return json_decode(file_get_contents(storage_path('app/mock/komerce_calculate_by_postal_code.json')), true);
     }
 
