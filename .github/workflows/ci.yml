@@ -40,17 +40,15 @@ jobs:
 
     - name: Wait for Meilisearch
       run: |
-        docker compose -f docker-compose.ci.yml exec -T app \
-          php -r "
-            for ($i=0; $i<20; $i++) {
-              if (@file_get_contents('http://meilisearch:7700/health')) {
-                echo 'Meilisearch ready\n';
-                exit(0);
-              }
-              sleep(1);
-            }
-            exit(1);
-          "
+        for i in {1..20}; do
+          if docker compose -f docker-compose.ci.yml exec -T app \
+            curl -fs http://meilisearch:7700/health > /dev/null; then
+            echo "Meilisearch ready"
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
 
     - name: Prepare application
       run: |
