@@ -1,5 +1,7 @@
 FROM php:8.4-fpm
 
+ARG APP_ENV=production
+
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libonig-dev libxml2-dev zip libzip-dev \
     libicu-dev \
@@ -15,7 +17,11 @@ COPY . .
 
 # Install composer dependencies
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --no-interaction --no-progress --prefer-dist
+RUN if [ "$APP_ENV" = "production" ]; then \
+      composer install --no-dev --no-interaction --no-progress --prefer-dist; \
+    else \
+      composer install; \
+    fi
 
 # Ensure storage/framework subfolders exist and are writable
 # Ensure storage/framework subfolders exist and are writable
