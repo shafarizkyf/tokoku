@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: github_ci_app
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -18,6 +19,7 @@ services:
         condition: service_started
 
   mysql:
+    container_name: github_ci_mysql
     image: mysql:8.0
     environment:
       MYSQL_DATABASE: tokoku_ci
@@ -31,9 +33,11 @@ services:
       retries: 10
 
   redis:
+    container_name: github_ci_redis
     image: redis:7
 
   meilisearch:
+    container_name: github_ci_meilisearch
     image: getmeili/meilisearch:v1.16
     environment:
       MEILI_ENV: development
