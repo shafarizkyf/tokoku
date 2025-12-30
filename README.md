@@ -54,3 +54,9 @@ Dengan TokoKu, pelaku usaha:
 - Buka phpmyadmin di: `host:8081`
 - Import table wilayah indonesia (storage > indonesia.sql). [Credit Source](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia/tree/master/mysql%20(mariadb)), dimodifikasi agar dapat di import sesuai dengan definisi table pada migration file
 - Login, lalu akses database, buka table `users` ubah `user_type` menjadi `admin` untuk pengguna yang diinginkan. Logout. Login Kembali
+
+
+### Troubleshoot
+- The stream or file \"/var/www/html/storage/logs/laravel.log\" could not be opened in append mode
+  - docker exec -it tokoku_app chown -R www-data:www-data storage
+  - docker exec -it tokoku_app php artisan config:clear
