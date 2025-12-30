@@ -45,7 +45,7 @@ class OrderController extends Controller {
 
     // Ensure $orderCode is unique and not used
     do {
-      $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(3);
+      $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(6);
     } while (Order::where('code', $orderCode)->exists());
 
     $order = null;
