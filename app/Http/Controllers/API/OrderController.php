@@ -33,14 +33,20 @@ class OrderController extends Controller {
   }
 
   public function store(StoreOrderRequest $request) {
-    Log::channel('order')->info('store', $request->all());
+    if (app()->environment() !== 'production') {
+      Log::channel('order')->info('store', $request->all());
+    }
 
-    $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(3);
     $cart = Cart::calculateWeightAndValue(Auth::id());
     $deliveryOptions = Komerce::calculateByPostalCode($request->shipping['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     $preferredDelivery = array_find($deliveryOptions, function($item)use ($request) {
       return $item['service_name'] == $request->delivery['service_name'] && $item['shipping_name'] == $request->delivery['shipping_name'];
     });
+
+    // Ensure $orderCode is unique and not used
+    do {
+      $orderCode = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(6);
+    } while (Order::where('code', $orderCode)->exists());
 
     $order = null;
 
@@ -60,11 +66,16 @@ class OrderController extends Controller {
       $totalPrice = 0;
       $totalWeightInGrams = 0;
       $orderItems = [];
+
+      $variationIds = collect($request->items)->pluck('product_variation_id')->toArray();
+      $productVariations = ProductVariation::with(['product', 'variationOptions.variationOption'])
+        ->whereIn('id', $variationIds)
+        ->get()
+        ->keyBy('id');
+
       foreach($request->items as $item) {
 
-        // Lock the product_variation row for update
-        $productVariation = ProductVariation::with(['product'])
-          ->find($item['product_variation_id']);
+        $productVariation = $productVariations->get($item['product_variation_id']);
 
         if (!$productVariation) {
           $response = response([

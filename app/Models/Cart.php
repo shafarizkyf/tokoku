@@ -50,7 +50,10 @@ class Cart extends Model {
         ];
     }
 
-    $cartItems = CartItem::whereIn('cart_id', $cart->pluck('id'))->get();
+    $cartItems = CartItem::whereIn('cart_id', $cart->pluck('id'))
+      ->with('productVariation')
+      ->get();
+
     foreach($cartItems as $cartItem) {
       $variation = $cartItem->productVariation;
       if ($variation) {
