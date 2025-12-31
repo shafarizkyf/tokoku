@@ -87,6 +87,7 @@ Route::get('health', [HealthCheckController::class, 'index']);
 Route::get('banners', [BannerController::class, 'index']);
 
 Route::get('search', [ProductController::class, 'search']);
+Route::get('search/all', [ProductController::class, 'searchAll']);
 
 Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);

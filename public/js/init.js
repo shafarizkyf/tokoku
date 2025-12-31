@@ -110,7 +110,7 @@ $(function(){
 
       if (response.length) {
         const list = response.map(item => `<li><a href="/products/${item.slug}">${item.name}</a></li>`).join('');
-        container.append(list);
+        container.append( `<li><a href="/search?q=${keyword}">Lihat Semua</a></li>`).append(list);
       } else {
         container.empty().append(`<li>Pencarian tidak ditemukan</li>`);
       }

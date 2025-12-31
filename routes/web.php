@@ -13,6 +13,7 @@ use App\Http\Middleware\EnsureUserTypeIsValid;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
+Route::get('search', [HomepageController::class, 'search']);
 
 Route::prefix('auth')->group(function(){
   Route::get('', [AuthController::class, 'index'])->name('login');

@@ -49,6 +49,28 @@ class ProductController extends Controller {
     return Product::search(request('keyword'))->take(10)->get();
   }
 
+  public function searchAll() {
+    $keyword = request('keyword');
+
+    if (!$keyword || !trim($keyword)) {
+      return response()->json([
+        'data' => [],
+        'message' => 'Keyword is required'
+      ], 400);
+    }
+
+    $cacheKey = 'search.' . md5($keyword) . '.page.' . request('page', 1);
+
+    return Cache::tags(['products', 'search'])->remember($cacheKey, now()->addMinutes(5), function () use ($keyword) {
+      return Product::with(['image', 'cheapestVariation'])
+        ->where('name', 'like', "%{$keyword}%")
+        ->orWhere('description', 'like', "%{$keyword}%")
+        ->latest()
+        ->paginate(30);
+    });
+  }
+
+
   public function show(Product $product) {
     $product = $product->load('variations', 'images');
     $product['variation_options'] = ProductVariation::options()->where('product_id', $product->id)->get();
