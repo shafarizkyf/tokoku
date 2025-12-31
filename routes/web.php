@@ -8,6 +8,7 @@ use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ShopController;
 use App\Http\Middleware\EnsureUserTypeIsValid;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,7 @@ Route::middleware(['auth'])->group(function(){
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
       Route::get('bulk-discount', [ProductController::class, 'bulkDiscountPage'])->name('products.bulk_discount');
     });
+    Route::get('shop/settings', [ShopController::class, 'settings'])->name('shop.settings');
   });
 });
 

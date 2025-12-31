@@ -21,6 +21,11 @@
         Banner
       </a>
     </li>
+    <li class="nav-item">
+      <a href="{{ route('banners.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'banners.index' ? 'active' : '' }}" aria-current="page">
+        Pengaturan
+      </a>
+    </li>
     @endif
   </ul>
   <hr>
