@@ -6,6 +6,64 @@ Dengan TokoKu, pelaku usaha:
 - Memiliki kontrol penuh atas infrastruktur dan data, karena aplikasi dijalankan di server milik sendiri.
 - Dapat mengurangi biaya tambahan yang biasanya muncul saat berjualan melalui platform e-commerce.
 
+### Perbandingan Biaya: Marketplace vs Self-Hosted (TokoKu)
+
+Salah satu alasan utama menggunakan TokoKu (self-hosted) adalah efisiensi biaya jangka panjang.
+Berikut perbandingan biaya antara berjualan di Tokopedia / Shopee dibandingkan dengan TokoKu.
+```
+⚠️ Catatan:
+Angka Tokopedia & Shopee di bawah adalah simulasi berdasarkan biaya (power merchant, admin fee, layanan tambahan, dan payment fee).
+Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform.
+```
+
+### Simulasi Kasus
+- Harga produk: Rp100.000
+- Metode bayar: QRIS / Transfer Bank
+- Pengiriman ditanggung pembeli
+- Tanpa promo gratis ongkir dari seller
+
+
+| Komponen Biaya                                   | Tokopedia         | Shopee            | **TokoKu (Self-Hosted)** |
+| ------------------------------------------------ | ----------------- | ----------------- | ------------------------ |
+| Biaya Admin / Komisi                             | 1% – 5%           | 4% – 8%           | **0%**                   |
+| Biaya Layanan Platform                           | ±1%               | ±1%               | **0%**                   |
+| Biaya Payment Gateway                            | Termasuk platform | Termasuk platform | **±0.7% – 1% (TriPay)**  |
+| Biaya Fitur Wajib (Power Merchant / Star Seller) | Ada               | Ada               | **Tidak ada**            |
+| Biaya Iklan (Opsional tapi kompetitif)           | Tinggi            | Tinggi            | **Opsional (bebas)**     |
+| **Total Potongan Estimasi**                      | **±3% – 6%**      | **±5% – 9%**      | **±1%**                  |
+
+
+### Simulasi Hasil Bersih (Harga Produk Rp100.000)
+
+| Platform   | Potongan          | Dana Diterima       |
+| ---------- | ----------------- | ------------------- |
+| Tokopedia  | Rp3.000 – Rp6.000 | Rp94.000 – Rp97.000 |
+| Shopee     | Rp5.000 – Rp9.000 | Rp91.000 – Rp95.000 |
+| **TokoKu** | ±Rp1.000          | **±Rp99.000**       |
+
+
+### Biaya Infrastruktur TokoKu (Bulanan)
+| Komponen                 | Estimasi Biaya                    |
+| ------------------------ | --------------------------------- |
+| VPS / Home Server        | Rp100.000 – Rp300.000             |
+| Domain                   | ±Rp15.000 / bulan                 |
+| Payment Gateway (TriPay) | Pay per transaksi                 |
+| Email & WhatsApp API     | Pay per usage                     |
+| **Total Estimasi**       | **Rp150.000 – Rp350.000 / bulan** |
+
+```
+Dengan 50 transaksi / bulan, biaya infrastruktur per transaksi bisa < Rp7.000, dan akan semakin murah seiring volume meningkat.
+```
+
+### Ringkasan Singkat
+| Aspek                       | Marketplace      | **TokoKu**            |
+| --------------------------- | ---------------- | --------------------- |
+| Kontrol harga               | ❌ Terikat aturan | ✅ Bebas               |
+| Potongan per transaksi      | Tinggi           | Rendah                |
+| Data pelanggan              | ❌ Milik platform | ✅ Milik sendiri       |
+| Skalabilitas jangka panjang | Mahal            | Efisien               |
+| Cocok untuk                 | Traffic cepat    | Brand & bisnis serius |
+
 
 ### Integrasi Fitur
 - **Gerbang Pembayaran**: [TriPay](tripay.co.id). Digunakan untuk menerima pembayaran melalui Bank/MiniMart/QRIS.
