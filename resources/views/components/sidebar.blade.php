@@ -22,7 +22,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a href="{{ route('banners.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'banners.index' ? 'active' : '' }}" aria-current="page">
+      <a href="{{ route('shop.settings') }}" class="nav-link text-white {{ request()->route()->getName() == 'shop.settings' ? 'active' : '' }}" aria-current="page">
         Pengaturan
       </a>
     </li>
