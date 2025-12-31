@@ -205,6 +205,17 @@ class ProductController extends Controller {
 
     $product = Product::withoutGlobalScopes()->findOrFail($productId);
 
+    $stock = ProductVariation::select('stock')
+      ->whereProductId($product->id)
+      ->sum('stock');
+
+    if (!$stock) {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat mengaktifkan produk karena stok kosong'
+      ], 400);
+    }
+
     $product->is_active = $data['is_active'];
     $product->save();
 

@@ -59,7 +59,7 @@ $(function () {
       data: {
         is_active: isActive ? 1 : 0
       },
-      success: function (res) {
+      success: (res) => {
         Toastify({
           text: res.message,
           duration: 3000,
@@ -69,7 +69,7 @@ $(function () {
           backgroundColor: "#4fbe87",
         }).showToast();
       },
-      error: function (err) {
+      error: (err) => {
         $(this).prop('checked', !isActive); // Revert
         Toastify({
           text: err.responseJSON?.message || "Terjadi kesalahan",
