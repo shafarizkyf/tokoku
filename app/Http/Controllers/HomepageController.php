@@ -12,4 +12,9 @@ class HomepageController extends Controller {
     return view('homepage.index', compact('banners'));
   }
 
+  public function search() {
+    $keyword = request('q', '');
+    return view('homepage.search', compact('keyword'));
+  }
+
 }

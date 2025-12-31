@@ -21,6 +21,11 @@
         Banner
       </a>
     </li>
+    <li class="nav-item">
+      <a href="{{ route('shop.settings') }}" class="nav-link text-white {{ request()->route()->getName() == 'shop.settings' ? 'active' : '' }}" aria-current="page">
+        Pengaturan
+      </a>
+    </li>
     @endif
   </ul>
   <hr>

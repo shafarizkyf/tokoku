@@ -91,9 +91,7 @@ class ImportCardElement {
 
       // --- SCHEMA VALIDATION ---
       const validateShopeeSchema = (data) => {
-        if (!data.origin || !data.store || !Array.isArray(data.data)) return false;
-        // Check required store fields
-        if (!data.store.name || !data.store.imageUrl) return false;
+        if (!data.origin || !Array.isArray(data.data)) return false;
         // Check at least one product with required fields
         if (data.data.length > 0) {
           const p = data.data[0];
@@ -103,9 +101,7 @@ class ImportCardElement {
       };
 
       const validateTokopediaSchema = (data) => {
-        if (!data.origin || !data.store || !Array.isArray(data.data)) return false;
-        // Add more checks as needed for Tokopedia
-        if (!data.store.name || !data.store.imageUrl) return false;
+        if (!data.origin || !Array.isArray(data.data)) return false;
         if (data.data.length > 0) {
           const p = data.data[0];
           if (!p.name || !p.url || !p.imageUrl) return false;
@@ -131,9 +127,11 @@ class ImportCardElement {
 
       ImportCardElement.renderCards(fileContent.data);
 
-      document.querySelector('#brand-container > img').setAttribute('src', fileContent.store.imageUrl);
-      document.querySelector('#brand-container > h1').textContent = fileContent.store.name;
-      document.querySelector('#brand-container p').textContent = fileContent.store.meta.description;
+      if (fileContent.store) {
+        document.querySelector('#brand-container > img').setAttribute('src', fileContent.store.imageUrl);
+        document.querySelector('#brand-container > h1').textContent = fileContent.store.name;
+        document.querySelector('#brand-container p').textContent = fileContent.store.meta.description;
+      }
 
       // getShopInfo(fileContent.storeName).then(response => {
       //   console.log(response);

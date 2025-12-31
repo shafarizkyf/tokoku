@@ -10,6 +10,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductImageController;
 use App\Http\Controllers\API\RegionController;
 use App\Http\Controllers\API\ShippingController;
+use App\Http\Controllers\API\ShopController;
 use App\Http\Controllers\API\TripayController;
 use App\Http\Controllers\API\UserAddressController;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,12 @@ Route::middleware(['auth:sanctum'])->group(function(){
       Route::delete('{product}', [ProductController::class, 'destroy']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
       Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
+      Route::post('bulk-stock', [ProductController::class, 'bulkStock']);
+    });
+
+    Route::prefix('shop')->group(function(){
+      Route::get('settings', [ShopController::class, 'show']);
+      Route::post('settings', [ShopController::class, 'update']);
     });
   });
 
@@ -80,6 +87,7 @@ Route::get('health', [HealthCheckController::class, 'index']);
 Route::get('banners', [BannerController::class, 'index']);
 
 Route::get('search', [ProductController::class, 'search']);
+Route::get('search/all', [ProductController::class, 'searchAll']);
 
 Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);

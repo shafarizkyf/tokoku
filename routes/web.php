@@ -8,10 +8,12 @@ use App\Http\Controllers\ImageDownloadController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ShopController;
 use App\Http\Middleware\EnsureUserTypeIsValid;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
+Route::get('search', [HomepageController::class, 'search']);
 
 Route::prefix('auth')->group(function(){
   Route::get('', [AuthController::class, 'index'])->name('login');
@@ -42,7 +44,9 @@ Route::middleware(['auth'])->group(function(){
       Route::get('{product}/edit', [ProductController::class, 'edit']);
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
       Route::get('bulk-discount', [ProductController::class, 'bulkDiscountPage'])->name('products.bulk_discount');
+      Route::get('bulk-stock', [ProductController::class, 'bulkStockPage'])->name('products.bulk_stock');
     });
+    Route::get('shop/settings', [ShopController::class, 'settings'])->name('shop.settings');
   });
 });
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DestroyProductRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Requests\BulkDiscountRequest;
+use App\Http\Requests\BulkStockRequest;
 
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -31,13 +32,15 @@ class ProductController extends Controller {
   public function index() {
     if (request('view') == 'datatable') {
       $products = Product::with(['image', 'cheapestVariation'])
-        ->withoutGlobalScope(ProductActive::class);
+        ->withoutGlobalScope(ProductActive::class)
+        ->latest();
 
       return DataTable::ajaxTable($products);
     }
 
     return Cache::tags(['products'])->remember('products.page.' . request('page', 1), now()->addSeconds(30), function () {
       return Product::with(['image', 'cheapestVariation'])
+        ->latest()
         ->paginate(30);
     });
   }
@@ -45,6 +48,28 @@ class ProductController extends Controller {
   public function search() {
     return Product::search(request('keyword'))->take(10)->get();
   }
+
+  public function searchAll() {
+    $keyword = request('keyword');
+
+    if (!$keyword || !trim($keyword)) {
+      return response()->json([
+        'data' => [],
+        'message' => 'Keyword is required'
+      ], 400);
+    }
+
+    $cacheKey = 'search.' . md5($keyword) . '.page.' . request('page', 1);
+
+    return Cache::tags(['products', 'search'])->remember($cacheKey, now()->addMinutes(5), function () use ($keyword) {
+      return Product::with(['image', 'cheapestVariation'])
+        ->where('name', 'like', "%{$keyword}%")
+        ->orWhere('description', 'like', "%{$keyword}%")
+        ->latest()
+        ->paginate(30);
+    });
+  }
+
 
   public function show(Product $product) {
     $product = $product->load('variations', 'images');
@@ -205,6 +230,17 @@ class ProductController extends Controller {
 
     $product = Product::withoutGlobalScopes()->findOrFail($productId);
 
+    $stock = ProductVariation::select('stock')
+      ->whereProductId($product->id)
+      ->sum('stock');
+
+    if (!$stock) {
+      return response([
+        'success' => false,
+        'message' => 'Tidak dapat mengaktifkan produk karena stok kosong'
+      ], 400);
+    }
+
     $product->is_active = $data['is_active'];
     $product->save();
 
@@ -244,23 +280,33 @@ class ProductController extends Controller {
       'message' => 'Unexpected Error',
     ];
 
-    DB::transaction(function() use ($productsRequest, &$response){
-      $path = Image::saveImageFromUrl($productsRequest->store->imageUrl, 'store');
+    $store = Shop::first();
+    if (!$store) {
+      if (!isset($productsRequest->store)) {
+        $store = Shop::firstOrCreate([
+          'name' => 'Your Store',
+          'description' => 'Put your description here',
+          'image_path' => 'store/dummy.png'
+        ]);
+      } else {
+        $path = Image::saveImageFromUrl($productsRequest->store->imageUrl, 'store');
+        $store = Shop::create([
+          'name' => $productsRequest->store->name,
+          'description' => Str::limit(strip_tags($productsRequest->store->meta->description), 255),
+          'image_path' => $path,
+        ]);
+      }
+    }
 
-      $store = Shop::create([
-        'name' => $productsRequest->store->name,
-        'description' => Str::limit(strip_tags($productsRequest->store->meta->description), 255),
-        'image_path' => $path,
-      ]);
-
+    DB::transaction(function() use ($productsRequest, &$response, $store){
       $productIds = [];
       foreach($productsRequest->data as $index => $productRequest) {
         $product = Product::create([
           'store_id' => $store->id,
           'name' => $productRequest->name,
-          'slug' => Str::slug($productRequest->name),
-          'review_avg' => $productRequest->ratingAvg,
-          'sold_count' => $productRequest->soldCount,
+          'slug' => Utils::slug(Product::class, $productRequest->name),
+          'review_avg' => $productRequest->ratingAvg ?? 0,
+          'sold_count' => $productRequest->soldCount ?? 0,
           'source' => $productRequest->url,
           'created_by' => Auth::id(),
           'is_active' => false,
@@ -493,6 +539,37 @@ class ProductController extends Controller {
     return response([
       'success' => true,
       'message' => 'Diskon berhasil diterapkan'
+    ]);
+  }
+
+  public function bulkStock(BulkStockRequest $request) {
+    DB::transaction(function() use ($request) {
+      $productVariations = ProductVariation::whereIn('product_id', $request->product_ids)->get();
+
+      foreach($productVariations as $variation) {
+        $newStock = 0;
+        
+        if ($request->stock_action == 'set') {
+          // Set stock to specific value
+          $newStock = $request->stock_value;
+        } else if ($request->stock_action == 'add') {
+          // Add to current stock
+          $newStock = $variation->stock + $request->stock_value;
+        } else if ($request->stock_action == 'subtract') {
+          // Subtract from current stock
+          $newStock = $variation->stock - $request->stock_value;
+          // Ensure stock doesn't go negative
+          if ($newStock < 0) $newStock = 0;
+        }
+
+        $variation->stock = $newStock;
+        $variation->save();
+      }
+    });
+
+    return response([
+      'success' => true,
+      'message' => 'Stok berhasil diperbarui'
     ]);
   }
 
