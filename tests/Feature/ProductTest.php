@@ -240,6 +240,11 @@ class ProductTest extends TestCase
             'is_active' => true,
         ]);
 
+        ProductVariation::factory()->create([
+            'product_id' => $product->id,
+            'stock' => 1,
+        ]);
+
         $response = $this->patchJson("/api/products/{$product->id}/toggle-active", [
             'is_active' => false
         ]);
@@ -247,7 +252,32 @@ class ProductTest extends TestCase
         $response->assertStatus(200);
         $this->assertDatabaseHas('products', ['id' => $product->id, 'is_active' => false]);
     }
-    
+
+    public function test_admin_cant_toggle_active_when_stock_empty_from_inactive()
+    {
+        Sanctum::actingAs($this->admin, ['admin']);
+
+        $product = Product::create([
+            'store_id' => $this->shop->id,
+            'created_by' => $this->admin->id,
+            'name' => 'Toggle Product',
+            'slug' => 'toggle-product',
+            'is_active' => false,
+        ]);
+
+        ProductVariation::factory()->create([
+            'product_id' => $product->id,
+            'stock' => 0,
+        ]);
+
+        $response = $this->patchJson("/api/products/{$product->id}/toggle-active", [
+            'is_active' => true
+        ]);
+
+        $response->assertStatus(400);
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'is_active' => false]);
+    }
+
     public function test_admin_can_delete_product()
     {
         Sanctum::actingAs($this->admin, ['admin']);
