@@ -31,13 +31,15 @@ class ProductController extends Controller {
   public function index() {
     if (request('view') == 'datatable') {
       $products = Product::with(['image', 'cheapestVariation'])
-        ->withoutGlobalScope(ProductActive::class);
+        ->withoutGlobalScope(ProductActive::class)
+        ->latest();
 
       return DataTable::ajaxTable($products);
     }
 
     return Cache::tags(['products'])->remember('products.page.' . request('page', 1), now()->addSeconds(30), function () {
       return Product::with(['image', 'cheapestVariation'])
+        ->latest()
         ->paginate(30);
     });
   }
