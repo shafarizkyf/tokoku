@@ -50,6 +50,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
       Route::delete('{product}', [ProductController::class, 'destroy']);
       Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
       Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
+      Route::post('bulk-stock', [ProductController::class, 'bulkStock']);
     });
 
     Route::prefix('shop')->group(function(){

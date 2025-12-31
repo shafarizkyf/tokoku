@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DestroyProductRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Requests\BulkDiscountRequest;
+use App\Http\Requests\BulkStockRequest;
 
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -516,6 +517,37 @@ class ProductController extends Controller {
     return response([
       'success' => true,
       'message' => 'Diskon berhasil diterapkan'
+    ]);
+  }
+
+  public function bulkStock(BulkStockRequest $request) {
+    DB::transaction(function() use ($request) {
+      $productVariations = ProductVariation::whereIn('product_id', $request->product_ids)->get();
+
+      foreach($productVariations as $variation) {
+        $newStock = 0;
+        
+        if ($request->stock_action == 'set') {
+          // Set stock to specific value
+          $newStock = $request->stock_value;
+        } else if ($request->stock_action == 'add') {
+          // Add to current stock
+          $newStock = $variation->stock + $request->stock_value;
+        } else if ($request->stock_action == 'subtract') {
+          // Subtract from current stock
+          $newStock = $variation->stock - $request->stock_value;
+          // Ensure stock doesn't go negative
+          if ($newStock < 0) $newStock = 0;
+        }
+
+        $variation->stock = $newStock;
+        $variation->save();
+      }
+    });
+
+    return response([
+      'success' => true,
+      'message' => 'Stok berhasil diperbarui'
     ]);
   }
 

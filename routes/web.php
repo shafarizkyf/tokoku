@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function(){
       Route::get('{product}/edit', [ProductController::class, 'edit']);
       Route::get('import', [ProductController::class, 'import'])->name('products.import');
       Route::get('bulk-discount', [ProductController::class, 'bulkDiscountPage'])->name('products.bulk_discount');
+      Route::get('bulk-stock', [ProductController::class, 'bulkStockPage'])->name('products.bulk_stock');
     });
     Route::get('shop/settings', [ShopController::class, 'settings'])->name('shop.settings');
   });

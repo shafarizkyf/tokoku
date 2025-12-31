@@ -54,4 +54,8 @@ class ProductController extends Controller {
     return view('admin.product.bulk_discount');
   }
 
+  public function bulkStockPage() {
+    return view('admin.product.bulk_stock');
+  }
+
 }
