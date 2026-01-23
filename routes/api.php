@@ -79,7 +79,6 @@ Route::middleware(['auth:sanctum'])->group(function(){
   Route::prefix('live-streams')->group(function(){
     Route::post('', [LiveStreamController::class, 'start']);
     Route::post('{id}/stop', [LiveStreamController::class, 'stop']);
-    Route::post('{id}/join', [LiveStreamController::class, 'join']);
     Route::post('{id}/leave', [LiveStreamController::class, 'leave']);
     Route::post('{id}/messages', [LiveStreamController::class, 'sendMessage']);
   });
@@ -100,6 +99,7 @@ Route::get('search/all', [ProductController::class, 'searchAll']);
 
 Route::prefix('live-streams')->group(function(){
   Route::get('active', [LiveStreamController::class, 'active']);
+  Route::post('{id}/join', [LiveStreamController::class, 'join']);
   Route::get('{id}', [LiveStreamController::class, 'show']);
   Route::get('{id}/messages', [LiveStreamController::class, 'messages']);
   Route::get('{id}/statistics', [LiveStreamController::class, 'statistics']);

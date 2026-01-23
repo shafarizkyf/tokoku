@@ -247,10 +247,34 @@ class LiveStreamUI {
     // Show modal
     modal.classList.add('active');
 
-    // Join the Agora channel
+    // Fetch token from backend before joining
+    let token = null;
+    try {
+      const joinResponse = await fetch(`/api/live-streams/${this.currentStream.id}/join`, {
+        method: 'POST',
+        body: JSON.stringify({}) // Add session_id if needed
+      });
+      if (joinResponse.ok) {
+        const joinData = await joinResponse.json();
+        token = joinData?.data?.agora?.token || null;
+        // Optionally update currentStream with other data
+        this.currentStream.token = token;
+      } else {
+        alert('Failed to get live stream token.');
+        this.closeModal();
+        return;
+      }
+    } catch (err) {
+      console.error('Error fetching token:', err);
+      alert('Failed to get live stream token.');
+      this.closeModal();
+      return;
+    }
+
+    // Join the Agora channel with the fetched token
     const success = await this.agoraClient.join(
       this.currentStream.channelName,
-      this.currentStream.token || null,
+      token,
       null
     );
 
