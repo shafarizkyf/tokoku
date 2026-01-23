@@ -415,12 +415,12 @@ async function fetchActiveLiveStreams() {
       }
     } else {
       console.log('No active streams or API not available, showing demo stream');
-      showDemoStream();
+      // showDemoStream();
     }
   } catch (error) {
     console.error('Failed to fetch live streams:', error);
     // Fallback to demo stream for development
-    showDemoStream();
+    // showDemoStream();
   }
 }
 
