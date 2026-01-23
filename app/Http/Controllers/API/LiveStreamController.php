@@ -176,7 +176,7 @@ class LiveStreamController extends Controller
      */
     public function join($id, Request $request)
     {
-        $stream = LiveStream::findOrFail($id);
+        $stream = LiveStream::with(['products.image', 'products.cheapestVariation'])->findOrFail($id);
 
         if ($stream->status !== 'live') {
             return response()->json([

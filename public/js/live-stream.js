@@ -165,6 +165,8 @@ class LiveStreamUI {
     this.agoraClient = agoraClient;
     this.currentStream = null;
     this.chatMessages = [];
+    this.chatPollInterval = null;
+    this.CHAT_POLL_INTERVAL_MS = 3000;
   }
 
   /**
@@ -257,8 +259,15 @@ class LiveStreamUI {
       if (joinResponse.ok) {
         const joinData = await joinResponse.json();
         token = joinData?.data?.agora?.token || null;
-        // Optionally update currentStream with other data
+        const streamData = joinData?.data?.stream || {};
+
+        // Update current stream data
         this.currentStream.token = token;
+
+        // Render products
+        if (streamData.products) {
+          this.renderProducts(streamData.products);
+        }
       } else {
         alert('Failed to get live stream token.');
         this.closeModal();
@@ -280,10 +289,90 @@ class LiveStreamUI {
 
     if (success) {
       console.log('Successfully joined live stream');
-      // this.startChatSimulation(); // Simulate chat messages for demo
+      this.startChatPolling();
     } else {
       alert('Failed to join live stream. Please try again.');
       this.closeModal();
+    }
+  }
+
+  /**
+   * Render products in the sidebar
+   */
+  renderProducts(products) {
+    const listContainer = document.getElementById('live-stream-products');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+
+    if (!products || products.length === 0) {
+      listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0aec0;">No products featured</div>';
+      return;
+    }
+
+    products.forEach(product => {
+      const price = currencyFormat.format(product.cheapest_variation.price);
+
+      const el = document.createElement('div');
+      el.className = 'live-product-card';
+      el.innerHTML = `
+        <img src="${product.image ? product.image.url : '/images/placeholder.png'}" class="product-thumb" alt="${product.name}">
+        <div class="product-info">
+          <h4 class="product-name" title="${product.name}">${product.name}</h4>
+          <div class="product-price">
+            <span class="price-current">${price}</span>
+          </div>
+          <button class="btn-buy-now" onclick="liveStreamUI.addToCart(${product.id})">
+            Buy Now
+          </button>
+        </div>
+      `;
+      listContainer.appendChild(el);
+    });
+  }
+
+  /**
+   * Add product to cart
+   */
+  async addToCart(productId) {
+    try {
+      const response = await fetch('/api/carts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: 1
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Show success animation/toast
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = 'Added!';
+        btn.style.background = '#48bb78';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.background = '';
+        }, 2000);
+      } else {
+        if (response.status === 401) {
+          if (confirm('You need to login to buy products. Go to login page?')) {
+            window.location.href = '/login';
+          }
+        } else {
+          alert(data.message || 'Failed to add to cart');
+        }
+      }
+    } catch (e) {
+      console.error('Add to cart error:', e);
+      alert('Error adding to cart. Please try again.');
     }
   }
 
@@ -296,7 +385,26 @@ class LiveStreamUI {
       modal.classList.remove('active');
     }
 
+    // Stop chat polling
+    if (this.chatPollInterval) {
+      clearInterval(this.chatPollInterval);
+      this.chatPollInterval = null;
+    }
+
     // Leave the Agora channel
+    try {
+      await fetch(`/api/live-streams/${this.currentStream.id}/leave`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: JSON.stringify({})
+      });
+    } catch (e) {
+      console.error('Error leaving stream:', e);
+    }
+
     await this.agoraClient.leave();
 
     // Clear video player
@@ -314,16 +422,16 @@ class LiveStreamUI {
   }
 
   /**
-   * Add chat message
-   * @param {string} username - Username
-   * @param {string} message - Message text
+   * Add chat message to UI
    */
-  addChatMessage(username, message) {
+  addChatMessage(username, message, isSystem = false) {
     const chatContainer = document.querySelector('.chat-messages');
     if (!chatContainer) return;
 
     const messageEl = document.createElement('div');
     messageEl.className = 'chat-message';
+    if (isSystem) messageEl.classList.add('system-message');
+
     messageEl.innerHTML = `
       <div class="chat-username">${username}</div>
       <div class="chat-text">${message}</div>
@@ -331,51 +439,76 @@ class LiveStreamUI {
 
     chatContainer.appendChild(messageEl);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    this.chatMessages.push({ username, message, timestamp: Date.now() });
   }
 
   /**
-   * Simulate chat messages for demo purposes
+   * Poll for new chat messages
    */
-  startChatSimulation() {
-    const demoMessages = [
-      { username: 'John', message: 'Hello everyone! 👋' },
-      { username: 'Sarah', message: 'Great product!' },
-      { username: 'Mike', message: 'How much is this?' },
-      { username: 'Emma', message: 'Love the color! 😍' },
-      { username: 'David', message: 'Is there a discount?' },
-      { username: 'Lisa', message: 'Can you show it closer?' },
-      { username: 'Tom', message: 'I want to buy this!' },
-      { username: 'Anna', message: 'Amazing quality!' }
-    ];
+  startChatPolling() {
+    if (this.chatPollInterval) clearInterval(this.chatPollInterval);
 
-    let messageIndex = 0;
-    const interval = setInterval(() => {
-      if (!document.getElementById('live-stream-modal').classList.contains('active')) {
-        clearInterval(interval);
-        return;
+    this.chatPollInterval = setInterval(async () => {
+      if (!this.currentStream) return;
+
+      try {
+        const response = await fetch(`/api/live-streams/${this.currentStream.id}/messages`);
+        if (response.ok) {
+          const messages = await response.json();
+          // Filter new messages
+          const newMessages = messages.filter(msg => {
+            const msgTime = new Date(msg.created_at).getTime();
+            const lastMsg = this.chatMessages[this.chatMessages.length - 1];
+            return !lastMsg || msgTime > lastMsg.timestamp;
+          });
+
+          newMessages.forEach(msg => {
+            this.addChatMessage(msg.user ? msg.user.name : (msg.username || 'Guest'), msg.message);
+            this.chatMessages.push({
+              id: msg.id,
+              username: msg.user ? msg.user.name : (msg.username || 'Guest'),
+              message: msg.message,
+              timestamp: new Date(msg.created_at).getTime()
+            });
+          });
+        }
+      } catch (e) {
+        console.error('Chat polling error:', e);
       }
-
-      const msg = demoMessages[messageIndex % demoMessages.length];
-      this.addChatMessage(msg.username, msg.message);
-      messageIndex++;
-    }, 3000);
+    }, this.CHAT_POLL_INTERVAL_MS);
   }
 
   /**
    * Send chat message
    */
-  sendChatMessage() {
+  async sendChatMessage() {
     const input = document.getElementById('chat-input');
     if (!input || !input.value.trim()) return;
 
     const message = input.value.trim();
-    this.addChatMessage('You', message);
-    input.value = '';
+    input.value = ''; // Clear locally immediately
 
-    // Here you would send the message to your backend/chat service
-    console.log('Sending message:', message);
+    // this.addChatMessage('You', message); // Optimistic update
+
+    try {
+      const response = await fetch(`/api/live-streams/${this.currentStream.id}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: JSON.stringify({ message })
+      });
+
+      if (!response.ok) {
+        console.error('Failed to send message');
+      } else {
+        // Success, polling will pick it up, or we can add it here if we want instant feedback
+        // For now rely on polling to avoid duplicates or complex logic
+      }
+    } catch (e) {
+      console.error('Error sending message:', e);
+    }
   }
 }
 
@@ -409,6 +542,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fetch active live streams from backend
   fetchActiveLiveStreams();
 });
+
 
 /**
  * Fetch active live streams from backend
