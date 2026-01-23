@@ -2,6 +2,11 @@
 
 namespace App\Services;
 
+use Peterujah\Agora\Agora;
+use Peterujah\Agora\User;
+use Peterujah\Agora\Roles;
+use Peterujah\Agora\Builders\RtcToken;
+
 /**
  * Agora Token Generator Service
  * 
@@ -39,8 +44,8 @@ class AgoraTokenService
             return '';
         }
 
-        $role = $role === 'publisher' ? 1 : 2; // 1 = publisher, 2 = subscriber
-        
+        $role = $role === 'publisher' ? Roles::RTC_PUBLISHER : Roles::RTC_SUBSCRIBER; // 1 = publisher, 2 = subscriber
+
         // Calculate privilege expire timestamp
         $privilegeExpiredTs = time() + $privilegeExpireTime;
 
@@ -58,23 +63,15 @@ class AgoraTokenService
      */
     private function buildToken(string $channelName, int $uid, $role, int $privilegeExpiredTs): string
     {
-        // Check if Agora SDK is available
-        if (class_exists('\Agora\RtcTokenBuilder')) {
-            // Use official Agora SDK
-            return \Agora\RtcTokenBuilder::buildTokenWithUid(
-                $this->appId,
-                $this->appCertificate,
-                $channelName,
-                $uid,
-                $role,
-                $privilegeExpiredTs
-            );
-        }
+        $client = new Agora($this->appId, $this->appCertificate);
+        $client->setExpiration($privilegeExpiredTs);
 
-        // Fallback: Return empty string if SDK not installed
-        // In production, you MUST install the Agora SDK
-        \Log::warning('Agora SDK not installed. Install via: composer require agora-rtc-sdk/agora-access-token');
-        return '';
+        $user1 = (new User($uid))
+            ->setPrivilegeExpire($privilegeExpiredTs)
+            ->setChannel($channelName)
+            ->setRole($role);
+
+        return RtcToken::buildTokenWithUid($client, $user1);
     }
 
     /**
