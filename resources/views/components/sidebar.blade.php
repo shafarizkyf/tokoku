@@ -17,6 +17,12 @@
       </a>
     </li>
     <li class="nav-item">
+        <a href="{{ route('live-stream.host') }}"
+        class="nav-link text-white {{ request()->route()->getName() == 'live-stream.host' ? 'active' : '' }}"
+        aria-current="page">
+        Live Stream
+    </a>
+    <li class="nav-item">
       <a href="{{ route('banners.index') }}" class="nav-link text-white {{ request()->route()->getName() == 'banners.index' ? 'active' : '' }}" aria-current="page">
         Banner
       </a>
