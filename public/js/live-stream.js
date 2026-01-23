@@ -280,7 +280,7 @@ class LiveStreamUI {
 
     if (success) {
       console.log('Successfully joined live stream');
-      this.startChatSimulation(); // Simulate chat messages for demo
+      // this.startChatSimulation(); // Simulate chat messages for demo
     } else {
       alert('Failed to join live stream. Please try again.');
       this.closeModal();
