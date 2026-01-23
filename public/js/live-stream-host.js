@@ -124,7 +124,7 @@ class LiveStreamHost {
      */
     async loadProducts() {
         try {
-            const response = await fetch('/api/products?view=datatable&length=100');
+            const response = await fetch('/api/products');
             const data = await response.json();
 
             const productSelect = document.getElementById('stream-products');
