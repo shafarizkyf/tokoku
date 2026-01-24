@@ -82,8 +82,8 @@ class LiveStreamHost {
             // Setup preview
             await this.setupPreview();
 
-            // Load products for selection
-            await this.loadProducts();
+            // Initialize product select with Selectize
+            await this.initProductSelect();
         } catch (error) {
             console.error('Failed to load devices:', error);
         }
@@ -120,22 +120,37 @@ class LiveStreamHost {
     }
 
     /**
-     * Load products for stream
+     * Initialize product select with Selectize
      */
-    async loadProducts() {
-        try {
-            const response = await fetch('/api/products');
-            const data = await response.json();
+    async initProductSelect() {
+        const productSelect = document.getElementById('stream-products');
+        if (!productSelect) return;
 
-            const productSelect = document.getElementById('stream-products');
-            if (productSelect && data.data) {
-                productSelect.innerHTML = data.data.map(product =>
-                    `<option value="${product.id}">${product.name}</option>`
-                ).join('');
+        $(productSelect).selectize({
+            plugins: ['remove_button'],
+            valueField: 'id',
+            labelField: 'name',
+            searchField: 'name',
+            maxItems: 10,
+            load: (query, callback) => {
+                if (!query.length) return callback();
+
+                fetch(`/api/search?keyword=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        callback(data);
+                    })
+                    .catch(() => {
+                        callback();
+                    });
+            },
+            create: false,
+            render: {
+                option: (item, escape) => {
+                    return `<div>${escape(item.name)}</div>`;
+                }
             }
-        } catch (error) {
-            console.error('Failed to load products:', error);
-        }
+        });
     }
 
     /**
@@ -146,7 +161,7 @@ class LiveStreamHost {
             const title = document.getElementById('stream-title-input').value;
             const description = document.getElementById('stream-description').value;
             const productSelect = document.getElementById('stream-products');
-            const productIds = Array.from(productSelect.selectedOptions).map(opt => parseInt(opt.value));
+            const productIds = productSelect?.selectize?.getValue() || [];
 
             if (!title) {
                 alert('Please enter a stream title');

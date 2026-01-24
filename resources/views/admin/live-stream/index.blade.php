@@ -3,6 +3,12 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/live-stream.css') }}">
     <link rel="stylesheet" href="{{ asset('css/live-stream-host.css') }}">
+    <style>
+        .selectize-dropdown [data-selectable] {
+            padding: 5px 0;
+            white-space: nowrap;
+        }
+    </style>
 @endsection
 
 @section('js')
@@ -112,10 +118,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Featured Products (Optional)</label>
-                            <select class="form-select" id="stream-products" multiple>
-                                <!-- Products will be loaded dynamically -->
-                            </select>
-                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple products</small>
+                            <select class="form-select" id="stream-products" multiple placeholder="Search for products..."></select>
                         </div>
 
                         <div class="device-selector">
