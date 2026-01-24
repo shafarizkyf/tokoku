@@ -1,11 +1,12 @@
 services:
   app:
-    container_name: github_ci_app
     build:
       context: .
       dockerfile: docker/php/Dockerfile
       args:
         APP_ENV: testing
+      cache_from:
+        - tokoku/app:ci
     working_dir: /var/www/html
     environment:
       APP_ENV: testing
@@ -17,9 +18,10 @@ services:
         condition: service_started
       meilisearch:
         condition: service_started
+    networks:
+      - ci_net
 
   mysql:
-    container_name: github_ci_mysql
     image: mysql:8.0
     environment:
       MYSQL_DATABASE: tokoku_ci
@@ -31,15 +33,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - ci_net
 
   redis:
-    container_name: github_ci_redis
     image: redis:7
+    networks:
+      - ci_net
 
   meilisearch:
-    container_name: github_ci_meilisearch
     image: getmeili/meilisearch:v1.16
     environment:
       MEILI_ENV: development
       MEILI_MASTER_KEY: masterKey
       MEILI_NO_ANALYTICS: "true"
+    networks:
+      - ci_net
+
+networks:
+  ci_net:
+    driver: bridge
