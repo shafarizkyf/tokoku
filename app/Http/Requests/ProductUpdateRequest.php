@@ -32,6 +32,7 @@ class ProductUpdateRequest extends FormRequest
             'variations.*.price' => 'required',
             'variations.*.stock' => 'required',
             'variations.*.weight' => 'required',
+            'variations.*.sku' => 'required',
             'variations.*.attributes' => 'array',
             'image_urls' => 'nullable|array',
         ];
