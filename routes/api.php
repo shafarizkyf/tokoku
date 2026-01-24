@@ -77,6 +77,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
   });
 
   Route::prefix('live-streams')->group(function(){
+    Route::get('current', [LiveStreamController::class, 'currentActive']);
     Route::get('history', [LiveStreamController::class, 'history']);
     Route::post('', [LiveStreamController::class, 'start']);
     Route::post('{id}/stop', [LiveStreamController::class, 'stop']);

@@ -26,6 +26,33 @@ class LiveStreamController extends Controller
     }
 
     /**
+     * Get current user's active stream (for page reload handling)
+     */
+    public function currentActive()
+    {
+        $stream = LiveStream::where('user_id', Auth::id())
+            ->live()
+            ->first();
+
+        if (!$stream) {
+            return response()->json([
+                'success' => true,
+                'data' => null,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $stream->id,
+                'title' => $stream->title,
+                'channel_name' => $stream->channel_name,
+                'started_at' => $stream->started_at->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
      * Get all active live streams
      */
     public function active()

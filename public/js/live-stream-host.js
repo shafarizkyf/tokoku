@@ -19,6 +19,7 @@ class LiveStreamHost {
             cameras: [],
             microphones: []
         };
+        this.beforeUnloadHandler = this.beforeUnloadHandler.bind(this);
     }
 
     /**
@@ -26,6 +27,9 @@ class LiveStreamHost {
      */
     async init() {
         try {
+            // Check for interrupted stream (page reload)
+            await this.handleInterruptedStream();
+
             // Get Agora App ID
             this.appId = document.querySelector('meta[name="agora-app-id"]')?.content;
 
@@ -51,6 +55,78 @@ class LiveStreamHost {
         } catch (error) {
             console.error('Failed to initialize host interface:', error);
         }
+    }
+
+    /**
+     * Handle interrupted stream on page reload
+     */
+    async handleInterruptedStream() {
+        try {
+            const result = await $.getJSON('/api/live-streams/current');
+
+            if (result.success && result.data) {
+                // There's an active stream - it was interrupted by page reload
+                const stream = result.data;
+
+                // End the stream automatically
+                await this.endInterruptedStream(stream.id);
+
+                // Clear session storage
+                sessionStorage.removeItem('activeStream');
+
+                // Show notification
+                this.showStreamEndedNotification(stream.title);
+            } else {
+                // Check if there's a stream in sessionStorage that's no longer active
+                const storedStream = sessionStorage.getItem('activeStream');
+                if (storedStream) {
+                    sessionStorage.removeItem('activeStream');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to check for interrupted stream:', error);
+        }
+    }
+
+    /**
+     * End an interrupted stream
+     */
+    async endInterruptedStream(streamId) {
+        try {
+            const token = document.querySelector('meta[name="token"]')?.content;
+
+            await fetch(`/api/live-streams/${streamId}/stop`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            // Clear cache
+            fetch('/api/live-streams/active', { method: 'GET' }).catch(() => {});
+        } catch (error) {
+            console.error('Failed to end interrupted stream:', error);
+        }
+    }
+
+    /**
+     * Show notification when stream was ended due to page reload
+     */
+    showStreamEndedNotification(streamTitle) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 z-index-5000';
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            <strong>Stream Interrupted!</strong> Your stream "${streamTitle}" was automatically ended because the page was reloaded.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
     }
 
     /**
@@ -193,6 +269,16 @@ class LiveStreamHost {
             this.currentStream = result.data.stream;
             const agoraData = result.data.agora;
 
+            // Store stream info in sessionStorage for reload handling
+            sessionStorage.setItem('activeStream', JSON.stringify({
+                id: this.currentStream.id,
+                title: this.currentStream.title,
+                startedAt: new Date().toISOString()
+            }));
+
+            // Add beforeunload warning
+            this.addBeforeUnloadWarning();
+
             // Join Agora channel
             await this.joinChannel(agoraData);
 
@@ -210,6 +296,37 @@ class LiveStreamHost {
         } catch (error) {
             console.error('Failed to start stream:', error);
             alert('Failed to start stream. Please try again.');
+        }
+    }
+
+    /**
+     * Add beforeunload warning to prevent accidental page reload
+     */
+    addBeforeUnloadWarning() {
+        window.addEventListener('beforeunload', (e) => {
+            if (this.isLive) {
+                e.preventDefault();
+                e.returnValue = 'You are currently streaming. Are you sure you want to leave? Your stream will be ended.';
+                return e.returnValue;
+            }
+        });
+    }
+
+    /**
+     * Remove beforeunload warning
+     */
+    removeBeforeUnloadWarning() {
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+
+    /**
+     * Beforeunload handler
+     */
+    beforeUnloadHandler(e) {
+        if (this.isLive) {
+            e.preventDefault();
+            e.returnValue = 'You are currently streaming. Are you sure you want to leave? Your stream will be ended.';
+            return e.returnValue;
         }
     }
 
@@ -267,6 +384,12 @@ class LiveStreamHost {
         }
 
         try {
+            // Remove beforeunload warning
+            this.removeBeforeUnloadWarning();
+
+            // Clear session storage
+            sessionStorage.removeItem('activeStream');
+
             const token = document.querySelector('meta[name="token"]')?.content;
 
             // Stop stream via API
