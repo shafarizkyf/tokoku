@@ -7,6 +7,7 @@ use App\Models\LiveStream;
 use App\Models\LiveStreamViewer;
 use App\Models\LiveStreamMessage;
 use App\Services\AgoraTokenService;
+use App\Services\AblyTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -16,10 +17,12 @@ use Illuminate\Support\Str;
 class LiveStreamController extends Controller
 {
     protected AgoraTokenService $agoraService;
+    protected AblyTokenService $ablyService;
 
-    public function __construct(AgoraTokenService $agoraService)
+    public function __construct(AgoraTokenService $agoraService, AblyTokenService $ablyService)
     {
         $this->agoraService = $agoraService;
+        $this->ablyService = $ablyService;
     }
 
     /**
@@ -312,10 +315,61 @@ class LiveStreamController extends Controller
             'message' => $validated['message'],
         ]);
 
+        $messageData = [
+            'id' => $message->id,
+            'username' => $username,
+            'message' => $message->message,
+            'created_at' => $message->created_at->toIso8601String(),
+        ];
+
+        $this->ablyService->publishMessage($stream->id, 'message', $messageData);
+
         return response()->json([
             'success' => true,
             'data' => $message,
         ], 201);
+    }
+
+    /**
+     * Get Ably token for real-time chat
+     */
+    public function ablyToken(Request $request)
+    {
+        $request->validate([
+            'live_stream_id' => 'nullable|exists:live_streams,id',
+        ]);
+
+        $user = Auth::user();
+        $userId = $user?->id;
+        $username = $user?->name;
+        $tokenData = null;
+
+        $liveStreamId = $request->input('live_stream_id');
+
+        if ($liveStreamId) {
+            $stream = LiveStream::find($liveStreamId);
+            if (!$stream) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Live stream not found',
+                ], 404);
+            }
+
+            $tokenData = $this->ablyService->generateLiveStreamToken(
+                $liveStreamId,
+                $userId,
+                $username
+            );
+        }
+
+        if ($tokenData === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate Ably token',
+            ], 500);
+        }
+
+        return response()->json($tokenData);
     }
 
     /**

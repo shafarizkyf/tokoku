@@ -94,6 +94,7 @@
             })
         </script>
     @endif
+    <script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
     <script src="{{ asset('js/init.js') }}"></script>
     <script src="{{ asset('js/elements.js') }}"></script>
     <script src="{{ asset('js/fetcher.js') }}"></script>
