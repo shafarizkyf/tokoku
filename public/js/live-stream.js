@@ -439,19 +439,55 @@ class LiveStreamUI {
   }
 
 /**
-    * Initialize Ably connection
-    */
+     * Initialize Ably connection
+     */
   async initAbly() {
+    if (typeof Ably === 'undefined') {
+      console.error('Ably library not loaded. Please include Ably.js in your HTML.');
+      return false;
+    }
+
+    if (this.ably && this.isAblyConnected) {
+      console.log('Ably already connected');
+      return true;
+    }
+
     try {
-      this.ably = new Ably.Realtime({ authUrl: '/api/live-streams/ably/token' });
+      console.log('Initializing Ably connection...');
+
+      this.ably = new Ably.Realtime({
+        authUrl: `/api/live-streams/ably/token?live_stream_id=${this.currentStream.id}`,
+        queryTime: true
+      });
+
+      this.ably.connection.on('connecting', () => {
+        console.log('Ably connecting...');
+      });
 
       this.ably.connection.on('connected', () => {
-        console.log('Ably connected');
+        console.log('Ably connected successfully');
         this.isAblyConnected = true;
       });
 
       this.ably.connection.on('disconnected', () => {
         console.log('Ably disconnected');
+        this.isAblyConnected = false;
+        if (this.ablyChannel) {
+          console.log('Attempting to resubscribe to channel...');
+          this.ablyChannel.subscribe('message', (message) => {
+            this.addChatMessage(message.data.username, message.data.message);
+            this.chatMessages.push({
+              id: message.data.id,
+              username: message.data.username,
+              message: message.data.message,
+              timestamp: new Date(message.data.created_at).getTime()
+            });
+          });
+        }
+      });
+
+      this.ably.connection.on('suspended', () => {
+        console.log('Ably suspended');
         this.isAblyConnected = false;
       });
 
@@ -460,21 +496,94 @@ class LiveStreamUI {
         this.isAblyConnected = false;
       });
 
-      return true;
+      this.ably.connection.on('closing', () => {
+        console.log('Ably closing connection');
+      });
+
+      this.ably.connection.on('closed', () => {
+        console.log('Ably connection closed');
+        this.isAblyConnected = false;
+      });
+
+      const state = this.ably.connection.state;
+      console.log('Initial Ably connection state:', state);
+
+      if (state === 'connected') {
+        this.isAblyConnected = true;
+        return true;
+      }
+
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          console.error('Ably connection timeout, current state:', this.ably.connection.state);
+          reject(new Error('Ably connection timeout'));
+        }, 15000);
+
+        const checkConnected = () => {
+          if (this.ably.connection.state === 'connected') {
+            clearTimeout(timeout);
+            this.ably.connection.off('connected', checkConnected);
+            this.ably.connection.off('failed', checkFailed);
+            resolve(true);
+          }
+        };
+
+        const checkFailed = (err) => {
+          clearTimeout(timeout);
+          this.ably.connection.off('connected', checkConnected);
+          this.ably.connection.off('failed', checkFailed);
+          console.error('Ably connection failed during connection attempt:', err);
+          reject(err);
+        };
+
+        this.ably.connection.on('connected', checkConnected);
+        this.ably.connection.on('failed', checkFailed);
+      });
     } catch (e) {
       console.error('Failed to initialize Ably:', e);
+      this.isAblyConnected = false;
       return false;
     }
   }
 
   /**
-    * Connect to chat channel and subscribe to messages
-    */
+   * Test Ably connection by fetching token directly
+   */
+  async testAblyConnection() {
+    try {
+      console.log('Testing Ably connection...');
+
+      const response = await fetch('/api/live-streams/ably/token');
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Failed to get Ably token:', error);
+        return false;
+      }
+
+      const tokenData = await response.json();
+      console.log('Ably token received:', {
+        hasToken: !!tokenData.token,
+        hasTokenRequest: !!tokenData.token_request,
+        clientId: tokenData.client_id,
+        channel: tokenData.channel,
+      });
+
+      return true;
+    } catch (e) {
+      console.error('Ably connection test failed:', e);
+      return false;
+    }
+  }
+
+
+    /**
+     * Connect to chat channel and subscribe to messages
+     */
   async connectToChatChannel() {
     try {
-      if (!this.ably) {
-        await this.initAbly();
-      }
+      await this.initAbly();
+
+      console.log('called');
 
       const channelName = `live-stream:${this.currentStream.id}:chat`;
 
@@ -497,6 +606,7 @@ class LiveStreamUI {
       console.log('Subscribed to chat channel:', channelName);
     } catch (e) {
       console.error('Failed to connect to chat channel:', e);
+      this.startChatPolling();
     }
   }
 
@@ -566,22 +676,9 @@ class LiveStreamUI {
     // this.addChatMessage('You', message); // Optimistic update
 
     try {
-      const response = await fetch(`/api/live-streams/${this.currentStream.id}/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({ message })
+      await $.post(`/api/live-streams/${this.currentStream.id}/messages`, {
+        message
       });
-
-      if (!response.ok) {
-        console.error('Failed to send message');
-      } else {
-        // Success, polling will pick it up, or we can add it here if we want instant feedback
-        // For now rely on polling to avoid duplicates or complex logic
-      }
     } catch (e) {
       console.error('Error sending message:', e);
     }

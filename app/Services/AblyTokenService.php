@@ -102,21 +102,9 @@ class AblyTokenService
         $channelName = 'live-stream:' . $liveStreamId;
         $clientId = $userId ? 'user:' . $userId : 'guest:' . uniqid();
         $capabilities = ['subscribe', 'publish', 'presence'];
-        $ttl = 7200; // 2 hours for live streams
+        $ttl = 7200000; // 2 hours for live streams
 
         $tokenData = $this->generateToken($clientId, $channelName, $capabilities, $ttl);
-
-        if ($tokenData === null) {
-            return [
-                'token' => '',
-                'channel' => $channelName,
-                'client_id' => $clientId,
-                'capabilities' => $capabilities,
-                'ttl' => $ttl,
-                'expire_at' => now()->addSeconds($ttl)->toIso8601String(),
-                'warning' => 'Ably is not configured properly',
-            ];
-        }
 
         return $tokenData;
     }
@@ -169,6 +157,49 @@ class AblyTokenService
                 'event' => $eventName,
             ]);
             return false;
+        }
+    }
+
+    /**
+     * Generate a direct Ably token string (not just a token request)
+     * 
+     * @param string $clientId The client ID
+     * @param string $channelName The channel name
+     * @param array $capabilities The capabilities
+     * @param int $ttl Token TTL in seconds
+     * @return string|null The token string or null if failed
+     */
+    public function generateDirectToken(
+        string $clientId,
+        string $channelName = '*',
+        array $capabilities = ['subscribe', 'publish', 'presence'],
+        int $ttl = 3600
+    ): ?string {
+        $client = $this->getClient();
+
+        if ($client === null) {
+            return null;
+        }
+
+        try {
+            $tokenParams = [
+                'ttl' => $ttl,
+                'clientId' => $clientId,
+                'capability' => [
+                    $channelName => $capabilities,
+                ],
+            ];
+
+            $token = $client->auth->requestToken($tokenParams);
+
+            return $token->token;
+        } catch (\Exception $e) {
+            Log::error('Failed to generate direct Ably token', [
+                'error' => $e->getMessage(),
+                'client_id' => $clientId,
+                'channel' => $channelName,
+            ]);
+            return null;
         }
     }
 }

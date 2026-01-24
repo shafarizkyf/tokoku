@@ -342,6 +342,7 @@ class LiveStreamController extends Controller
         $user = Auth::user();
         $userId = $user?->id;
         $username = $user?->name;
+        $tokenData = null;
 
         $liveStreamId = $request->input('live_stream_id');
 
@@ -359,17 +360,16 @@ class LiveStreamController extends Controller
                 $userId,
                 $username
             );
-        } else {
-            $clientId = $userId ? 'user:' . $userId : 'guest:' . uniqid();
-            $tokenData = $this->ablyService->generateToken(
-                $clientId,
-                'live-stream:*',
-                ['subscribe', 'publish', 'presence'],
-                3600
-            );
         }
 
-        return $tokenData;
+        if ($tokenData === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate Ably token',
+            ], 500);
+        }
+
+        return response()->json($tokenData);
     }
 
     /**
