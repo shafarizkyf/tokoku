@@ -76,7 +76,8 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
 - **Framework**: [Laravel](laravel.com)
 - **Caching**: [Redis](redis.io)
 - **Search Engine**: [MeiliSearch](meilisearch.com). Digunkan untuk mencari product dengan memasukan kata kunci.
-- **Live Streaming**: [Agora](https://www.agora.io). Digunakan untuk LiveStreaming
+- **Live Streaming**: [Agora](https://www.agora.io). Digunakan untuk Live Streaming
+- **Real-Time Chat**: [Ably](https://ably.com). Digunakan untuk Real Time Chat (Harusnya masih bisa pake Agora sekalian sih)
 
 ### Ringkasan Bisnis Proses Transaksi Jual Beli
  - **Sebagai Kosumer**
