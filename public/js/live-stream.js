@@ -165,8 +165,9 @@ class LiveStreamUI {
     this.agoraClient = agoraClient;
     this.currentStream = null;
     this.chatMessages = [];
-    this.chatPollInterval = null;
-    this.CHAT_POLL_INTERVAL_MS = 3000;
+    this.ably = null;
+    this.ablyChannel = null;
+    this.isAblyConnected = false;
   }
 
   /**
@@ -289,7 +290,7 @@ class LiveStreamUI {
 
     if (success) {
       console.log('Successfully joined live stream');
-      this.startChatPolling();
+      this.connectToChatChannel();
     } else {
       alert('Failed to join live stream. Please try again.');
       this.closeModal();
@@ -385,11 +386,7 @@ class LiveStreamUI {
       modal.classList.remove('active');
     }
 
-    // Stop chat polling
-    if (this.chatPollInterval) {
-      clearInterval(this.chatPollInterval);
-      this.chatPollInterval = null;
-    }
+    this.disconnectFromChat();
 
     // Leave the Agora channel
     try {
@@ -441,9 +438,155 @@ class LiveStreamUI {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
 
+/**
+     * Initialize Ably connection
+     */
+  async initAbly() {
+    if (typeof Ably === 'undefined') {
+      console.error('Ably library not loaded. Please include Ably.js in your HTML.');
+      return false;
+    }
+
+    if (this.ably && this.isAblyConnected) {
+      console.log('Ably already connected');
+      return true;
+    }
+
+    try {
+      console.log('Initializing Ably connection...');
+
+      this.ably = new Ably.Realtime({
+        authUrl: `/api/live-streams/ably/token?live_stream_id=${this.currentStream.id}`,
+        queryTime: true
+      });
+
+      this.ably.connection.on('connecting', () => {
+        console.log('Ably connecting...');
+      });
+
+      this.ably.connection.on('connected', () => {
+        console.log('Ably connected successfully');
+        this.isAblyConnected = true;
+      });
+
+      this.ably.connection.on('disconnected', () => {
+        console.log('Ably disconnected');
+        this.isAblyConnected = false;
+      });
+
+      this.ably.connection.on('suspended', () => {
+        console.log('Ably suspended');
+        this.isAblyConnected = false;
+      });
+
+      this.ably.connection.on('failed', (err) => {
+        console.error('Ably connection failed:', err);
+        this.isAblyConnected = false;
+      });
+
+      this.ably.connection.on('closing', () => {
+        console.log('Ably closing connection');
+      });
+
+      this.ably.connection.on('closed', () => {
+        console.log('Ably connection closed');
+        this.isAblyConnected = false;
+      });
+
+      const state = this.ably.connection.state;
+      console.log('Initial Ably connection state:', state);
+
+      if (state === 'connected') {
+        this.isAblyConnected = true;
+        return true;
+      }
+
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          console.error('Ably connection timeout, current state:', this.ably.connection.state);
+          reject(new Error('Ably connection timeout'));
+        }, 15000);
+
+        const checkConnected = () => {
+          if (this.ably.connection.state === 'connected') {
+            clearTimeout(timeout);
+            this.ably.connection.off('connected', checkConnected);
+            this.ably.connection.off('failed', checkFailed);
+            resolve(true);
+          }
+        };
+
+        const checkFailed = (err) => {
+          clearTimeout(timeout);
+          this.ably.connection.off('connected', checkConnected);
+          this.ably.connection.off('failed', checkFailed);
+          console.error('Ably connection failed during connection attempt:', err);
+          reject(err);
+        };
+
+        this.ably.connection.on('connected', checkConnected);
+        this.ably.connection.on('failed', checkFailed);
+      });
+    } catch (e) {
+      console.error('Failed to initialize Ably:', e);
+      this.isAblyConnected = false;
+      return false;
+    }
+  }
+
+
+    /**
+     * Connect to chat channel and subscribe to messages
+     */
+  async connectToChatChannel() {
+    try {
+      await this.initAbly();
+
+      const channelName = `live-stream:${this.currentStream.id}`;
+
+      this.ablyChannel = this.ably.channels.get(channelName);
+
+      this.ablyChannel.subscribe('message', (message) => {
+        this.addChatMessage(message.data.username, message.data.message);
+        this.chatMessages.push({
+          id: message.data.id,
+          username: message.data.username,
+          message: message.data.message,
+          timestamp: new Date(message.data.created_at).getTime()
+        });
+      });
+
+      this.ablyChannel.subscribe('system', (message) => {
+        this.addChatMessage('System', message.data.message, true);
+      });
+
+      console.log('Subscribed to chat channel:', channelName);
+    } catch (e) {
+      console.error('Failed to connect to chat channel:', e);
+      this.startChatPolling();
+    }
+  }
+
   /**
-   * Poll for new chat messages
-   */
+    * Disconnect from Ably chat channel
+    */
+  disconnectFromChat() {
+    if (this.ablyChannel) {
+      this.ablyChannel.unsubscribe();
+      this.ably.channels.release(this.ablyChannel);
+      this.ablyChannel = null;
+    }
+
+    if (this.ably) {
+      this.ably.close();
+      this.ably = null;
+      this.isAblyConnected = false;
+    }
+  }
+
+  /**
+    * Poll for new chat messages (fallback)
+    */
   startChatPolling() {
     if (this.chatPollInterval) clearInterval(this.chatPollInterval);
 
@@ -490,22 +633,9 @@ class LiveStreamUI {
     // this.addChatMessage('You', message); // Optimistic update
 
     try {
-      const response = await fetch(`/api/live-streams/${this.currentStream.id}/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({ message })
+      await $.post(`/api/live-streams/${this.currentStream.id}/messages`, {
+        message
       });
-
-      if (!response.ok) {
-        console.error('Failed to send message');
-      } else {
-        // Success, polling will pick it up, or we can add it here if we want instant feedback
-        // For now rely on polling to avoid duplicates or complex logic
-      }
     } catch (e) {
       console.error('Error sending message:', e);
     }
@@ -573,35 +703,10 @@ async function fetchActiveLiveStreams() {
       }
     } else {
       console.log('No active streams or API not available, showing demo stream');
-      // showDemoStream();
     }
   } catch (error) {
     console.error('Failed to fetch live streams:', error);
-    // Fallback to demo stream for development
-    // showDemoStream();
   }
-}
-
-/**
- * Show demo stream for development/testing
- */
-function showDemoStream() {
-  setTimeout(() => {
-    const sampleStream = {
-      id: 1,
-      title: 'Flash Sale - Up to 50% Off! 🔥',
-      channelName: 'demo-channel-001',
-      sellerName: 'TokoKu Official Store',
-      sellerAvatar: 'https://ui-avatars.com/api/?name=TokoKu&background=667eea&color=fff',
-      thumbnail: null,
-      viewers: 127,
-      token: null // In production, get this from your backend
-    };
-
-    if (liveStreamUI) {
-      liveStreamUI.showFloatingCard(sampleStream);
-    }
-  }, 2000);
 }
 
 // Export for global access
