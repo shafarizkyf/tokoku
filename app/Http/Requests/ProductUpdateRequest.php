@@ -26,6 +26,7 @@ class ProductUpdateRequest extends FormRequest
             'name' => 'required',
             'description' => 'required',
             'price' => $this->variations ? 'nullable' : 'required',
+            'stock' => $this->variations ? 'nullable' : 'required',
             'condition' => 'required',
             'variations' => 'array',
             'variations.*.price' => 'required',
