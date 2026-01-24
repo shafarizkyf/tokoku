@@ -165,8 +165,9 @@ class LiveStreamUI {
     this.agoraClient = agoraClient;
     this.currentStream = null;
     this.chatMessages = [];
-    this.chatPollInterval = null;
-    this.CHAT_POLL_INTERVAL_MS = 3000;
+    this.ably = null;
+    this.ablyChannel = null;
+    this.isAblyConnected = false;
   }
 
   /**
@@ -289,7 +290,7 @@ class LiveStreamUI {
 
     if (success) {
       console.log('Successfully joined live stream');
-      this.startChatPolling();
+      this.connectToChatChannel();
     } else {
       alert('Failed to join live stream. Please try again.');
       this.closeModal();
@@ -385,11 +386,7 @@ class LiveStreamUI {
       modal.classList.remove('active');
     }
 
-    // Stop chat polling
-    if (this.chatPollInterval) {
-      clearInterval(this.chatPollInterval);
-      this.chatPollInterval = null;
-    }
+    this.disconnectFromChat();
 
     // Leave the Agora channel
     try {
@@ -441,9 +438,88 @@ class LiveStreamUI {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
 
+/**
+    * Initialize Ably connection
+    */
+  async initAbly() {
+    try {
+      this.ably = new Ably.Realtime({ authUrl: '/api/live-streams/ably/token' });
+
+      this.ably.connection.on('connected', () => {
+        console.log('Ably connected');
+        this.isAblyConnected = true;
+      });
+
+      this.ably.connection.on('disconnected', () => {
+        console.log('Ably disconnected');
+        this.isAblyConnected = false;
+      });
+
+      this.ably.connection.on('failed', (err) => {
+        console.error('Ably connection failed:', err);
+        this.isAblyConnected = false;
+      });
+
+      return true;
+    } catch (e) {
+      console.error('Failed to initialize Ably:', e);
+      return false;
+    }
+  }
+
   /**
-   * Poll for new chat messages
-   */
+    * Connect to chat channel and subscribe to messages
+    */
+  async connectToChatChannel() {
+    try {
+      if (!this.ably) {
+        await this.initAbly();
+      }
+
+      const channelName = `live-stream:${this.currentStream.id}:chat`;
+
+      this.ablyChannel = this.ably.channels.get(channelName);
+
+      this.ablyChannel.subscribe('message', (message) => {
+        this.addChatMessage(message.data.username, message.data.message);
+        this.chatMessages.push({
+          id: message.data.id,
+          username: message.data.username,
+          message: message.data.message,
+          timestamp: new Date(message.data.created_at).getTime()
+        });
+      });
+
+      this.ablyChannel.subscribe('system', (message) => {
+        this.addChatMessage('System', message.data.message, true);
+      });
+
+      console.log('Subscribed to chat channel:', channelName);
+    } catch (e) {
+      console.error('Failed to connect to chat channel:', e);
+    }
+  }
+
+  /**
+    * Disconnect from Ably chat channel
+    */
+  disconnectFromChat() {
+    if (this.ablyChannel) {
+      this.ablyChannel.unsubscribe();
+      this.ably.channels.release(this.ablyChannel);
+      this.ablyChannel = null;
+    }
+
+    if (this.ably) {
+      this.ably.close();
+      this.ably = null;
+      this.isAblyConnected = false;
+    }
+  }
+
+  /**
+    * Poll for new chat messages (fallback)
+    */
   startChatPolling() {
     if (this.chatPollInterval) clearInterval(this.chatPollInterval);
 
