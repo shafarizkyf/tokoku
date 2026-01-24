@@ -138,7 +138,7 @@ class AblyTokenService
         }
 
         try {
-            $channelName = 'live-stream:' . $liveStreamId . ':chat';
+            $channelName = 'live-stream:' . $liveStreamId;
             $channel = $client->channels->get($channelName);
 
             $result = $channel->publish($eventName, $data);

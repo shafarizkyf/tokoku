@@ -472,18 +472,6 @@ class LiveStreamUI {
       this.ably.connection.on('disconnected', () => {
         console.log('Ably disconnected');
         this.isAblyConnected = false;
-        if (this.ablyChannel) {
-          console.log('Attempting to resubscribe to channel...');
-          this.ablyChannel.subscribe('message', (message) => {
-            this.addChatMessage(message.data.username, message.data.message);
-            this.chatMessages.push({
-              id: message.data.id,
-              username: message.data.username,
-              message: message.data.message,
-              timestamp: new Date(message.data.created_at).getTime()
-            });
-          });
-        }
       });
 
       this.ably.connection.on('suspended', () => {
@@ -546,35 +534,6 @@ class LiveStreamUI {
     }
   }
 
-  /**
-   * Test Ably connection by fetching token directly
-   */
-  async testAblyConnection() {
-    try {
-      console.log('Testing Ably connection...');
-
-      const response = await fetch('/api/live-streams/ably/token');
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Failed to get Ably token:', error);
-        return false;
-      }
-
-      const tokenData = await response.json();
-      console.log('Ably token received:', {
-        hasToken: !!tokenData.token,
-        hasTokenRequest: !!tokenData.token_request,
-        clientId: tokenData.client_id,
-        channel: tokenData.channel,
-      });
-
-      return true;
-    } catch (e) {
-      console.error('Ably connection test failed:', e);
-      return false;
-    }
-  }
-
 
     /**
      * Connect to chat channel and subscribe to messages
@@ -583,9 +542,7 @@ class LiveStreamUI {
     try {
       await this.initAbly();
 
-      console.log('called');
-
-      const channelName = `live-stream:${this.currentStream.id}:chat`;
+      const channelName = `live-stream:${this.currentStream.id}`;
 
       this.ablyChannel = this.ably.channels.get(channelName);
 
@@ -746,35 +703,10 @@ async function fetchActiveLiveStreams() {
       }
     } else {
       console.log('No active streams or API not available, showing demo stream');
-      // showDemoStream();
     }
   } catch (error) {
     console.error('Failed to fetch live streams:', error);
-    // Fallback to demo stream for development
-    // showDemoStream();
   }
-}
-
-/**
- * Show demo stream for development/testing
- */
-function showDemoStream() {
-  setTimeout(() => {
-    const sampleStream = {
-      id: 1,
-      title: 'Flash Sale - Up to 50% Off! 🔥',
-      channelName: 'demo-channel-001',
-      sellerName: 'TokoKu Official Store',
-      sellerAvatar: 'https://ui-avatars.com/api/?name=TokoKu&background=667eea&color=fff',
-      thumbnail: null,
-      viewers: 127,
-      token: null // In production, get this from your backend
-    };
-
-    if (liveStreamUI) {
-      liveStreamUI.showFloatingCard(sampleStream);
-    }
-  }, 2000);
 }
 
 // Export for global access
