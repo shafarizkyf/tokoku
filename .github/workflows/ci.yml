@@ -13,13 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup CI env
-      run: |
-        docker compose -f docker-compose.ci.yml exec -T app cp .env.example .env
-
     - name: Start services
       run: |
         docker compose -p tokoku_ci -f docker-compose.ci.yml up -d
+
+    - name: Setup CI env
+      run: |
+        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app cp .env.example .env
 
     - name: Cache Composer
       uses: actions/cache@v4
