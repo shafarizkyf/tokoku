@@ -77,11 +77,13 @@ Route::middleware(['auth:sanctum'])->group(function(){
   });
 
   Route::prefix('live-streams')->group(function(){
+    Route::get('history', [LiveStreamController::class, 'history']);
     Route::post('', [LiveStreamController::class, 'start']);
     Route::post('{id}/stop', [LiveStreamController::class, 'stop']);
     Route::post('{id}/leave', [LiveStreamController::class, 'leave']);
     Route::post('{id}/messages', [LiveStreamController::class, 'sendMessage']);
     Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
+    Route::get('{id}/past', [LiveStreamController::class, 'past']);
   });
 });
 

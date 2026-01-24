@@ -373,8 +373,8 @@ class LiveStreamController extends Controller
     }
 
     /**
-     * Get viewer statistics
-     */
+      * Get viewer statistics
+      */
     public function statistics($id)
     {
         $stream = LiveStream::findOrFail($id);
@@ -393,5 +393,64 @@ class LiveStreamController extends Controller
             'success' => true,
             'data' => $stats,
         ]);
+    }
+
+    /**
+     * Get past/ended live streams
+     */
+    public function history(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $streams = LiveStream::with(['user', 'products'])
+            ->ended()
+            ->orderBy('ended_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $streams,
+            'meta' => [
+                'current_page' => $streams->currentPage(),
+                'last_page' => $streams->lastPage(),
+                'per_page' => $streams->perPage(),
+                'total' => $streams->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * Get single past stream details
+     */
+    public function past($id)
+    {
+        $stream = LiveStream::with(['user', 'products.image', 'viewers'])
+            ->ended()
+            ->findOrFail($id);
+
+        $totalViewers = $stream->viewers()->count();
+        $totalMessages = $stream->messages()->count();
+        $averageWatchTime = $stream->viewers()
+            ->whereNotNull('left_at')
+            ->avg('watch_duration');
+
+        return [
+            'id' => $stream->id,
+            'title' => $stream->title,
+            'description' => $stream->description,
+            'channel_name' => $stream->channel_name,
+            'thumbnail' => $stream->thumbnail_url,
+            'status' => $stream->status,
+            'seller_name' => $stream->user->name ?? 'Unknown',
+            'seller_avatar' => $stream->user->avatar_url ?? null,
+            'started_at' => $stream->started_at?->toIso8601String(),
+            'ended_at' => $stream->ended_at?->toIso8601String(),
+            'duration' => $stream->ended_at ? $stream->ended_at->diffInSeconds($stream->started_at) : null,
+            'peak_viewers' => $stream->peak_viewer_count,
+            'total_viewers' => $totalViewers,
+            'total_messages' => $totalMessages,
+            'average_watch_time' => $averageWatchTime,
+            'products' => $stream->products,
+        ];
     }
 }

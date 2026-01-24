@@ -2,108 +2,14 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/live-stream.css') }}">
-    <style>
-        .stream-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .stream-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
-        }
-
-        .stream-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-live {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-            color: white;
-        }
-
-        .status-scheduled {
-            background: #fbbf24;
-            color: #78350f;
-        }
-
-        .status-ended {
-            background: #e5e7eb;
-            color: #6b7280;
-        }
-
-        .video-preview-container {
-            position: relative;
-            width: 100%;
-            max-width: 640px;
-            height: 360px;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-
-        #camera-preview {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .controls-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-            padding: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .stream-stats {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .device-selector {
-            margin: 15px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/live-stream-host.css') }}">
 @endsection
 
 @section('js')
     <!-- Agora SDK -->
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
     <script src="{{ asset('js/live-stream-host.js') }}"></script>
+    <script src="{{ asset('js/live-stream-past.js') }}"></script>
 @endsection
 
 @section('content')
@@ -166,14 +72,14 @@
                     </div>
                 </div>
 
-                <!-- Stream History -->
+                <!-- Past Streams Section -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Stream History</h5>
-                        <div id="stream-history">
+                        <h5 class="card-title mb-4">Past Streams</h5>
+                        <div id="stream-history-container">
                             <div class="text-center text-muted py-5">
-                                <i class="bi bi-broadcast" style="font-size: 48px;"></i>
-                                <p class="mt-3">No streams yet. Start your first live stream!</p>
+                                <i class="bi bi-hourglass-split" style="font-size: 48px;"></i>
+                                <p class="mt-3">Loading stream history...</p>
                             </div>
                         </div>
                     </div>
