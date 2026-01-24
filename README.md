@@ -8,13 +8,11 @@ Dengan TokoKu, pelaku usaha:
 
 ### Perbandingan Biaya: Marketplace vs Self-Hosted (TokoKu)
 
-Salah satu alasan utama menggunakan TokoKu (self-hosted) adalah efisiensi biaya jangka panjang.
-Berikut perbandingan biaya antara berjualan di Tokopedia / Shopee dibandingkan dengan TokoKu.
-```
-⚠️ Catatan:
+Salah satu alasan utama menggunakan TokoKu (self-hosted) adalah efisiensi biaya jangka panjang. Berikut perbandingan biaya antara berjualan di Tokopedia / Shopee dibandingkan dengan TokoKu. **(simulasi dibuat oleh AI)**
+
+> ⚠️ Catatan:
 Angka Tokopedia & Shopee di bawah adalah simulasi berdasarkan biaya (power merchant, admin fee, layanan tambahan, dan payment fee).
 Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform.
-```
 
 ### Simulasi Kasus
 - Harga produk: Rp100.000
@@ -51,9 +49,7 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
 | Email & WhatsApp API     | Pay per usage                     |
 | **Total Estimasi**       | **Rp150.000 – Rp350.000 / bulan** |
 
-```
-Dengan 50 transaksi / bulan, biaya infrastruktur per transaksi bisa < Rp7.000, dan akan semakin murah seiring volume meningkat.
-```
+> Dengan 50 transaksi / bulan, biaya infrastruktur per transaksi bisa < Rp7.000, dan akan semakin murah seiring volume meningkat.
 
 ### Ringkasan Singkat
 | Aspek                       | Marketplace      | **TokoKu**            |
@@ -80,6 +76,8 @@ Dengan 50 transaksi / bulan, biaya infrastruktur per transaksi bisa < Rp7.000, d
 - **Framework**: [Laravel](laravel.com)
 - **Caching**: [Redis](redis.io)
 - **Search Engine**: [MeiliSearch](meilisearch.com). Digunkan untuk mencari product dengan memasukan kata kunci.
+- **Live Streaming**: [Agora](https://www.agora.io). Digunakan untuk Live Streaming
+- **Real-Time Chat**: [Ably](https://ably.com). Digunakan untuk Real Time Chat (Harusnya masih bisa pake Agora sekalian sih, tapi mahal, klo pure Chat masih better ini)
 
 ### Ringkasan Bisnis Proses Transaksi Jual Beli
  - **Sebagai Kosumer**

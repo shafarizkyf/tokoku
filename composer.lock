@@ -4,8 +4,61 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48ac913260a0b59f1c158c119dce1b50",
+    "content-hash": "83ed75643061325427d509663557ea28",
     "packages": [
+        {
+            "name": "ably/ably-php",
+            "version": "1.1.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ably/ably-php.git",
+                "reference": "ddd9355ab25f76e0db1672fb5dd943fa5d9713bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ably/ably-php/zipball/ddd9355ab25f76e0db1672fb5dd943fa5d9713bc",
+                "reference": "ddd9355ab25f76e0db1672fb5dd943fa5d9713bc",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "php": "^7.2 || ^8.0",
+                "rybakit/msgpack": ">=0.9.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5 || ^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ably\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ably",
+                    "email": "support@ably.com"
+                }
+            ],
+            "description": "Ably REST client library for PHP.",
+            "homepage": "https://www.ably.com/",
+            "keywords": [
+                "ably",
+                "messages",
+                "messaging"
+            ],
+            "support": {
+                "issues": "https://github.com/ably/ably-php/issues",
+                "source": "https://github.com/ably/ably-php/tree/1.1.11"
+            },
+            "time": "2025-03-07T13:02:01+00:00"
+        },
         {
             "name": "barryvdh/laravel-dompdf",
             "version": "v3.1.1",
@@ -3578,6 +3631,62 @@
             "time": "2020-10-15T08:29:30+00:00"
         },
         {
+            "name": "peterujah/php-agora-tokens",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/peterujah/php-agora-tokens.git",
+                "reference": "4feeb4538601606aa4cb0ead420923535ceb64ff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/peterujah/php-agora-tokens/zipball/4feeb4538601606aa4cb0ead420923535ceb64ff",
+                "reference": "4feeb4538601606aa4cb0ead420923535ceb64ff",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Peterujah\\Agora\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ujah Chigozie",
+                    "email": "ujahchigozie@gmail.com"
+                }
+            ],
+            "description": "This package is a Composer-friendly rewrite of Agora,s PHP token generator.",
+            "keywords": [
+                "agora",
+                "agora WebRTC ",
+                "agora live-streaming",
+                "agora rtc",
+                "agora rtm",
+                "agora-tokens",
+                "php",
+                "php agora"
+            ],
+            "support": {
+                "issues": "https://github.com/peterujah/php-agora-tokens/issues",
+                "source": "https://github.com/peterujah/php-agora-tokens/tree/1.1.0"
+            },
+            "time": "2025-05-16T01:12:09+00:00"
+        },
+        {
             "name": "php-http/discovery",
             "version": "1.20.0",
             "source": {
@@ -4641,6 +4750,68 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.0"
             },
             "time": "2025-06-25T14:20:11+00:00"
+        },
+        {
+            "name": "rybakit/msgpack",
+            "version": "v0.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rybakit/msgpack.php.git",
+                "reference": "f483081fe9eb611f6787b63b62dc4593fe2358e8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rybakit/msgpack.php/zipball/f483081fe9eb611f6787b63b62dc4593fe2358e8",
+                "reference": "f483081fe9eb611f6787b63b62dc4593fe2358e8",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.1|^8"
+            },
+            "require-dev": {
+                "ext-gmp": "*",
+                "friendsofphp/php-cs-fixer": "^2.14",
+                "phpunit/phpunit": "^7.1|^8|^9",
+                "vimeo/psalm": "^3.9|^4"
+            },
+            "suggest": {
+                "ext-decimal": "For converting overflowed integers to Decimal objects",
+                "ext-gmp": "For converting overflowed integers to GMP objects"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MessagePack\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eugene Leonovich",
+                    "email": "gen.work@gmail.com"
+                }
+            ],
+            "description": "A pure PHP implementation of the MessagePack serialization format.",
+            "keywords": [
+                "messagepack",
+                "msgpack",
+                "pure",
+                "streaming"
+            ],
+            "support": {
+                "issues": "https://github.com/rybakit/msgpack.php/issues",
+                "source": "https://github.com/rybakit/msgpack.php/tree/v0.9.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/rybakit",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-12-18T08:37:12+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",

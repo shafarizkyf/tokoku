@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ShopController;
 use App\Http\Middleware\EnsureUserTypeIsValid;
+use App\Http\Controllers\LiveStreamHostController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
@@ -47,6 +48,7 @@ Route::middleware(['auth'])->group(function(){
       Route::get('bulk-stock', [ProductController::class, 'bulkStockPage'])->name('products.bulk_stock');
     });
     Route::get('shop/settings', [ShopController::class, 'settings'])->name('shop.settings');
+    Route::get('live-stream', [LiveStreamHostController::class, 'index'])->name('live-stream.host');
   });
 });
 
