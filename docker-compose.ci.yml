@@ -11,12 +11,6 @@ services:
     environment:
       APP_ENV: testing
       QUEUE_CONNECTION: sync
-      DB_HOST: mysql
-      DB_DATABASE: tokoku_ci
-      DB_USERNAME: tokoku_ci
-      DB_PASSWORD: tokoku_ci
-      MEILISEARCH_HOST: http://meilisearch:7700
-      MEILISEARCH_KEY: masterKey
     depends_on:
       mysql:
         condition: service_healthy
