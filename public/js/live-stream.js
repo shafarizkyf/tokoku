@@ -337,17 +337,9 @@ class LiveStreamUI {
    */
   async addToCart(productId) {
     try {
-      const response = await fetch('/api/carts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({
+      const response = await $.post('/api/carts', {
           product_id: productId,
           quantity: 1
-        })
       });
 
       const data = await response.json();
