@@ -108,7 +108,6 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
 - Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
 - Buka webapp di: `host:7890`
 - Buka phpmyadmin di: `host:8081`
-- Import table wilayah indonesia (storage > indonesia.sql). [Credit Source](https://github.com/guzfirdaus/Wilayah-Administrasi-Indonesia/tree/master/mysql%20(mariadb)), dimodifikasi agar dapat di import sesuai dengan definisi table pada migration file
 - Login, lalu akses database, buka table `users` ubah `user_type` menjadi `admin` untuk pengguna yang diinginkan. Logout. Login Kembali
 
 
