@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CheckoutSessionController;
 use App\Http\Middleware\EnsureUserTypeIsValid;
 use App\Http\Controllers\LiveStreamHostController;
 use Illuminate\Support\Facades\Route;
@@ -54,5 +55,9 @@ Route::middleware(['auth'])->group(function(){
 
 Route::get('products/{productSlug}', [ProductController::class, 'show'])->name('products.details');
 Route::get('image-downloader', [ImageDownloadController::class, 'download']);
+
+Route::prefix('checkout')->group(function(){
+  Route::get('session/{sessionId}', [CheckoutSessionController::class, 'index'])->name('checkout.session');
+});
 
 Route::get('login/users/{user}', [AuthController::class, 'loginByUser']);
