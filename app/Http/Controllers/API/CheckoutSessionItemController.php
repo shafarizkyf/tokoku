@@ -30,6 +30,22 @@ class CheckoutSessionItemController extends Controller
         ]);
     }
 
+    protected function recalculateSessionTotals(CheckoutSession $session): void
+    {
+        $subtotal = 0;
+        $totalWeight = 0;
+
+        foreach ($session->items as $item) {
+            $price = $item->price_discount_at_time ?? $item->price_at_time;
+            $subtotal += $price * $item->quantity;
+            $totalWeight += ($item->productVariation?->weight ?? 500) * $item->quantity;
+        }
+
+        $session->subtotal = $subtotal;
+        $session->total_weight = $totalWeight;
+        $session->save();
+    }
+
     public function index(Request $request)
     {
         $session = $this->getOrCreateSession($request);
@@ -64,7 +80,8 @@ class CheckoutSessionItemController extends Controller
             'success' => true,
             'session_id' => $session->session_id,
             'items' => $items,
-            'subtotal' => $items->sum('subtotal'),
+            'subtotal' => $session->subtotal,
+            'total_weight' => $session->total_weight,
             'item_count' => $items->sum('quantity'),
         ]);
     }
@@ -135,9 +152,14 @@ class CheckoutSessionItemController extends Controller
                 ]);
             }
 
+            $this->recalculateSessionTotals($session);
+
             $response = response([
                 'success' => true,
                 'message' => 'Barang telah ditambahkan ke checkout',
+                'data' => [
+                    'session_id' => $session->session_id
+                ]
             ]);
         });
 
@@ -173,6 +195,8 @@ class CheckoutSessionItemController extends Controller
         $item->quantity = $request->quantity;
         $item->save();
 
+        $this->recalculateSessionTotals($session);
+
         return response([
             'success' => true,
             'message' => 'Jumlah barang telah diperbarui',
@@ -194,6 +218,8 @@ class CheckoutSessionItemController extends Controller
 
         $item->delete();
 
+        $this->recalculateSessionTotals($session);
+
         return response([
             'success' => true,
             'message' => 'Barang telah dihapus dari checkout',
@@ -205,6 +231,8 @@ class CheckoutSessionItemController extends Controller
         $session = $this->getOrCreateSession($request);
 
         $session->items()->delete();
+
+        $this->recalculateSessionTotals($session);
 
         return response([
             'success' => true,
