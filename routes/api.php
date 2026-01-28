@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\CheckoutSessionItemController;
 use App\Http\Controllers\API\HealthCheckController;
 use App\Http\Controllers\API\LiveStreamController;
 use App\Http\Controllers\API\OrderController;
@@ -112,3 +113,12 @@ Route::prefix('live-streams')->group(function(){
 
 Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
+
+Route::prefix('checkout')->group(function(){
+  Route::get('items', [CheckoutSessionItemController::class, 'index']);
+  Route::get('items/count', [CheckoutSessionItemController::class, 'count']);
+  Route::post('items', [CheckoutSessionItemController::class, 'store']);
+  Route::patch('items/{id}', [CheckoutSessionItemController::class, 'update']);
+  Route::delete('items/{id}', [CheckoutSessionItemController::class, 'destroy']);
+  Route::delete('items', [CheckoutSessionItemController::class, 'clear']);
+});
