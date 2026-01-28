@@ -37,7 +37,7 @@ $(function(){
   });
 
   const getDeliveryOptions = async (postalCode) => {
-    return await $.post(`/api/checkout/${publicToken}/shipping/calculate`, {
+    return await $.post(`/api/shipping/${sessionId}/calculate`, {
       postal_code: postalCode
     });
   }

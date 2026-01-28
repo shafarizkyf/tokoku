@@ -1,6 +1,7 @@
 FROM php:8.4-fpm
 
 ARG APP_ENV=production
+ENV APP_ENV=${APP_ENV}
 
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libonig-dev libxml2-dev zip libzip-dev \
@@ -12,27 +13,29 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# Copy everything including artisan
+# Copy application source
 COPY . .
 
-# Install composer dependencies
+# Install Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+
 RUN if [ "$APP_ENV" = "production" ]; then \
-      composer install --no-dev --no-interaction --no-progress --prefer-dist; \
+      composer install \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        --prefer-dist \
+        --optimize-autoloader; \
     else \
       composer install; \
     fi
 
-# Ensure storage/framework subfolders exist and are writable
-# Ensure storage/framework subfolders exist and are writable
+# Prepare Laravel writable dirs
 RUN set -eux; \
     mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views; \
-    chown -R www-data:www-data storage bootstrap/cache
-
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache \
- && php artisan storage:link
+    chown -R www-data:www-data storage bootstrap/cache; \
+    chmod -R 775 storage bootstrap/cache
 
 EXPOSE 9000
+
 CMD ["php-fpm"]
