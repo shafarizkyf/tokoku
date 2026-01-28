@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\CheckoutSessionItemController;
 use App\Http\Controllers\API\HealthCheckController;
 use App\Http\Controllers\API\LiveStreamController;
@@ -123,4 +124,5 @@ Route::prefix('checkout')->group(function(){
   Route::patch('items/{id}', [CheckoutSessionItemController::class, 'update']);
   Route::delete('items/{id}', [CheckoutSessionItemController::class, 'destroy']);
   Route::delete('items', [CheckoutSessionItemController::class, 'clear']);
+  Route::post('process', [CheckoutController::class, 'process']);
 });
