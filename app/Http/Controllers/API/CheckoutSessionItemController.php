@@ -36,7 +36,7 @@ class CheckoutSessionItemController extends Controller
         $totalWeight = 0;
 
         foreach ($session->items as $item) {
-            $price = $item->price_discount_at_time ?? $item->price_at_time;
+            $price = $item->price_discount_at_time ? $item->price_discount_at_time : $item->price_at_time;
             $subtotal += $price * $item->quantity;
             $totalWeight += ($item->productVariation?->weight ?? 500) * $item->quantity;
         }

@@ -114,6 +114,8 @@ Route::prefix('live-streams')->group(function(){
 Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
 
+Route::post('shipping/{sessionId}/calculate', [ShippingController::class, 'calculateForSessionCheckout']);
+
 Route::prefix('checkout')->group(function(){
   Route::get('items', [CheckoutSessionItemController::class, 'index']);
   Route::get('items/count', [CheckoutSessionItemController::class, 'count']);

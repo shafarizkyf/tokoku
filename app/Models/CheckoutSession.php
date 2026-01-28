@@ -263,6 +263,51 @@ class CheckoutSession extends Model
             ->first();
     }
 
+    public static function calculateWeightAndValue(?string $sessionId = null): array
+    {
+        if (!$sessionId) {
+            return [
+                'weight_in_kg' => 0,
+                'package_value' => 0
+            ];
+        }
+
+        $session = static::findBySessionId($sessionId);
+
+        if (!$session) {
+            return [
+                'weight_in_kg' => 0,
+                'package_value' => 0
+            ];
+        }
+
+        $totalWeightInGrams = 0;
+        $totalItemValue = 0;
+
+        $items = $session->items()
+            ->with('productVariation')
+            ->get();
+
+        foreach ($items as $item) {
+            $variation = $item->productVariation;
+            if ($variation) {
+                $weight = $variation->weight;
+                $price = $variation->discount_price ? $variation->discount_price : $variation->price;
+            } else {
+                $weight = 500;
+                $price = $item->price_discount_at_time ? $item->price_discount_at_time : $item->price_at_time;
+            }
+
+            $totalWeightInGrams += $weight * $item->quantity;
+            $totalItemValue += $price * $item->quantity;
+        }
+
+        return [
+            'weight_in_kg' => $totalWeightInGrams / 1000,
+            'package_value' => $totalItemValue
+        ];
+    }
+
     public static function findActiveByUser(int $userId): ?self
     {
         return static::where('user_id', $userId)
