@@ -10,6 +10,7 @@ class CheckoutSession extends Model
 {
     protected $fillable = [
         'session_id',
+        'public_token',
         'user_id',
         'cart_id',
         'order_id',
@@ -64,6 +65,9 @@ class CheckoutSession extends Model
         static::creating(function ($model) {
             if (empty($model->session_id)) {
                 $model->session_id = (string) Str::uuid();
+            }
+            if (empty($model->public_token)) {
+                $model->public_token = hash('sha256', $model->session_id . now()->timestamp);
             }
             if (empty($model->expires_at)) {
                 $model->expires_at = now()->addHours(24);
@@ -261,6 +265,19 @@ class CheckoutSession extends Model
             ->where('status', 'active')
             ->where('expires_at', '>', now())
             ->first();
+    }
+
+    public static function findByPublicToken(string $publicToken): ?self
+    {
+        return static::where('public_token', $publicToken)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->first();
+    }
+
+    public static function validatePublicToken(string $publicToken): ?self
+    {
+        return static::findByPublicToken($publicToken);
     }
 
     public static function calculateWeightAndValue(?string $sessionId = null): array

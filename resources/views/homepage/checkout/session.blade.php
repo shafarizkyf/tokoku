@@ -5,7 +5,6 @@
 @endsection
 
 @section('js')
-  <script src="{{ asset('js/region.js') }}"></script>
   <script src="{{ asset('js/homepage/checkout-session.js') }}"></script>
 @endsection
 
@@ -18,6 +17,7 @@
         <form id="checkout-form" action="#" method="POST">
           @csrf
           <input type="hidden" name="session_id" value="{{ $session_id }}">
+          <input type="hidden" name="public_token" value="{{ $public_token }}">
 
           <div class="d-grid gap-4">
             <div class="card">

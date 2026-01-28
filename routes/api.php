@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\CheckoutController;
+use App\Http\Controllers\API\CheckoutScopedController;
 use App\Http\Controllers\API\CheckoutSessionItemController;
 use App\Http\Controllers\API\HealthCheckController;
 use App\Http\Controllers\API\LiveStreamController;
@@ -125,4 +126,16 @@ Route::prefix('checkout')->group(function(){
   Route::delete('items/{id}', [CheckoutSessionItemController::class, 'destroy']);
   Route::delete('items', [CheckoutSessionItemController::class, 'clear']);
   Route::post('process', [CheckoutController::class, 'process']);
+});
+
+Route::prefix('checkout/{token}')->middleware(['checkout.session'])->group(function(){
+  Route::prefix('regions')->group(function(){
+    Route::get('provinces', [CheckoutScopedController::class, 'provinces']);
+    Route::get('provinces/{province}/regencies', [CheckoutScopedController::class, 'regencies']);
+    Route::get('provinces/{province}/regencies/{regency}/districts', [CheckoutScopedController::class, 'districts']);
+    Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [CheckoutScopedController::class, 'villages']);
+    Route::get('postal-code/{village}', [CheckoutScopedController::class, 'postalCode']);
+  });
+
+  Route::get('payment-channels', [PaymentController::class, 'channels']);
 });

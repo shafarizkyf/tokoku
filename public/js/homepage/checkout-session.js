@@ -5,6 +5,7 @@ $(function(){
   let selectedDelivery = null;
 
   const sessionId = $('input[name="session_id"]').val();
+  const publicToken = $('input[name="public_token"]').val();
 
   const selectizeConfig = {
     valueField: 'id',
@@ -43,9 +44,29 @@ $(function(){
   }
 
   const getPaymentChannels = async () => {
-    paymentChannels = await $.getJSON(`/api/payments/channels`);
+    paymentChannels = await $.getJSON(`/api/checkout/${publicToken}/payment-channels`);
     const remapChannels = paymentChannels.map(item => ({ id: item.code, name: item.name }));
     appendOptions(paymentMethodSelectEl, remapChannels);
+  }
+
+  const getProvinces = async () => {
+    return await $.getJSON(`/api/checkout/${publicToken}/regions/provinces`);
+  }
+
+  const getRegencies = async (provinceId) => {
+    return await $.getJSON(`/api/checkout/${publicToken}/regions/provinces/${provinceId}/regencies`);
+  }
+
+  const getDistricts = async (provinceId, regencyId) => {
+    return await $.getJSON(`/api/checkout/${publicToken}/regions/provinces/${provinceId}/regencies/${regencyId}/districts`);
+  }
+
+  const getVillages = async (provinceId, regencyId, districtId) => {
+    return await $.getJSON(`/api/checkout/${publicToken}/regions/provinces/${provinceId}/regencies/${regencyId}/districts/${districtId}/villages`);
+  }
+
+  const getPostalCode = async (villageId) => {
+    return await $.getJSON(`/api/checkout/${publicToken}/regions/postal-code/${villageId}`);
   }
 
   const getPreferredPayment = () => {
