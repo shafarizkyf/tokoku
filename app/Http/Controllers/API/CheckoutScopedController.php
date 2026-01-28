@@ -8,12 +8,15 @@ use App\Models\District;
 use App\Models\Province;
 use App\Models\Regency;
 use App\Models\Village;
+use App\Helpers\PostalCodeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class CheckoutScopedController extends Controller
 {
+    use PostalCodeHelper;
+
     public function provinces(Request $request)
     {
         return Province::all();
@@ -36,49 +39,8 @@ class CheckoutScopedController extends Controller
 
     public function postalCode(Request $request, $sessionToken, Village $village)
     {
-        $response = Http::asForm()->post('https://kodepos.posindonesia.co.id/CariKodepos', [
-            'kodepos' => $village->name,
-        ]);
-
-        if (!$response->successful()) {
-            Log::error('postalCode: ' . $response->body());
-            return response([
-                'message' => 'Unexpected Error'
-            ], 500);
-        }
-
-        $dom = new \DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($response->body());
-        libxml_clear_errors();
-
-        $xpath = new \DOMXPath($dom);
-        $rows = $xpath->query("//tbody/tr");
-
-        $tr = [];
-        foreach ($rows as $row) {
-            if (!($row instanceof \DOMElement)) {
-                continue;
-            }
-
-            $cols = $row->getElementsByTagName("td");
-            $td = [];
-            foreach ($cols as $col) {
-                $td[] = trim($col->textContent);
-            }
-
-            $tdVillage = $td[2];
-            $tdProvince = $td[count($td) - 1];
-
-            $isSameProvince = $tdProvince == $village->district->regency->province->name;
-            $isSameName = strtolower($tdVillage) == strtolower($village->name);
-
-            if ($isSameName && $isSameProvince) {
-                $tr[] = array_slice($td, 1);
-            }
-        }
-
-        return $tr;
+        $results = self::fetchPostalCode($village);
+        return response()->json($results);
     }
 
     public function paymentChannels(Request $request)
