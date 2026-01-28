@@ -54,7 +54,7 @@ class Komerce {
     $shippingOptions = self::calculate($destination['data'][0]['id'], $weight, $itemValue);
 
     if (!isset($shippingOptions['data'])) {
-      return [];
+      return $shippingOptions;
     }
 
     // e.g: reguler, cargo, instant
