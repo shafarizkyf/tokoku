@@ -6,6 +6,26 @@
 
 @section('js')
   <script src="{{ asset('js/homepage/checkout-session.js') }}"></script>
+  <script>
+    window.checkoutData = {
+      hasPaymentUrl: {{ $has_payment_url ? 'true' : 'false' }},
+      paymentUrl: "{{ $session->payment_url }}",
+      recipientName: '{{ $session->recipient_name ?? '' }}',
+      recipientEmail: '{{ $session->recipient_email ?? '' }}',
+      recipientPhone: '{{ $session->recipient_phone ?? '' }}',
+      addressDetail: '{{ $session->address_detail ?? '' }}',
+      provinceId: {{ $session->province_id ?? 'null' }},
+      regencyId: {{ $session->regency_id ?? 'null' }},
+      districtId: {{ $session->district_id ?? 'null' }},
+      villageId: {{ $session->village_id ?? 'null' }},
+      postalCode: '{{ $session->postal_code ?? '' }}',
+      note: '{{ $session->note ?? '' }}',
+      courier: '{{ $session->courier ?? '' }}',
+      serviceType: '{{ $session->service_type ?? '' }}',
+      shippingPrice: {{ $session->shipping_price ?? 0 }},
+      paymentMethod: '{{ $session->payment_method ?? '' }}',
+    };
+  </script>
 @endsection
 
 @section('content')

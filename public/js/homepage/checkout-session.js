@@ -128,19 +128,11 @@ $(function(){
       return;
     }
 
-    const selectedCourier = $('#courier').val();
-    const filteredOptions = selectedCourier
-      ? deliveryOptions.filter(opt => opt.shipping_name.toLowerCase() === selectedCourier.toLowerCase())
-      : deliveryOptions;
-
-    if (filteredOptions.length === 0) {
-      $('#shipping-options').html(`<div class="alert alert-warning">Opsi pengiriman untuk ${selectedCourier} tidak tersedia</div>`);
-      return;
-    }
-
-    filteredOptions.forEach((item, index) => {
+    deliveryOptions.forEach((item, index) => {
+      const isSelected = window.checkoutData && window.checkoutData.serviceType === item.service_name &&
+                         window.checkoutData.courier === item.shipping_name;
       const cardEl = $(`
-        <div class="card delivery-option cursor-pointer ${index === 0 ? 'border-primary' : ''}" data-index="${index}">
+        <div class="card delivery-option cursor-pointer ${isSelected ? 'border-primary' : ''}" data-index="${index}">
           <div class="card-body py-2">
             <div class="d-flex justify-content-between align-items-center">
               <div>
@@ -155,8 +147,9 @@ $(function(){
 
       $('#shipping-options').append(cardEl);
 
-      if (index === 0) {
+      if (isSelected || (!selectedDelivery && index === 0)) {
         selectedDelivery = item;
+        cardEl.addClass('border-primary');
       }
     });
 
@@ -195,14 +188,6 @@ $(function(){
         $('#cart-items').html('<div class="alert alert-danger">Gagal memuat keranjang</div>');
       });
   }
-
-  $('#courier').on('change', function() {
-    selectedDelivery = null;
-    const postalCode = $('#postal_code').val();
-    if (postalCode && cartItems.length) {
-      updateDeliveryOptions();
-    }
-  });
 
   $('#payment_method').on('change', function() {
     const payment = getPreferredPayment();
@@ -341,10 +326,38 @@ $(function(){
       });
   });
 
+  const fillExistingData = () => {
+    if (!window.checkoutData || !window.checkoutData.hasPaymentUrl) {
+      return;
+    }
+
+    const data = window.checkoutData;
+
+    $('#recipient_name').val(data.recipientName);
+    $('#recipient_email').val(data.recipientEmail);
+    $('#recipient_phone').val(data.recipientPhone);
+    $('#address_detail').val(data.addressDetail);
+    $('#note').val(data.note);
+    $('#postal_code').val(data.postalCode);
+
+    $('input').attr('disabled', 'disabled');
+    $('textarea').attr('disabled', 'disabled');
+
+    $('#btn-pay').text('Lanjutkan ke Pembayaran');
+    $('#btn-pay').off('click').on('click', function(e) {
+      e.preventDefault();
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      }
+    });
+  };
+
   getProvinces().then(provinces => {
     appendOptions(proviceSelectEl, provinces);
   });
 
   loadCartItems();
-  getPaymentChannels();
+  getPaymentChannels().then(() => {
+    fillExistingData();
+  });
 });
