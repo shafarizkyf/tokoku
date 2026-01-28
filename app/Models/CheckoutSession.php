@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Utils;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -165,9 +166,21 @@ class CheckoutSession extends Model
             return null;
         }
 
+        do {
+            $code = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(6);
+        } while (Order::where('code', $code)->exists());
+
+        $subtotal = 0;
+        $totalWeight = 0;
+        foreach ($this->items as $item) {
+            $price = $item->price_discount_at_time ?? $item->price_at_time;
+            $subtotal += $price * $item->quantity;
+            $totalWeight += $item->productVariation?->weight ?? 500;
+        }
+
         $order = Order::create([
             'user_id' => $this->user_id,
-            'code' => Order::generateCode(),
+            'code' => $code,
             'status' => 'paid',
             'payment_method' => $this->payment_method,
             'payment_reference' => $this->payment_reference,
@@ -175,8 +188,8 @@ class CheckoutSession extends Model
             'payment_response' => json_encode($this->payment_response),
             'payment_expired_at' => $this->payment_expired_at,
             'paid_at' => $this->paid_at,
-            'total_price' => $this->subtotal,
-            'total_weight' => $this->total_weight,
+            'total_price' => $subtotal,
+            'total_weight' => $totalWeight,
             'shipping_price' => $this->shipping_price,
             'total_discount' => $this->discount,
             'grand_total' => $this->grand_total,
@@ -194,13 +207,21 @@ class CheckoutSession extends Model
 
         if ($order && $this->items->isNotEmpty()) {
             foreach ($this->items as $item) {
+                $price = $item->price_discount_at_time ?? $item->price_at_time;
+                $subtotal = $price * $item->quantity;
+                $weight = $item->productVariation?->weight ?? 500;
+
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'product_variation_id' => $item->product_variation_id,
+                    'name_snapshot' => $item->product->name ?? 'Product',
+                    'variation_snapshot' => null,
+                    'price' => $item->price_at_time,
                     'quantity' => $item->quantity,
-                    'price_at_time' => $item->price_at_time,
-                    'price_discount_at_time' => $item->price_discount_at_time,
+                    'discount' => $item->price_discount_at_time ? ($item->price_at_time - $item->price_discount_at_time) * $item->quantity : 0,
+                    'subtotal' => $subtotal,
+                    'weight' => $weight * $item->quantity,
                 ]);
             }
         }
