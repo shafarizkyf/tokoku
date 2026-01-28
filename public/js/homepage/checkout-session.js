@@ -37,9 +37,8 @@ $(function(){
   });
 
   const getDeliveryOptions = async (postalCode) => {
-    return await $.post(`/api/shipping/calculate`, {
-      postal_code: postalCode,
-      session_id: sessionId
+    return await $.post(`/api/checkout/${publicToken}/shipping/calculate`, {
+      postal_code: postalCode
     });
   }
 
@@ -117,6 +116,11 @@ $(function(){
       return;
     }
 
+    if (!cartItems.length) {
+      $('#shipping-options').html('<div class="alert alert-warning">Keranjang checkout kosong</div>');
+      return;
+    }
+
     deliveryOptions = await getDeliveryOptions(postalCode);
 
     if (!deliveryOptions || deliveryOptions.length === 0) {
@@ -124,7 +128,17 @@ $(function(){
       return;
     }
 
-    deliveryOptions.forEach((item, index) => {
+    const selectedCourier = $('#courier').val();
+    const filteredOptions = selectedCourier
+      ? deliveryOptions.filter(opt => opt.shipping_name.toLowerCase() === selectedCourier.toLowerCase())
+      : deliveryOptions;
+
+    if (filteredOptions.length === 0) {
+      $('#shipping-options').html(`<div class="alert alert-warning">Opsi pengiriman untuk ${selectedCourier} tidak tersedia</div>`);
+      return;
+    }
+
+    filteredOptions.forEach((item, index) => {
       const cardEl = $(`
         <div class="card delivery-option cursor-pointer ${index === 0 ? 'border-primary' : ''}" data-index="${index}">
           <div class="card-body py-2">
@@ -183,7 +197,11 @@ $(function(){
   }
 
   $('#courier').on('change', function() {
-    updateDeliveryOptions();
+    selectedDelivery = null;
+    const postalCode = $('#postal_code').val();
+    if (postalCode && cartItems.length) {
+      updateDeliveryOptions();
+    }
   });
 
   $('#payment_method').on('change', function() {
@@ -258,7 +276,7 @@ $(function(){
     if (villageId) {
       getPostalCode(villageId).then(response => {
         if (response && response.length > 0) {
-          $('#postal_code').val(response[0][0]);
+          $('#postal_code').val(response[0][0]).trigger('change');
         }
       });
     }

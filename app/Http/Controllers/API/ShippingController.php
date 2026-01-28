@@ -30,12 +30,14 @@ class ShippingController extends Controller {
     return $result;
   }
 
-  public function calculateForSessionCheckout($sessionId) {
-    $request = request()->validate([
+  public function calculateForSessionCheckout(Request $request) {
+    $request->validate([
       'postal_code' => 'required|digits:5',
     ]);
 
-    $cart = CheckoutSession::calculateWeightAndValue($sessionId);
+    $session = $request->checkoutSession;
+
+    $cart = CheckoutSession::calculateWeightAndValue($session->session_id);
 
     if (!$cart['weight_in_kg']) {
       return response(['message' => '[err] keranjang memiliki beban 0'], 400);
