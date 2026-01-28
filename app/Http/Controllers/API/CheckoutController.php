@@ -24,6 +24,7 @@ class CheckoutController extends Controller
         $request->validate([
             'session_id' => 'required|exists:checkout_sessions,session_id',
             'recipient_name' => 'required|string|max:50',
+            'recipient_email' => 'required|email|max:100',
             'recipient_phone' => 'required|string|max:20',
             'address_detail' => 'required|string',
             'province_id' => 'required|exists:provinces,id',
@@ -58,6 +59,7 @@ class CheckoutController extends Controller
             DB::transaction(function () use ($request, $session) {
                 $session->update([
                     'recipient_name' => $request->recipient_name,
+                    'recipient_email' => $request->recipient_email,
                     'recipient_phone' => $request->recipient_phone,
                     'address_detail' => $request->address_detail,
                     'province_id' => $request->province_id,
@@ -98,7 +100,7 @@ class CheckoutController extends Controller
                     'merchant_ref' => $session->session_id,
                     'amount' => $amount,
                     'customer_name' => $request->recipient_name,
-                    'customer_email' => 'guest@example.com',
+                    'customer_email' => $request->recipient_email,
                     'customer_phone' => $request->recipient_phone,
                     'order_items' => $orderItems,
                     'return_url' => route('orders.index'),

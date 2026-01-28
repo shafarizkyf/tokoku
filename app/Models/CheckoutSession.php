@@ -15,6 +15,7 @@ class CheckoutSession extends Model
         'cart_id',
         'order_id',
         'recipient_name',
+        'recipient_email',
         'recipient_phone',
         'address_detail',
         'province_id',

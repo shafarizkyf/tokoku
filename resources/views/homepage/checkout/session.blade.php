@@ -30,7 +30,11 @@
                     <label for="recipient_name" class="form-label">Nama Penerima</label>
                     <input type="text" class="form-control" id="recipient_name" name="recipient_name" required>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-3">
+                    <label for="recipient_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="recipient_email" name="recipient_email" required>
+                  </div>
+                  <div class="col-md-3">
                     <label for="recipient_phone" class="form-label">Nomor HP</label>
                     <input type="text" class="form-control" id="recipient_phone" name="recipient_phone" maxlength="20" required>
                   </div>

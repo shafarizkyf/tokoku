@@ -305,6 +305,7 @@ $(function(){
     const formData = {
       session_id: sessionId,
       recipient_name: $('#recipient_name').val(),
+      recipient_email: $('#recipient_email').val(),
       recipient_phone: $('#recipient_phone').val(),
       address_detail: $('#address_detail').val(),
       province_id: $('#province_id').val(),
