@@ -141,8 +141,10 @@ class CheckoutSessionItemController extends Controller
 
                 $existingItem->quantity = $newQuantity;
                 $existingItem->save();
+
+                $id = $existingItem->id;
             } else {
-                CheckoutSessionItem::create([
+                $item = CheckoutSessionItem::create([
                     'checkout_session_id' => $session->id,
                     'product_id' => $request->product_id,
                     'product_variation_id' => $request->product_variation_id,
@@ -150,6 +152,7 @@ class CheckoutSessionItemController extends Controller
                     'price_at_time' => $productVariation->price,
                     'price_discount_at_time' => $productVariation->discount_price,
                 ]);
+                $id = $item->id;
             }
 
             $this->recalculateSessionTotals($session);
@@ -158,7 +161,8 @@ class CheckoutSessionItemController extends Controller
                 'success' => true,
                 'message' => 'Barang telah ditambahkan ke checkout',
                 'data' => [
-                    'session_id' => $session->session_id
+                    'session_id' => $session->session_id,
+                    'checkout_session_item_id' => $id,
                 ]
             ]);
         });
@@ -200,6 +204,9 @@ class CheckoutSessionItemController extends Controller
         return response([
             'success' => true,
             'message' => 'Jumlah barang telah diperbarui',
+            'data' => [
+                'session_id' => $session->session_id,
+            ]
         ]);
     }
 
@@ -223,6 +230,9 @@ class CheckoutSessionItemController extends Controller
         return response([
             'success' => true,
             'message' => 'Barang telah dihapus dari checkout',
+            'data' => [
+                'session_id' => $session->session_id,
+            ]
         ]);
     }
 
@@ -248,6 +258,7 @@ class CheckoutSessionItemController extends Controller
 
         return response([
             'items_count' => $count,
+            'session_id' => $session->session_id,
         ]);
     }
 }
