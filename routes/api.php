@@ -116,6 +116,8 @@ Route::prefix('live-streams')->group(function(){
 Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
 
+Route::post('shipping/{sessionId}/calculate', [ShippingController::class, 'calculateForSessionCheckout']);
+
 Route::prefix('checkout')->group(function(){
   Route::post('create/session', [CheckoutSessionItemController::class, 'init']);
   Route::get('items', [CheckoutSessionItemController::class, 'index']);
@@ -135,8 +137,6 @@ Route::prefix('checkout/{token}')->middleware(['checkout.session'])->group(funct
     Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [CheckoutScopedController::class, 'villages']);
     Route::get('postal-code/{village}', [CheckoutScopedController::class, 'postalCode']);
   });
-
-  Route::post('shipping/calculate', [ShippingController::class, 'calculateForSessionCheckout']);
 
   Route::get('payment-channels', [PaymentController::class, 'channels']);
 });
