@@ -27,6 +27,7 @@ class Product extends Model {
   ];
 
   protected $hidden = [
+    'source',
     'deleted_at'
   ];
 

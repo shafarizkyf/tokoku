@@ -16,6 +16,11 @@ class ShippingController extends Controller {
     ]);
 
     $cart = Cart::calculateWeightAndValue(Auth::id());
+
+    if (!$cart['weight_in_kg']) {
+      return response(['message' => '[err] keranjang memiliki beban 0'], 400);
+    }
+
     $result = Komerce::calculateByPostalCode($request['postal_code'], $cart['weight_in_kg'], $cart['package_value']);
     if (empty($result)) {
       return response(['message' => 'destination not found'], 404);
