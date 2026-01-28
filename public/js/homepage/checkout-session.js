@@ -314,7 +314,7 @@ $(function(){
       village_id: $('#village_id').val(),
       postal_code: $('#postal_code').val(),
       note: $('#note').val(),
-      courier: $('#courier').val(),
+      courier: selectedDelivery.shipping_name,
       service_type: selectedDelivery.service_name,
       shipping_price: selectedDelivery.shipping_cost,
       payment_method: $('#payment_method').val(),

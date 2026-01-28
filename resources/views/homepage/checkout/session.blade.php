@@ -83,14 +83,8 @@
                 <h5 class="mb-0">Metode Pengiriman</h5>
               </div>
               <div class="card-body">
-                <div class="mb-3">
-                  <label for="courier" class="form-label">Kurir</label>
-                  <select class="form-select" id="courier" name="courier" required>
-                    <option value="">Pilih Kurir</option>
-                  </select>
-                </div>
                 <div id="shipping-options" class="d-grid gap-2">
-                  <div class="alert alert-info">Pilih kurir untuk melihat opsi pengiriman</div>
+                  <div class="alert alert-info">Opsi ekspedisi akan tampil setelah memasukan kodepos</div>
                 </div>
               </div>
             </div>
