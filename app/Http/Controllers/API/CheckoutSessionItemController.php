@@ -46,6 +46,18 @@ class CheckoutSessionItemController extends Controller
         $session->save();
     }
 
+    public function init() {
+        $session = CheckoutSession::create([
+            'session_id' => (string) Str::uuid(),
+            'expires_at' => now()->addHours(value: 24),
+        ]);
+
+        return [
+            'session_id' => $session->session_id,
+            'expires_at' => $session->expires_at,
+        ];
+    }
+
     public function index(Request $request)
     {
         $session = $this->getOrCreateSession($request);

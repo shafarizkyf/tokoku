@@ -117,6 +117,7 @@ Route::post('tripay/callback', [TripayController::class, 'callback']);
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
 
 Route::prefix('checkout')->group(function(){
+  Route::post('create/session', [CheckoutSessionItemController::class, 'init']);
   Route::get('items', [CheckoutSessionItemController::class, 'index']);
   Route::get('items/count', [CheckoutSessionItemController::class, 'count']);
   Route::post('items', [CheckoutSessionItemController::class, 'store']);
