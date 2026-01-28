@@ -45,7 +45,7 @@ $(function(){
   const getPaymentChannels = async () => {
     paymentChannels = await $.getJSON(`/api/checkout/${publicToken}/payment-channels`);
     const remapChannels = paymentChannels.map(item => ({ id: item.code, name: item.name }));
-    appendOptions(paymentMethodSelectEl, remapChannels);
+    appendOptions(paymentMethodSelectEl, remapChannels, window?.checkoutData?.paymentMethod);
   }
 
   const getProvinces = async () => {
@@ -129,8 +129,8 @@ $(function(){
     }
 
     deliveryOptions.forEach((item, index) => {
-      const isSelected = window.checkoutData && window.checkoutData.serviceType === item.service_name &&
-                         window.checkoutData.courier === item.shipping_name;
+      const isSelected = window?.checkoutData?.serviceType === item.service_name &&
+                         window?.checkoutData?.courier === item.shipping_name;
       const cardEl = $(`
         <div class="card delivery-option cursor-pointer ${isSelected ? 'border-primary' : ''}" data-index="${index}">
           <div class="card-body py-2">
@@ -146,11 +146,6 @@ $(function(){
       `);
 
       $('#shipping-options').append(cardEl);
-
-      if (isSelected || (!selectedDelivery && index === 0)) {
-        selectedDelivery = item;
-        cardEl.addClass('border-primary');
-      }
     });
 
     updateSummary();
@@ -221,7 +216,7 @@ $(function(){
 
     if (provinceId) {
       getRegencies(provinceId).then(response => {
-        appendOptions(regencySelectEl, response);
+        appendOptions(regencySelectEl, response, window?.checkoutData?.regencyId);
       });
     }
   });
@@ -235,7 +230,7 @@ $(function(){
 
     if (provinceId && regencyId) {
       getDistricts(provinceId, regencyId).then(response => {
-        appendOptions(districtSelectEl, response);
+        appendOptions(districtSelectEl, response, window?.checkoutData?.districtId);
       });
     }
   });
@@ -249,7 +244,7 @@ $(function(){
 
     if (provinceId && regencyId && districtId) {
       getVillages(provinceId, regencyId, districtId).then(response => {
-        appendOptions(villageSelectEl, response);
+        appendOptions(villageSelectEl, response, window?.checkoutData?.villageId);
       });
     }
   });
@@ -353,7 +348,7 @@ $(function(){
   };
 
   getProvinces().then(provinces => {
-    appendOptions(proviceSelectEl, provinces);
+    appendOptions(proviceSelectEl, provinces, window?.checkoutData?.provinceId);
   });
 
   loadCartItems();

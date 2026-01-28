@@ -20,6 +20,7 @@ class CheckoutSessionController extends Controller
             'session' => $session,
             'session_id' => $session->session_id,
             'public_token' => $session->public_token,
+            'has_payment_url' => (bool) $session->payment_url,
         ]);
     }
 }
