@@ -200,6 +200,7 @@ class CheckoutSession extends Model
             'grand_total' => $this->grand_total,
             'courier' => $this->courier,
             'recipient_name' => $this->recipient_name,
+            'recipient_email' => $this->recipient_email,
             'recipient_phone' => $this->recipient_phone,
             'address_detail' => $this->address_detail,
             'province_id' => $this->province_id,

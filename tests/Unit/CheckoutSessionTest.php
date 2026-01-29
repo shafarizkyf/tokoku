@@ -150,6 +150,7 @@ class CheckoutSessionTest extends TestCase
             'discount' => 5000,
             'courier' => 'jne',
             'recipient_name' => 'John Doe',
+            'recipient_email' => 'john@example.com',
             'recipient_phone' => '08123456789',
             'address_detail' => 'Jl. Test',
             'province_id' => 1,
@@ -170,6 +171,7 @@ class CheckoutSessionTest extends TestCase
         $this->assertInstanceOf(Order::class, $order);
         $this->assertEquals('paid', $order->status);
         $this->assertEquals('John Doe', $order->recipient_name);
+        $this->assertEquals('john@example.com', $order->recipient_email);
         $this->assertEquals(110000, $order->grand_total);
         $this->assertNotNull($session->order_id);
         $this->assertEquals('completed', $session->status);
