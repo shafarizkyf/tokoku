@@ -9,12 +9,40 @@ use App\Helpers\WhatsApp;
 use App\Http\Controllers\Controller;
 use App\Models\CheckoutSession;
 use App\Models\Order;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 
 class TripayController extends Controller {
 
   public function callback() {
     Log::channel('tripay')->info('callback', request()->all());
+
+    if (App::environment('production')) {
+      $callbackSignature = request()->server('HTTP_X_CALLBACK_SIGNATURE');
+      $json = request()->getContent();
+      $signature = hash_hmac('sha256', $json, env('TRIPAY_MERCHANT_PRIVATE_KEY'));
+
+      if ($signature !== (string) $callbackSignature) {
+        return response([
+          'success' => false,
+          'message' => 'Invalid signature',
+        ]);
+      }
+
+      if ('payment_status' !== (string) request()->server('HTTP_X_CALLBACK_EVENT')) {
+        return response([
+          'success' => false,
+          'message' => 'Unrecognized callback event, no action was taken',
+        ]);
+      }
+
+      if (JSON_ERROR_NONE !== json_last_error()) {
+        return response([
+          'success' => false,
+          'message' => 'Invalid data sent by tripay',
+        ]);
+      }
+    }
 
     $merchantRef = request('merchant_ref');
 
