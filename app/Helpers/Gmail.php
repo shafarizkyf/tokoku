@@ -49,6 +49,11 @@ class Gmail {
   }
 
   public static function send($to, $subject, $bodyText) {
+    if (!file_exists(storage_path('google-oauth-credentials.json'))) {
+      Log::error('Gmail send: credentials not found');
+      return [];
+    }
+
     $client = new Client();
     $client->setAuthConfig(storage_path('google-oauth-credentials.json'));
     $client->addScope(GmailService::GMAIL_SEND);
