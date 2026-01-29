@@ -28,6 +28,7 @@ class Order extends Model {
     'payment_method',
     'payment_status',
     'payment_response',
+    'payment_reference',
     'resi_track_response',
     'grand_total',
     'recipient_phone',
