@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\CheckoutSession;
 use App\Models\Order;
 
 class Stock {
@@ -11,6 +12,16 @@ class Stock {
       $productVariation = $orderItem->productVariation;
       $productVariation->stock += $orderItem->quantity;
       $productVariation->save();
+    }
+  }
+
+  public static function revertCheckoutSession(CheckoutSession $session) {
+    foreach($session->items as $item) {
+      $productVariation = $item->productVariation;
+      if ($productVariation) {
+        $productVariation->stock += $item->quantity;
+        $productVariation->save();
+      }
     }
   }
 
