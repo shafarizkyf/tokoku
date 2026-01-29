@@ -1,0 +1,15 @@
+{
+    "reference": "DEV-T4545129089376AGW",
+    "merchant_ref": "INV20250921OXW",
+    "payment_method": "BNI Virtual Account",
+    "payment_method_code": "BNIVA",
+    "total_amount": 8261250,
+    "fee_merchant": 0,
+    "fee_customer": 4250,
+    "total_fee": 4250,
+    "amount_received": 8257000,
+    "is_closed_payment": 1,
+    "status": "PAID",
+    "paid_at": 1758438261,
+    "note": null
+}
