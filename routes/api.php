@@ -113,7 +113,7 @@ Route::prefix('live-streams')->group(function(){
   Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
 });
 
-Route::post('tripay/callback', [TripayController::class, 'callback']);
+Route::post('tripay/callback', [TripayController::class, 'callback'])->name('tripay.callback');
 Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
 
 Route::post('shipping/{sessionId}/calculate', [ShippingController::class, 'calculateForSessionCheckout']);

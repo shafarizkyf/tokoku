@@ -71,6 +71,7 @@ class Tripay {
       'customer_email'  => $order->user->email,
       'customer_phone'  => $order->recipient_phone,
       'order_items'     => $orderItems,
+      'callback_url'    => route('tripay.callback'),
       'return_url'      => route('orders.details', ['orderCode' => $order->code]),
       'expired_time'    => (time() + (24 * 60 * 60)), // 24 hour
       'signature'       => self::signature($order->code, $order->grand_total)
