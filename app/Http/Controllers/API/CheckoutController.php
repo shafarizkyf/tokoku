@@ -103,7 +103,8 @@ class CheckoutController extends Controller
                     'customer_email' => $request->recipient_email,
                     'customer_phone' => $request->recipient_phone,
                     'order_items' => $orderItems,
-                    'return_url' => route('orders.index'),
+                    'callback_url'    => route('tripay.callback'),
+                    'return_url' => route('checkout.session', ['sessionId' => $session->session_id]),
                     'expired_time' => now()->addHours(24)->timestamp,
                     'signature' => self::generateSignature($session->session_id, $amount),
                 ];
