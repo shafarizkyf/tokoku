@@ -102,7 +102,7 @@ class TripayController extends Controller {
         $session->payment_status = 'paid';
         $session->payment_reference = request('reference');
         $session->paid_at = now();
-        $session->status = 'paid';
+        $session->status = 'completed';
         $session->save();
 
         $newOrder = $session->convertToOrder();
@@ -121,7 +121,7 @@ class TripayController extends Controller {
       case 'FAILED':
         $session->payment_status = 'failed';
         $session->payment_reference = request('reference');
-        $session->status = 'failed';
+        $session->status = 'cancelled';
         $session->save();
 
         Stock::revertCheckoutSession($session);
