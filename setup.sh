@@ -12,7 +12,7 @@ else
 fi
 
 # 2. Build & run containers
-docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d
+docker compose --env-file .env.docker.dev -f docker-compose.dev.yml up --build -d
 
 # 3. Generate key
 docker exec tokoku_app php artisan key:generate --force
@@ -22,6 +22,6 @@ docker exec tokoku_app php artisan migrate --seed --force
 
 echo ""
 echo "🎉 Tokoku is ready!"
-echo "🌐 Web App     → http://localhost:7890"
-echo "🛢️ PhpMyAdmin → http://localhost:8081"
+echo "🌐 Web App: http://localhost:7890"
+echo "🛢️ PhpMyAdmin: http://localhost:8081"
 echo "👤 First user = Admin"
