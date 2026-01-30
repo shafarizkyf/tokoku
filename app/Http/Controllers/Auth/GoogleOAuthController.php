@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -19,15 +20,26 @@ class GoogleOAuthController extends Controller {
 
     Log::channel('oauth')->info('google: ', [$googleUser]);
 
-    $user = User::updateOrCreate(
-      ['email' => $googleUser->getEmail()],
-      [
+    DB::transaction(function () use ($googleUser) {
+      $user = User::updateOrCreate(
+        ['email' => $googleUser->getEmail()],
+        [
           'name' => $googleUser->getName(),
           'email_verified_at' => now(),
           'provider' => 'google',
         ]
-    );
+      );
 
+      $adminExists = User::where('user_type', 'admin')
+        ->lockForUpdate()
+        ->exists();
+
+      if (!$adminExists) {
+        $user->update(['user_type' => 'admin']);
+      }
+    });
+
+    $user = User::where('email', $googleUser->getEmail())->first();
     Auth::login($user);
     $user->tokens()->delete();
     $token = $user->createToken('api', [$user->user_type]);
