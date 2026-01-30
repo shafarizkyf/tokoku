@@ -15,11 +15,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.4
-          tools: pint
+      - name: Check PHP version
+        run: php -v
+
+      - name: Install Pint
+        run: composer global require laravel/pint
 
       - name: Cache Composer
         uses: actions/cache@v4
