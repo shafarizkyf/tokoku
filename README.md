@@ -109,7 +109,7 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
 - Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
 - Buka webapp di: `host:7890`
 - Buka phpmyadmin di: `host:8081`
-- Login, lalu akses database, buka table `users` ubah `user_type` menjadi `admin` untuk pengguna yang diinginkan. Logout. Login Kembali
+- Login, user pertama akan secara otomatis menjadi Admin
 
 
 ### Troubleshoot
