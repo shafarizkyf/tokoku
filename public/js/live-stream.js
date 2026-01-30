@@ -245,39 +245,29 @@ class LiveStreamUI {
           <div class="product-price">
             <span class="price-current">${price}</span>
           </div>
-          <button class="btn-buy-now" onclick="liveStreamUI.addToCart(${product.id})">Buy Now</button>
+          <button class="btn-buy-now" data-product-id="${product.id}" onclick="liveStreamUI.addToCart(${product.id}, ${product.cheapest_variation.id}, this)">Masukan ke keranjang</button>
         </div>
       `;
       listContainer.appendChild(el);
     });
   }
 
-  async addToCart(productId) {
+  async addToCart(productId, productVariationId, btnElement) {
     try {
       const response = await $.post('/api/carts', {
         product_id: productId,
+        product_variation_id: productVariationId,
         quantity: 1
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = 'Added!';
-        btn.style.background = '#48bb78';
+      if (response.success) {
+        const originalText = btnElement.innerText;
+        btnElement.innerText = 'Sip udah!';
+        btnElement.style.background = '#48bb78';
         setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.background = '';
+          btnElement.innerText = originalText;
+          btnElement.style.background = '';
         }, 2000);
-      } else {
-        if (response.status === 401) {
-          if (confirm('You need to login to buy products. Go to login page?')) {
-            window.location.href = '/login';
-          }
-        } else {
-          alert(data.message || 'Failed to add to cart');
-        }
       }
     } catch (e) {
       console.error('Add to cart error:', e);
