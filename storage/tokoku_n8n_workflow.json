@@ -1,0 +1,638 @@
+{
+  "name": "TokoKu",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "allowedOrigins": "https://tokoku.shafarizkyf.com"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -928,
+        16
+      ],
+      "id": "55b2384d-37ad-41d3-a336-8dcfd9eb329c",
+      "name": "When chat message received",
+      "webhookId": "2763eec1-df6c-49d9-8122-3b3c35682397"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant for online store TokoKu.\n\n# Role\nHelp the customer look for the product and naturally sell the product\n\n#Information\ntoday is: {{ $now.toISO() }}\nsession_id: {{ $json.session_id }}\nsession_expired_at: {{ $json.expires_at }}\n\n# Output\nWhen the customer has cart items, and wants to proceed to payment give this link: \"{{ $('ENV').item.json.host }}/checkout/session/{{ $json.session_id }}\" "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b1cd2045-7323-4d34-9c32-e1d789c7ad21",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        304,
+        224
+      ],
+      "id": "d987c979-08e1-4792-b7c9-064dddc6a278",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oBnglXZCWwM9jdWH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to search product and returns the response data",
+        "url": "=https://tokoku.shafarizkyf.com/api/search?keyword={{ encodeURIComponent($fromAI('keyword', 'search keyword urlencoded', 'string')) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        208
+      ],
+      "id": "e86c1acb-e9f2-4505-9bea-f89c9eec63d2",
+      "name": "Search Product"
+    },
+    {
+      "parameters": {
+        "path": "tokoku"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "1e50ab18-91f2-481f-9552-7c407fb5aebd",
+      "name": "MCP Trigger",
+      "webhookId": "7381205e-e960-4236-b85a-7191b2dead8f"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to get product details and returns the response data. Only call this when id of the product is known",
+        "url": "=https://tokoku.shafarizkyf.com/api/products/{{ $fromAI('product_id', 'id of the product', 'number') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1232,
+        208
+      ],
+      "id": "76132583-279c-484d-95b2-20979a33f6d4",
+      "name": "Get Product Details"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.shafarizkyf.com/mcp/tokoku",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        240
+      ],
+      "id": "e053e125-820c-4180-a136-606a3c035ae6",
+      "name": "MCP - Client"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to add an item to the cart and returns the response data. Required information: session_id, product_id, product_variation_id, quantity (set default to 1)",
+        "method": "POST",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "session_id",
+              "value": "={{ $fromAI('session_id') }}"
+            },
+            {
+              "name": "product_id",
+              "value": "={{ $fromAI('product_id') }}"
+            },
+            {
+              "name": "product_variation_id",
+              "value": "={{ $fromAI('product_variation_id') }}"
+            },
+            {
+              "name": "quantity",
+              "value": "={{ $fromAI('quantity') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        2128,
+        208
+      ],
+      "id": "fa7888c0-a619-412d-9870-80b12811a096",
+      "name": "Add to Session Cart Item"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to update quantity an item to the cart and returns the response data. Required information: session_id, item_id, quantity",
+        "method": "PATCH",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items/{{ $fromAI('item_id') }}?session_id={{ $fromAI('session_id') }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "quantity",
+              "value": "={{ $fromAI('quantity') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        2320,
+        208
+      ],
+      "id": "f9d3280b-af0e-42d9-9617-ac218951b0aa",
+      "name": "Update Session Cart Item"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to get cart items and returns the response data. Required information: session_id, item_id, quantity",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items?session_id={{ $fromAI('session_id') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1760,
+        208
+      ],
+      "id": "77690d4b-f0e0-4e74-a9be-d055f1bf76fa",
+      "name": "Get Session Cart Items"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to delete an item from the cart and returns the response data. Required information: session_id, item_id",
+        "method": "DELETE",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items/{{ $fromAI('item_id') }}?session_id={{ $fromAI('session_id') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        2528,
+        208
+      ],
+      "id": "c4be3d0d-3df1-428e-8156-0f61955f2350",
+      "name": "Delete Session Cart Item"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to delete an item from the cart and returns the response data. Required information: session_id, item_id",
+        "method": "DELETE",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items/clear?session_id={{ $fromAI('session_id') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        2736,
+        208
+      ],
+      "id": "bdd2cb64-189d-4633-b4ca-2cc8a1cadbea",
+      "name": "Clear Session Cart Items"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to count cart items and returns the response data. Required information: session_id",
+        "url": "=https://tokoku.shafarizkyf.com/api/checkout/items/count?session_id={{ $fromAI('session_id') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1936,
+        208
+      ],
+      "id": "e3d78c67-4211-49c5-8df7-26286e4b1570",
+      "name": "Count Session Cart Items"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to get an estimation of shipping cost from the cart and returns the response data. Required information: session_id, postal_code",
+        "method": "POST",
+        "url": "=https://tokoku.shafarizkyf.com/api/shipping/{{ $fromAI('session_id') }}/calculate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "postal_code",
+              "value": "={{ $fromAI('postal_code', '5 digit indonesian postal code') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1456,
+        448
+      ],
+      "id": "d63c6065-fd16-44b4-9aac-ce3260b64aa3",
+      "name": "Calculate Shipping"
+    },
+    {
+      "parameters": {
+        "sessionTTL": 3600
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        464,
+        240
+      ],
+      "id": "7c54f35f-583d-44bd-9e78-99e1fcd0ac2a",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "eEl5bBsTJmrj2jpa",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// Use a FIXED namespace (must never change)\nconst NAMESPACE = 'n8n-chat-session';\n\n// Your sessionId from Chat Trigger\nconst sessionId = $input.first().json.sessionId;\n\n// UUID v5 implementation\nfunction uuidv5(name, namespace) {\n  const hash = crypto\n    .createHash('sha1')\n    .update(namespace + name)\n    .digest('hex');\n\n  return [\n    hash.substring(0, 8),\n    hash.substring(8, 12),\n    '5' + hash.substring(13, 16), // version 5\n    ((parseInt(hash.substring(16, 17), 16) & 0x3) | 0x8).toString(16) +\n      hash.substring(17, 20),\n    hash.substring(20, 32),\n  ].join('-');\n}\n\nreturn {\n  uuid: uuidv5(sessionId, NAMESPACE),\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        16
+      ],
+      "id": "1ede6166-040f-4ee5-9e61-b009750fd891",
+      "name": "Generate UUID"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "checkout_sessions",
+          "mode": "list",
+          "cachedResultName": "checkout_sessions"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.uuid }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "session_id",
+            "expires_at"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        -336,
+        16
+      ],
+      "id": "969d1da8-9b3f-4696-a740-72cb85b152ad",
+      "name": "Select sessions",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "XVG5YjQq43QBLvKP",
+          "name": "MySQL account - tokoku"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9726c6d3-6a4b-48c2-81dc-3ef9b2875627",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        16
+      ],
+      "id": "5eb56945-a8bf-4843-af32-93e368f4aa27",
+      "name": "If has session"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9010bf64-464f-4267-ad91-9703c87d9676",
+              "name": "host",
+              "value": "https://tokoku.shafarizkyf.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        16
+      ],
+      "id": "06a9f228-4af7-4cf8-a896-a0b3c0166fc9",
+      "name": "ENV"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('ENV').item.json.host }}/api/checkout/create/session",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "session_id",
+              "value": "={{ $('Generate UUID').item.json.uuid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        112,
+        96
+      ],
+      "id": "9b55fc45-b9c3-4443-b655-07a73b8cec59",
+      "name": "Init Session"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "ENV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Product Details": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP - Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Session Cart Item": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Session Cart Item": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Session Cart Items": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Session Cart Item": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Session Cart Items": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Session Cart Items": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Shipping": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate UUID": {
+      "main": [
+        [
+          {
+            "node": "Select sessions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select sessions": {
+      "main": [
+        [
+          {
+            "node": "If has session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If has session": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Init Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ENV": {
+      "main": [
+        [
+          {
+            "node": "Generate UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Session": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2b7ea143-61a6-4ea0-9afa-aa25550df5e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1c4856a6ea0e2289038f7e0e856ffce0689ecdd4382b96ba761f84e0e265854f"
+  },
+  "id": "fCnsoGiovVR9XxqG",
+  "tags": []
+}

@@ -30,6 +30,10 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     @yield('css')
+    @if (isset($type) && $type == 'admin')
+    @else
+        <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    @endif
 </head>
 
 <body>
@@ -99,6 +103,27 @@
     <script src="{{ asset('js/elements.js') }}"></script>
     <script src="{{ asset('js/fetcher.js') }}"></script>
     <script src="{{ asset('js/importer.js') }}"></script>
+    @if (isset($type) && $type == 'admin')
+    @else
+        <script type="module">
+            import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+            createChat({
+                webhookUrl: "{{ env('N8N_CHAT_URL') }}",
+                defaultLanguage: 'id',
+                initialMessages: [],
+                i18n: {
+                    id: {
+                        title: 'Halo! 👋',
+                        subtitle: "Kami disini untuk membantumu 24/7.",
+                        footer: '',
+                        getStarted: 'Obrolan baru',
+                        inputPlaceholder: 'Tulis pertanyaanmu..',
+                    },
+                },
+            });
+        </script>
+    @endif
     @yield('js')
 </body>
 
