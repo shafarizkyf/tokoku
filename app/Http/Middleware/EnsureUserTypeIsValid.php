@@ -17,7 +17,7 @@ class EnsureUserTypeIsValid
     public function handle(Request $request, Closure $next, string $userType): Response
     {
         $user = Auth::user();
-        if (!$user || $user->user_type != $userType) {
+        if (! $user || $user->user_type != $userType) {
             abort(401, 'Anda tidak dapat mengakses halaman ini');
         }
 

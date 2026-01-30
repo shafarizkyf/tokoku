@@ -16,7 +16,8 @@ class CheckoutController extends Controller
     {
         $privateKey = env('TRIPAY_MERCHANT_PRIVATE_KEY');
         $merchantCode = env('TRIPAY_MERCHANT_CODE');
-        return hash_hmac('sha256', $merchantCode . $merchantRef . $amount, $privateKey);
+
+        return hash_hmac('sha256', $merchantCode.$merchantRef.$amount, $privateKey);
     }
 
     public function process(Request $request)
@@ -41,7 +42,7 @@ class CheckoutController extends Controller
 
         $session = CheckoutSession::findBySessionId($request->session_id);
 
-        if (!$session) {
+        if (! $session) {
             return response([
                 'success' => false,
                 'message' => 'Sesi checkout tidak valid atau sudah kedaluwarsa',
@@ -103,13 +104,13 @@ class CheckoutController extends Controller
                     'customer_email' => $request->recipient_email,
                     'customer_phone' => $request->recipient_phone,
                     'order_items' => $orderItems,
-                    'callback_url'    => route('tripay.callback'),
+                    'callback_url' => route('tripay.callback'),
                     'return_url' => route('checkout.session', ['sessionId' => $session->session_id]),
                     'expired_time' => now()->addHours(24)->timestamp,
                     'signature' => self::generateSignature($session->session_id, $amount),
                 ];
 
-                $tripay = new Tripay();
+                $tripay = new Tripay;
                 $response = $tripay->tripay->post('/transaction/create', $tripayData)->json();
 
                 if ($response['success']) {
@@ -122,7 +123,7 @@ class CheckoutController extends Controller
                     Cookie::queue(Cookie::forget('checkout_session'));
                 } else {
                     Log::error('Tripay transaction failed', $response);
-                    throw new \Exception('Gagal membuat transaksi pembayaran: ' . ($response['message'] ?? 'Unknown error'));
+                    throw new \Exception('Gagal membuat transaksi pembayaran: '.($response['message'] ?? 'Unknown error'));
                 }
             });
 
@@ -132,11 +133,11 @@ class CheckoutController extends Controller
                 'redirect_url' => route('orders.index'),
             ]);
         } catch (\Exception $e) {
-            Log::error('Checkout process failed: ' . $e->getMessage());
+            Log::error('Checkout process failed: '.$e->getMessage());
 
             return response([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat memproses checkout: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat memproses checkout: '.$e->getMessage(),
             ], 500);
         }
     }

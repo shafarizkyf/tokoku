@@ -18,7 +18,7 @@ class RegionSeeder extends Seeder
             DB::unprepared(file_get_contents($sqlFilePath));
             $this->command->info('Region data seeded successfully.');
         } else {
-            $this->command->error('SQL file not found: ' . $sqlFilePath);
+            $this->command->error('SQL file not found: '.$sqlFilePath);
         }
     }
 }

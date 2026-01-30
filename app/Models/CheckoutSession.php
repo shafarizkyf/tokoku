@@ -68,7 +68,7 @@ class CheckoutSession extends Model
                 $model->session_id = (string) Str::uuid();
             }
             if (empty($model->public_token)) {
-                $model->public_token = hash('sha256', $model->session_id . now()->timestamp);
+                $model->public_token = hash('sha256', $model->session_id.now()->timestamp);
             }
             if (empty($model->expires_at)) {
                 $model->expires_at = now()->addHours(24);
@@ -123,7 +123,7 @@ class CheckoutSession extends Model
 
     public function getFullAddressAttribute(): ?string
     {
-        if (!$this->address_detail) {
+        if (! $this->address_detail) {
             return null;
         }
 
@@ -131,7 +131,7 @@ class CheckoutSession extends Model
         $parts[] = $this->village?->name ?? '';
         $parts[] = $this->district?->name ?? '';
         $parts[] = $this->regency?->name ?? '';
-        $parts[] = ($this->province?->name ?? '') . ' ' . ($this->postal_code ?? '');
+        $parts[] = ($this->province?->name ?? '').' '.($this->postal_code ?? '');
 
         return implode(', ', array_filter($parts));
     }
@@ -152,13 +152,13 @@ class CheckoutSession extends Model
         return $this->save();
     }
 
-    public function markAsFailed(string $reference = null, array $response = []): bool
+    public function markAsFailed(?string $reference = null, array $response = []): bool
     {
         $this->payment_status = 'failed';
         if ($reference) {
             $this->payment_reference = $reference;
         }
-        if (!empty($response)) {
+        if (! empty($response)) {
             $this->payment_response = $response;
         }
 
@@ -172,7 +172,7 @@ class CheckoutSession extends Model
         }
 
         do {
-            $code = 'INV' . now()->format('Ymd') . Utils::generateRandomCode(6);
+            $code = 'INV'.now()->format('Ymd').Utils::generateRandomCode(6);
         } while (Order::where('code', $code)->exists());
 
         $subtotal = 0;
@@ -242,6 +242,7 @@ class CheckoutSession extends Model
     public function linkToUser(int $userId): bool
     {
         $this->user_id = $userId;
+
         return $this->save();
     }
 
@@ -284,19 +285,19 @@ class CheckoutSession extends Model
 
     public static function calculateWeightAndValue(?string $sessionId = null): array
     {
-        if (!$sessionId) {
+        if (! $sessionId) {
             return [
                 'weight_in_kg' => 0,
-                'package_value' => 0
+                'package_value' => 0,
             ];
         }
 
         $session = static::findBySessionId($sessionId);
 
-        if (!$session) {
+        if (! $session) {
             return [
                 'weight_in_kg' => 0,
-                'package_value' => 0
+                'package_value' => 0,
             ];
         }
 
@@ -323,7 +324,7 @@ class CheckoutSession extends Model
 
         return [
             'weight_in_kg' => $totalWeightInGrams / 1000,
-            'package_value' => $totalItemValue
+            'package_value' => $totalItemValue,
         ];
     }
 

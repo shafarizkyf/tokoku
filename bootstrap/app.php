@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Middleware\SessionCookie;
 use App\Http\Middleware\CheckoutSessionMiddleware;
+use App\Http\Middleware\SessionCookie;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

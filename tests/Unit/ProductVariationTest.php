@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ProductVariationTest extends TestCase
@@ -26,7 +25,8 @@ class ProductVariationTest extends TestCase
         $this->assertEquals('20', $variation->discount_percentage);
     }
 
-    public function test_discount_percentage_accessor_returns_null_when_no_discount() {
+    public function test_discount_percentage_accessor_returns_null_when_no_discount()
+    {
         $product = Product::factory()->create(['id' => 1]);
         $variation = ProductVariation::create([
             'product_id' => $product->id,

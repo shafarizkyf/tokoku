@@ -46,7 +46,8 @@ class CheckoutSessionItemController extends Controller
         $session->save();
     }
 
-    public function init() {
+    public function init()
+    {
         $session = CheckoutSession::create([
             'session_id' => request('session_id') ? request('session_id') : (string) Str::uuid(),
             'expires_at' => now()->addHours(value: 24),
@@ -108,7 +109,7 @@ class CheckoutSessionItemController extends Controller
 
         $session = $this->getOrCreateSession($request);
 
-        if (!app()->environment('production')) {
+        if (! app()->environment('production')) {
             Log::channel('cart')->info('checkout_session_add', array_merge($request->all(), [
                 'session_id' => $session->session_id,
             ]));
@@ -116,7 +117,7 @@ class CheckoutSessionItemController extends Controller
 
         $productVariation = ProductVariation::with('product')->find($request->product_variation_id);
 
-        if (!$productVariation || !$productVariation->product) {
+        if (! $productVariation || ! $productVariation->product) {
             return response([
                 'success' => false,
                 'message' => 'Produk tidak ditemukan',
@@ -148,6 +149,7 @@ class CheckoutSessionItemController extends Controller
                         'success' => false,
                         'message' => 'Stok tidak mencukupi',
                     ], 400);
+
                     return;
                 }
 
@@ -175,7 +177,7 @@ class CheckoutSessionItemController extends Controller
                 'data' => [
                     'session_id' => $session->session_id,
                     'checkout_session_item_id' => $id,
-                ]
+                ],
             ]);
         });
 
@@ -192,7 +194,7 @@ class CheckoutSessionItemController extends Controller
 
         $item = $session->items()->find($id);
 
-        if (!$item) {
+        if (! $item) {
             return response([
                 'success' => false,
                 'message' => 'Item tidak ditemukan',
@@ -201,7 +203,7 @@ class CheckoutSessionItemController extends Controller
 
         $productVariation = $item->productVariation;
 
-        if (!$productVariation || $productVariation->stock < $request->quantity) {
+        if (! $productVariation || $productVariation->stock < $request->quantity) {
             return response([
                 'success' => false,
                 'message' => 'Stok tidak mencukupi',
@@ -218,7 +220,7 @@ class CheckoutSessionItemController extends Controller
             'message' => 'Jumlah barang telah diperbarui',
             'data' => [
                 'session_id' => $session->session_id,
-            ]
+            ],
         ]);
     }
 
@@ -228,7 +230,7 @@ class CheckoutSessionItemController extends Controller
 
         $item = $session->items()->find($id);
 
-        if (!$item) {
+        if (! $item) {
             return response([
                 'success' => false,
                 'message' => 'Item tidak ditemukan',
@@ -244,7 +246,7 @@ class CheckoutSessionItemController extends Controller
             'message' => 'Barang telah dihapus dari checkout',
             'data' => [
                 'session_id' => $session->session_id,
-            ]
+            ],
         ]);
     }
 

@@ -7,71 +7,76 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
-class CartItem extends Model {
+class CartItem extends Model
+{
+    use HasFactory;
 
-  use HasFactory;
-
-  protected $fillable = [
-    'cart_id',
-    'product_id',
-    'product_variation_id',
-    'price_at_time',
-    'price_discount_at_time',
-    'quantity',
-  ];
-
-  protected $hidden = [
-    'cart_id',
-    'created_at',
-    'updated_at'
-  ];
-
-  public $appends = [
-    'subtotal'
-  ];
-
-  protected function casts() {
-    return [
-      'price_at_time' => 'double',
-      'price_discount_at_time' => 'double',
+    protected $fillable = [
+        'cart_id',
+        'product_id',
+        'product_variation_id',
+        'price_at_time',
+        'price_discount_at_time',
+        'quantity',
     ];
-  }
 
-  protected static function booted(): void {
-    $userId = Auth::id();
-    $cacheKey = "cartItems.{$userId}";
+    protected $hidden = [
+        'cart_id',
+        'created_at',
+        'updated_at',
+    ];
 
-    static::created(function() use ($cacheKey) {
-      Cache::tags(['cartItems'])->forget($cacheKey);
-    });
+    public $appends = [
+        'subtotal',
+    ];
 
-    static::saved(function() use ($cacheKey) {
-      Cache::tags(['cartItems'])->forget($cacheKey);
-    });
+    protected function casts()
+    {
+        return [
+            'price_at_time' => 'double',
+            'price_discount_at_time' => 'double',
+        ];
+    }
 
-    static::updated(function() use ($cacheKey) {
-      Cache::tags(['cartItems'])->forget($cacheKey);
-    });
+    protected static function booted(): void
+    {
+        $userId = Auth::id();
+        $cacheKey = "cartItems.{$userId}";
 
-    static::deleted(function() use ($cacheKey) {
-      Cache::tags(['cartItems'])->forget($cacheKey);
-    });
-  }
+        static::created(function () use ($cacheKey) {
+            Cache::tags(['cartItems'])->forget($cacheKey);
+        });
 
-  public function cart() {
-    return $this->belongsTo(Cart::class);
-  }
+        static::saved(function () use ($cacheKey) {
+            Cache::tags(['cartItems'])->forget($cacheKey);
+        });
 
-  public function getSubtotalAttribute() {
-    return $this->quantity * ($this->price_discount_at_time ?? $this->price_at_time);
-  }
+        static::updated(function () use ($cacheKey) {
+            Cache::tags(['cartItems'])->forget($cacheKey);
+        });
 
-  public function product() {
-    return $this->belongsTo(Product::class);
-  }
+        static::deleted(function () use ($cacheKey) {
+            Cache::tags(['cartItems'])->forget($cacheKey);
+        });
+    }
 
-  public function productVariation() {
-    return $this->belongsTo(ProductVariation::class);
-  }
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
+    }
 
+    public function getSubtotalAttribute()
+    {
+        return $this->quantity * ($this->price_discount_at_time ?? $this->price_at_time);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function productVariation()
+    {
+        return $this->belongsTo(ProductVariation::class);
+    }
 }

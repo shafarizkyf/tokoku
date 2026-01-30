@@ -2,14 +2,15 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
     use RefreshDatabase;
+
     public function test_positive_order_accessors_and_relations()
     {
         $order = Order::create([
@@ -103,7 +104,7 @@ class OrderTest extends TestCase
             'postal_code' => '54321',
             'payment_method' => 'BNIVA',
             'recipient_phone' => '08129876543',
-            'payment_response' => json_encode(['data' => ['total_fee' => 5000]])
+            'payment_response' => json_encode(['data' => ['total_fee' => 5000]]),
         ]);
         $this->assertEquals('Selesai', $order->order_status);
         $this->assertFalse($order->is_cancelable);

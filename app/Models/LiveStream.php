@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LiveStream extends Model
 {
@@ -74,11 +74,11 @@ class LiveStream extends Model
      */
     public function getThumbnailUrlAttribute(): ?string
     {
-        if (!$this->thumbnail_path) {
+        if (! $this->thumbnail_path) {
             return null;
         }
 
-        return asset('storage/' . $this->thumbnail_path);
+        return asset('storage/'.$this->thumbnail_path);
     }
 
     /**
@@ -133,11 +133,11 @@ class LiveStream extends Model
     public function updateViewerCount(int $count): void
     {
         $this->viewer_count = $count;
-        
+
         if ($count > $this->peak_viewer_count) {
             $this->peak_viewer_count = $count;
         }
-        
+
         $this->save();
     }
 }

@@ -19,6 +19,7 @@ class BannerFactory extends Factory
     {
         $file = UploadedFile::fake()->create('banner.jpg', 100, 'image/jpeg');
         $path = $file->store('banners', 'public');
+
         return [
             'path' => $path,
             'link' => 'https://example.com',
