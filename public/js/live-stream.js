@@ -15,20 +15,10 @@ class AgoraLiveStream {
     this.isJoined = false;
   }
 
-  /**
-   * Initialize Agora client
-   */
   async init() {
     try {
-      // Create Agora client
-      this.client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
-
-      // Set client role to audience (viewer)
-      await this.client.setClientRole('audience');
-
-      // Register event handlers
+      this.client = await createAgoraClient('audience');
       this.registerEventHandlers();
-
       console.log('Agora client initialized successfully');
       return true;
     } catch (error) {
@@ -37,26 +27,15 @@ class AgoraLiveStream {
     }
   }
 
-  /**
-   * Register event handlers for Agora client
-   */
   registerEventHandlers() {
-    // Handle user published (when host starts streaming)
     this.client.on('user-published', async (user, mediaType) => {
       await this.client.subscribe(user, mediaType);
-      console.log('Subscribe success');
 
       if (mediaType === 'video') {
         const remoteVideoTrack = user.videoTrack;
         const playerContainer = document.getElementById('live-player');
-
-        // Clear existing content
         playerContainer.innerHTML = '';
-
-        // Play the remote video
         remoteVideoTrack.play(playerContainer);
-
-        // Update viewer count
         this.updateViewerCount();
       }
 
@@ -68,48 +47,32 @@ class AgoraLiveStream {
       this.remoteUsers[user.uid] = user;
     });
 
-    // Handle user unpublished (when host stops streaming)
     this.client.on('user-unpublished', (user, mediaType) => {
-      console.log('User unpublished:', user.uid);
-
       if (mediaType === 'video') {
         const playerContainer = document.getElementById('live-player');
         playerContainer.innerHTML = '<div class="text-white text-center p-5">Stream ended</div>';
       }
-
       delete this.remoteUsers[user.uid];
       this.updateViewerCount();
     });
 
-    // Handle user left
     this.client.on('user-left', (user) => {
-      console.log('User left:', user.uid);
       delete this.remoteUsers[user.uid];
       this.updateViewerCount();
     });
 
-    // Handle connection state change
     this.client.on('connection-state-change', (curState, prevState) => {
       console.log(`Connection state changed from ${prevState} to ${curState}`);
     });
   }
 
-  /**
-   * Join a live stream channel
-   * @param {string} channelName - The channel name to join
-   * @param {string} token - The Agora token (can be null for testing)
-   * @param {string|number} uid - User ID (can be null for auto-generation)
-   */
   async join(channelName, token = null, uid = null) {
     try {
       if (!this.client) {
         await this.init();
       }
-
-      // Join the channel
       await this.client.join(this.appId, channelName, token, uid);
       this.isJoined = true;
-
       console.log('Joined channel successfully:', channelName);
       return true;
     } catch (error) {
@@ -118,16 +81,12 @@ class AgoraLiveStream {
     }
   }
 
-  /**
-   * Leave the current channel
-   */
   async leave() {
     try {
       if (this.client && this.isJoined) {
         await this.client.leave();
         this.isJoined = false;
         this.remoteUsers = {};
-
         console.log('Left channel successfully');
         return true;
       }
@@ -137,20 +96,14 @@ class AgoraLiveStream {
     }
   }
 
-  /**
-   * Update viewer count display
-   */
   updateViewerCount() {
     const viewerCountEl = document.querySelector('.viewer-count-number');
     if (viewerCountEl) {
-      const count = Object.keys(this.remoteUsers).length + 1; // +1 for current user
+      const count = Object.keys(this.remoteUsers).length + 1;
       viewerCountEl.textContent = count;
     }
   }
 
-  /**
-   * Get current channel statistics
-   */
   async getChannelStats() {
     if (this.client && this.isJoined) {
       return await this.client.getRTCStats();
@@ -159,24 +112,14 @@ class AgoraLiveStream {
   }
 }
 
-// Live Stream UI Manager
 class LiveStreamUI {
   constructor(agoraClient) {
     this.agoraClient = agoraClient;
     this.currentStream = null;
-    this.chatMessages = [];
-    this.ably = null;
-    this.ablyChannel = null;
-    this.isAblyConnected = false;
   }
 
-  /**
-   * Show floating live card
-   * @param {Object} streamData - Stream information
-   */
   showFloatingCard(streamData) {
     this.currentStream = streamData;
-
     const container = document.getElementById('live-stream-container');
     if (!container) return;
 
@@ -205,23 +148,15 @@ class LiveStreamUI {
             <span class="seller-name">${streamData.sellerName}</span>
           </div>
           <div class="live-actions">
-            <button class="btn-watch" onclick="liveStreamUI.openModal()">
-              Watch Now
-            </button>
-            <button class="btn-close" onclick="liveStreamUI.hideFloatingCard()">
-              ✕
-            </button>
+            <button class="btn-watch" onclick="liveStreamUI.openModal()">Watch Now</button>
+            <button class="btn-close" onclick="liveStreamUI.hideFloatingCard()">✕</button>
           </div>
         </div>
       </div>
     `;
-
     container.style.display = 'block';
   }
 
-  /**
-   * Hide floating live card
-   */
   hideFloatingCard() {
     const container = document.getElementById('live-stream-container');
     if (container) {
@@ -229,16 +164,12 @@ class LiveStreamUI {
     }
   }
 
-  /**
-   * Open live stream modal
-   */
   async openModal() {
     if (!this.currentStream) return;
 
     const modal = document.getElementById('live-stream-modal');
     if (!modal) return;
 
-    // Update modal content
     const modalTitle = modal.querySelector('.live-modal-title');
     if (modalTitle) {
       modalTitle.innerHTML = `
@@ -247,25 +178,21 @@ class LiveStreamUI {
       `;
     }
 
-    // Show modal
     modal.classList.add('active');
 
-    // Fetch token from backend before joining
     let token = null;
     try {
       const joinResponse = await fetch(`/api/live-streams/${this.currentStream.id}/join`, {
         method: 'POST',
-        body: JSON.stringify({}) // Add session_id if needed
+        body: JSON.stringify({})
       });
       if (joinResponse.ok) {
         const joinData = await joinResponse.json();
         token = joinData?.data?.agora?.token || null;
         const streamData = joinData?.data?.stream || {};
-
-        // Update current stream data
         this.currentStream.token = token;
+        this.currentStream.session_id = joinData?.data?.session_id || null;
 
-        // Render products
         if (streamData.products) {
           this.renderProducts(streamData.products);
         }
@@ -281,7 +208,6 @@ class LiveStreamUI {
       return;
     }
 
-    // Join the Agora channel with the fetched token
     const success = await this.agoraClient.join(
       this.currentStream.channelName,
       token,
@@ -290,16 +216,13 @@ class LiveStreamUI {
 
     if (success) {
       console.log('Successfully joined live stream');
-      this.connectToChatChannel();
+      this.connectChat();
     } else {
       alert('Failed to join live stream. Please try again.');
       this.closeModal();
     }
   }
 
-  /**
-   * Render products in the sidebar
-   */
   renderProducts(products) {
     const listContainer = document.getElementById('live-stream-products');
     if (!listContainer) return;
@@ -313,7 +236,6 @@ class LiveStreamUI {
 
     products.forEach(product => {
       const price = currencyFormat.format(product.cheapest_variation.price);
-
       const el = document.createElement('div');
       el.className = 'live-product-card';
       el.innerHTML = `
@@ -323,45 +245,29 @@ class LiveStreamUI {
           <div class="product-price">
             <span class="price-current">${price}</span>
           </div>
-          <button class="btn-buy-now" onclick="liveStreamUI.addToCart(${product.id})">
-            Buy Now
-          </button>
+          <button class="btn-buy-now" data-product-id="${product.id}" onclick="liveStreamUI.addToCart(${product.id}, ${product.cheapest_variation.id}, this)">Masukan ke keranjang</button>
         </div>
       `;
       listContainer.appendChild(el);
     });
   }
 
-  /**
-   * Add product to cart
-   */
-  async addToCart(productId) {
+  async addToCart(productId, productVariationId, btnElement) {
     try {
       const response = await $.post('/api/carts', {
-          product_id: productId,
-          quantity: 1
+        product_id: productId,
+        product_variation_id: productVariationId,
+        quantity: 1
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Show success animation/toast
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = 'Added!';
-        btn.style.background = '#48bb78';
+      if (response.success) {
+        const originalText = btnElement.innerText;
+        btnElement.innerText = 'Sip udah!';
+        btnElement.style.background = '#48bb78';
         setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.background = '';
+          btnElement.innerText = originalText;
+          btnElement.style.background = '';
         }, 2000);
-      } else {
-        if (response.status === 401) {
-          if (confirm('You need to login to buy products. Go to login page?')) {
-            window.location.href = '/login';
-          }
-        } else {
-          alert(data.message || 'Failed to add to cart');
-        }
       }
     } catch (e) {
       console.error('Add to cart error:', e);
@@ -369,26 +275,17 @@ class LiveStreamUI {
     }
   }
 
-  /**
-   * Close live stream modal
-   */
   async closeModal() {
     const modal = document.getElementById('live-stream-modal');
     if (modal) {
       modal.classList.remove('active');
     }
 
-    this.disconnectFromChat();
+    this.disconnectChat();
 
-    // Leave the Agora channel
     try {
-      await fetch(`/api/live-streams/${this.currentStream.id}/leave`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({})
+      await $.post(`/api/live-streams/${this.currentStream.id}/leave`, {
+        session_id: this.currentStream.session_id
       });
     } catch (e) {
       console.error('Error leaving stream:', e);
@@ -396,23 +293,28 @@ class LiveStreamUI {
 
     await this.agoraClient.leave();
 
-    // Clear video player
     const playerContainer = document.getElementById('live-player');
     if (playerContainer) {
       playerContainer.innerHTML = '';
     }
 
-    // Clear chat
-    this.chatMessages = [];
     const chatContainer = document.querySelector('.chat-messages');
     if (chatContainer) {
       chatContainer.innerHTML = '';
     }
   }
 
-  /**
-   * Add chat message to UI
-   */
+  connectChat() {
+    liveStreamChat.setCurrentStream(this.currentStream.id);
+    liveStreamChat.onMessage((username, message) => this.addChatMessage(username, message));
+    liveStreamChat.onSystem((message) => this.addChatMessage('System', message, true));
+    liveStreamChat.connect();
+  }
+
+  disconnectChat() {
+    liveStreamChat.disconnect();
+  }
+
   addChatMessage(username, message, isSystem = false) {
     const chatContainer = document.querySelector('.chat-messages');
     if (!chatContainer) return;
@@ -430,216 +332,21 @@ class LiveStreamUI {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
 
-/**
-     * Initialize Ably connection
-     */
-  async initAbly() {
-    if (typeof Ably === 'undefined') {
-      console.error('Ably library not loaded. Please include Ably.js in your HTML.');
-      return false;
-    }
-
-    if (this.ably && this.isAblyConnected) {
-      console.log('Ably already connected');
-      return true;
-    }
-
-    try {
-      console.log('Initializing Ably connection...');
-
-      this.ably = new Ably.Realtime({
-        authUrl: `/api/live-streams/ably/token?live_stream_id=${this.currentStream.id}`,
-        queryTime: true
-      });
-
-      this.ably.connection.on('connecting', () => {
-        console.log('Ably connecting...');
-      });
-
-      this.ably.connection.on('connected', () => {
-        console.log('Ably connected successfully');
-        this.isAblyConnected = true;
-      });
-
-      this.ably.connection.on('disconnected', () => {
-        console.log('Ably disconnected');
-        this.isAblyConnected = false;
-      });
-
-      this.ably.connection.on('suspended', () => {
-        console.log('Ably suspended');
-        this.isAblyConnected = false;
-      });
-
-      this.ably.connection.on('failed', (err) => {
-        console.error('Ably connection failed:', err);
-        this.isAblyConnected = false;
-      });
-
-      this.ably.connection.on('closing', () => {
-        console.log('Ably closing connection');
-      });
-
-      this.ably.connection.on('closed', () => {
-        console.log('Ably connection closed');
-        this.isAblyConnected = false;
-      });
-
-      const state = this.ably.connection.state;
-      console.log('Initial Ably connection state:', state);
-
-      if (state === 'connected') {
-        this.isAblyConnected = true;
-        return true;
-      }
-
-      return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          console.error('Ably connection timeout, current state:', this.ably.connection.state);
-          reject(new Error('Ably connection timeout'));
-        }, 15000);
-
-        const checkConnected = () => {
-          if (this.ably.connection.state === 'connected') {
-            clearTimeout(timeout);
-            this.ably.connection.off('connected', checkConnected);
-            this.ably.connection.off('failed', checkFailed);
-            resolve(true);
-          }
-        };
-
-        const checkFailed = (err) => {
-          clearTimeout(timeout);
-          this.ably.connection.off('connected', checkConnected);
-          this.ably.connection.off('failed', checkFailed);
-          console.error('Ably connection failed during connection attempt:', err);
-          reject(err);
-        };
-
-        this.ably.connection.on('connected', checkConnected);
-        this.ably.connection.on('failed', checkFailed);
-      });
-    } catch (e) {
-      console.error('Failed to initialize Ably:', e);
-      this.isAblyConnected = false;
-      return false;
-    }
-  }
-
-
-    /**
-     * Connect to chat channel and subscribe to messages
-     */
-  async connectToChatChannel() {
-    try {
-      await this.initAbly();
-
-      const channelName = `live-stream:${this.currentStream.id}`;
-
-      this.ablyChannel = this.ably.channels.get(channelName);
-
-      this.ablyChannel.subscribe('message', (message) => {
-        this.addChatMessage(message.data.username, message.data.message);
-        this.chatMessages.push({
-          id: message.data.id,
-          username: message.data.username,
-          message: message.data.message,
-          timestamp: new Date(message.data.created_at).getTime()
-        });
-      });
-
-      this.ablyChannel.subscribe('system', (message) => {
-        this.addChatMessage('System', message.data.message, true);
-      });
-
-      console.log('Subscribed to chat channel:', channelName);
-    } catch (e) {
-      console.error('Failed to connect to chat channel:', e);
-      this.startChatPolling();
-    }
-  }
-
-  /**
-    * Disconnect from Ably chat channel
-    */
-  disconnectFromChat() {
-    if (this.ablyChannel) {
-      this.ablyChannel.unsubscribe();
-      this.ably.channels.release(this.ablyChannel);
-      this.ablyChannel = null;
-    }
-
-    if (this.ably) {
-      this.ably.close();
-      this.ably = null;
-      this.isAblyConnected = false;
-    }
-  }
-
-  /**
-    * Poll for new chat messages (fallback)
-    */
-  startChatPolling() {
-    if (this.chatPollInterval) clearInterval(this.chatPollInterval);
-
-    this.chatPollInterval = setInterval(async () => {
-      if (!this.currentStream) return;
-
-      try {
-        const response = await fetch(`/api/live-streams/${this.currentStream.id}/messages`);
-        if (response.ok) {
-          const messages = await response.json();
-          // Filter new messages
-          const newMessages = messages.filter(msg => {
-            const msgTime = new Date(msg.created_at).getTime();
-            const lastMsg = this.chatMessages[this.chatMessages.length - 1];
-            return !lastMsg || msgTime > lastMsg.timestamp;
-          });
-
-          newMessages.forEach(msg => {
-            this.addChatMessage(msg.user ? msg.user.name : (msg.username || 'Guest'), msg.message);
-            this.chatMessages.push({
-              id: msg.id,
-              username: msg.user ? msg.user.name : (msg.username || 'Guest'),
-              message: msg.message,
-              timestamp: new Date(msg.created_at).getTime()
-            });
-          });
-        }
-      } catch (e) {
-        console.error('Chat polling error:', e);
-      }
-    }, this.CHAT_POLL_INTERVAL_MS);
-  }
-
-  /**
-   * Send chat message
-   */
   async sendChatMessage() {
     const input = document.getElementById('chat-input');
     if (!input || !input.value.trim()) return;
 
     const message = input.value.trim();
-    input.value = ''; // Clear locally immediately
+    input.value = '';
 
-    // this.addChatMessage('You', message); // Optimistic update
-
-    try {
-      await $.post(`/api/live-streams/${this.currentStream.id}/messages`, {
-        message
-      });
-    } catch (e) {
-      console.error('Error sending message:', e);
-    }
+    await liveStreamChat.sendMessage(message);
   }
 }
 
-// Initialize when DOM is ready
 let agoraClient;
 let liveStreamUI;
 
-document.addEventListener('DOMContentLoaded', function () {
-  // Get Agora App ID from meta tag or environment
+document.addEventListener('DOMContentLoaded', async function () {
   const appId = document.querySelector('meta[name="agora-app-id"]')?.content;
 
   if (!appId) {
@@ -647,11 +354,9 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  // Initialize Agora client
   agoraClient = new AgoraLiveStream(appId);
   liveStreamUI = new LiveStreamUI(agoraClient);
 
-  // Setup chat input handler
   const chatInput = document.getElementById('chat-input');
   if (chatInput) {
     chatInput.addEventListener('keypress', function (e) {
@@ -661,23 +366,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Fetch active live streams from backend
   fetchActiveLiveStreams();
 });
 
-
-/**
- * Fetch active live streams from backend
- */
 async function fetchActiveLiveStreams() {
   try {
-    // Fetch from real API endpoint
     const response = await fetch('/api/live-streams/active');
 
     if (response.ok) {
       const streams = await response.json();
 
-      // Show the first active stream if available
       if (streams && streams.length > 0) {
         const stream = streams[0];
         if (liveStreamUI) {
@@ -689,18 +387,15 @@ async function fetchActiveLiveStreams() {
             sellerAvatar: stream.seller_avatar,
             thumbnail: stream.thumbnail,
             viewers: stream.viewers,
-            token: null // Token will be fetched when joining
+            token: null
           });
         }
       }
-    } else {
-      console.log('No active streams or API not available, showing demo stream');
     }
   } catch (error) {
     console.error('Failed to fetch live streams:', error);
   }
 }
 
-// Export for global access
 window.agoraClient = agoraClient;
 window.liveStreamUI = liveStreamUI;

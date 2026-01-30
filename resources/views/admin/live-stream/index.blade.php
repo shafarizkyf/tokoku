@@ -12,6 +12,8 @@
 @endsection
 
 @section('js')
+    <!-- Ably Realtime -->
+    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
     <!-- Agora SDK -->
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
     <script src="{{ asset('js/live-stream-host.js') }}"></script>
@@ -72,6 +74,22 @@
                                 <div class="stat-card">
                                     <div class="stat-value" id="stream-duration">00:00</div>
                                     <div class="stat-label">Duration</div>
+                                </div>
+                            </div>
+
+                            <!-- Realtime Chat Section -->
+                            <div class="chat-section mt-4">
+                                <h6 class="mb-3">Live Chat</h6>
+                                <div class="chat-messages" id="chat-messages" style="height: 200px; overflow-y: auto; background: #f8f9fa; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                                    <div class="text-center text-muted py-3">
+                                        <small>No messages yet</small>
+                                    </div>
+                                </div>
+                                <div class="chat-input-container d-flex gap-2">
+                                    <input type="text" class="form-control" id="chat-input" placeholder="Type a message...">
+                                    <button class="btn btn-primary" onclick="hostStream.sendChatMessage()">
+                                        <i class="bi bi-send"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>

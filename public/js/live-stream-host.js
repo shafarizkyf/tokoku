@@ -4,603 +4,522 @@
  */
 
 class LiveStreamHost {
-    constructor() {
-        this.agoraClient = null;
-        this.localTracks = {
-            videoTrack: null,
-            audioTrack: null
-        };
-        this.currentStream = null;
-        this.isLive = false;
-        this.streamStartTime = null;
-        this.durationInterval = null;
-        this.statsInterval = null;
-        this.devices = {
-            cameras: [],
-            microphones: []
-        };
-        this.beforeUnloadHandler = this.beforeUnloadHandler.bind(this);
+  constructor() {
+    this.agoraClient = null;
+    this.localTracks = {
+      videoTrack: null,
+      audioTrack: null
+    };
+    this.currentStream = null;
+    this.isLive = false;
+    this.streamStartTime = null;
+    this.durationInterval = null;
+    this.statsInterval = null;
+    this.devices = {
+      cameras: [],
+      microphones: []
+    };
+    this.beforeUnloadHandler = this.beforeUnloadHandler.bind(this);
+  }
+
+  async init() {
+    try {
+      await this.handleInterruptedStream();
+
+      this.appId = document.querySelector('meta[name="agora-app-id"]')?.content;
+
+      if (!this.appId) {
+        console.error('Agora App ID not found');
+        return;
+      }
+
+      this.agoraClient = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
+      await this.agoraClient.setClientRole('host');
+
+      await this.loadDevices();
+      await this.loadStreamHistory();
+      await this.checkActiveStream();
+
+      console.log('Host interface initialized');
+    } catch (error) {
+      console.error('Failed to initialize host interface:', error);
     }
+  }
 
-    /**
-     * Initialize the host interface
-     */
-    async init() {
-        try {
-            // Check for interrupted stream (page reload)
-            await this.handleInterruptedStream();
+  async handleInterruptedStream() {
+    try {
+      const result = await $.getJSON('/api/live-streams/current');
 
-            // Get Agora App ID
-            this.appId = document.querySelector('meta[name="agora-app-id"]')?.content;
-
-            if (!this.appId) {
-                console.error('Agora App ID not found');
-                return;
-            }
-
-            // Initialize Agora client
-            this.agoraClient = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
-            await this.agoraClient.setClientRole('host');
-
-            // Load devices
-            await this.loadDevices();
-
-            // Load stream history
-            await this.loadStreamHistory();
-
-            // Check for active stream
-            await this.checkActiveStream();
-
-            console.log('Host interface initialized');
-        } catch (error) {
-            console.error('Failed to initialize host interface:', error);
+      if (result.success && result.data) {
+        await this.endInterruptedStream(result.data.id);
+        sessionStorage.removeItem('activeStream');
+        this.showStreamEndedNotification(result.data.title);
+      } else {
+        const storedStream = sessionStorage.getItem('activeStream');
+        if (storedStream) {
+          sessionStorage.removeItem('activeStream');
         }
+      }
+    } catch (error) {
+      console.error('Failed to check for interrupted stream:', error);
     }
+  }
 
-    /**
-     * Handle interrupted stream on page reload
-     */
-    async handleInterruptedStream() {
-        try {
-            const result = await $.getJSON('/api/live-streams/current');
+  async endInterruptedStream(streamId) {
+    try {
+      const token = document.querySelector('meta[name="token"]')?.content;
 
-            if (result.success && result.data) {
-                // There's an active stream - it was interrupted by page reload
-                const stream = result.data;
-
-                // End the stream automatically
-                await this.endInterruptedStream(stream.id);
-
-                // Clear session storage
-                sessionStorage.removeItem('activeStream');
-
-                // Show notification
-                this.showStreamEndedNotification(stream.title);
-            } else {
-                // Check if there's a stream in sessionStorage that's no longer active
-                const storedStream = sessionStorage.getItem('activeStream');
-                if (storedStream) {
-                    sessionStorage.removeItem('activeStream');
-                }
-            }
-        } catch (error) {
-            console.error('Failed to check for interrupted stream:', error);
+      await fetch(`/api/live-streams/${streamId}/stop`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
+
+      fetch('/api/live-streams/active', { method: 'GET' }).catch(() => {});
+    } catch (error) {
+      console.error('Failed to end interrupted stream:', error);
     }
+  }
 
-    /**
-     * End an interrupted stream
-     */
-    async endInterruptedStream(streamId) {
-        try {
-            const token = document.querySelector('meta[name="token"]')?.content;
+  showStreamEndedNotification(streamTitle) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 z-index-5000';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+      <strong>Stream Interrupted!</strong> Your stream "${streamTitle}" was automatically ended because the page was reloaded.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
 
-            await fetch(`/api/live-streams/${streamId}/stop`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
 
-            // Clear cache
-            fetch('/api/live-streams/active', { method: 'GET' }).catch(() => {});
-        } catch (error) {
-            console.error('Failed to end interrupted stream:', error);
-        }
+  async loadDevices() {
+    try {
+      const devices = await AgoraRTC.getDevices();
+
+      this.devices.cameras = devices.filter(d => d.kind === 'videoinput');
+      this.devices.microphones = devices.filter(d => d.kind === 'audioinput');
+
+      const cameraSelect = document.getElementById('camera-select');
+      if (cameraSelect) {
+        cameraSelect.innerHTML = this.devices.cameras.map((camera, index) =>
+          `<option value="${camera.deviceId}">${camera.label || `Camera ${index + 1}`}</option>`
+        ).join('');
+      }
+
+      const micSelect = document.getElementById('microphone-select');
+      if (micSelect) {
+        micSelect.innerHTML = this.devices.microphones.map((mic, index) =>
+          `<option value="${mic.deviceId}">${mic.label || `Microphone ${index + 1}`}</option>`
+        ).join('');
+      }
+
+      await this.setupPreview();
+      await this.initProductSelect();
+    } catch (error) {
+      console.error('Failed to load devices:', error);
     }
+  }
 
-    /**
-     * Show notification when stream was ended due to page reload
-     */
-    showStreamEndedNotification(streamTitle) {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 z-index-5000';
-        notification.style.zIndex = '9999';
-        notification.innerHTML = `
-            <strong>Stream Interrupted!</strong> Your stream "${streamTitle}" was automatically ended because the page was reloaded.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(notification);
+  async setupPreview() {
+    try {
+      const cameraSelect = document.getElementById('camera-select');
+      const previewVideo = document.getElementById('preview-video');
 
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
-    }
+      if (!cameraSelect || !previewVideo) return;
 
-    /**
-     * Load available cameras and microphones
-     */
-    async loadDevices() {
-        try {
-            const devices = await AgoraRTC.getDevices();
+      const videoTrack = await AgoraRTC.createCameraVideoTrack({
+        cameraId: cameraSelect.value
+      });
 
-            this.devices.cameras = devices.filter(d => d.kind === 'videoinput');
-            this.devices.microphones = devices.filter(d => d.kind === 'audioinput');
+      videoTrack.play(previewVideo);
 
-            // Populate camera select
-            const cameraSelect = document.getElementById('camera-select');
-            if (cameraSelect) {
-                cameraSelect.innerHTML = this.devices.cameras.map((camera, index) =>
-                    `<option value="${camera.deviceId}">${camera.label || `Camera ${index + 1}`}</option>`
-                ).join('');
-            }
-
-            // Populate microphone select
-            const micSelect = document.getElementById('microphone-select');
-            if (micSelect) {
-                micSelect.innerHTML = this.devices.microphones.map((mic, index) =>
-                    `<option value="${mic.deviceId}">${mic.label || `Microphone ${index + 1}`}</option>`
-                ).join('');
-            }
-
-            // Setup preview
-            await this.setupPreview();
-
-            // Initialize product select with Selectize
-            await this.initProductSelect();
-        } catch (error) {
-            console.error('Failed to load devices:', error);
-        }
-    }
-
-    /**
-     * Setup camera preview in modal
-     */
-    async setupPreview() {
-        try {
-            const cameraSelect = document.getElementById('camera-select');
-            const previewVideo = document.getElementById('preview-video');
-
-            if (!cameraSelect || !previewVideo) return;
-
-            // Create video track for preview
-            const videoTrack = await AgoraRTC.createCameraVideoTrack({
-                cameraId: cameraSelect.value
-            });
-
-            videoTrack.play(previewVideo);
-
-            // Update preview when camera changes
-            cameraSelect.addEventListener('change', async () => {
-                videoTrack.stop();
-                const newTrack = await AgoraRTC.createCameraVideoTrack({
-                    cameraId: cameraSelect.value
-                });
-                newTrack.play(previewVideo);
-            });
-        } catch (error) {
-            console.error('Failed to setup preview:', error);
-        }
-    }
-
-    /**
-     * Initialize product select with Selectize
-     */
-    async initProductSelect() {
-        const productSelect = document.getElementById('stream-products');
-        if (!productSelect) return;
-
-        $(productSelect).selectize({
-            plugins: ['remove_button'],
-            valueField: 'id',
-            labelField: 'name',
-            searchField: 'name',
-            maxItems: 10,
-            load: (query, callback) => {
-                if (!query.length) return callback();
-
-                fetch(`/api/search?keyword=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        callback(data);
-                    })
-                    .catch(() => {
-                        callback();
-                    });
-            },
-            create: false,
-            render: {
-                option: (item, escape) => {
-                    return `<div>${escape(item.name)}</div>`;
-                }
-            }
+      cameraSelect.addEventListener('change', async () => {
+        videoTrack.stop();
+        const newTrack = await AgoraRTC.createCameraVideoTrack({
+          cameraId: cameraSelect.value
         });
+        newTrack.play(previewVideo);
+      });
+    } catch (error) {
+      console.error('Failed to setup preview:', error);
     }
+  }
 
-    /**
-     * Start a new live stream
-     */
-    async startStream() {
-        try {
-            const title = document.getElementById('stream-title-input').value;
-            const description = document.getElementById('stream-description').value;
-            const productSelect = document.getElementById('stream-products');
-            const productIds = productSelect?.selectize?.getValue() || [];
+  async initProductSelect() {
+    const productSelect = document.getElementById('stream-products');
+    if (!productSelect) return;
 
-            if (!title) {
-                alert('Please enter a stream title');
-                return;
-            }
+    $(productSelect).selectize({
+      plugins: ['remove_button'],
+      valueField: 'id',
+      labelField: 'name',
+      searchField: 'name',
+      maxItems: 10,
+      load: (query, callback) => {
+        if (!query.length) return callback();
 
-            // Get token from meta tag
-            const token = document.querySelector('meta[name="token"]')?.content;
-
-            // Start stream via API
-            const response = await fetch('/api/live-streams', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    title,
-                    description,
-                    product_ids: productIds
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to start stream');
-            }
-
-            const result = await response.json();
-            this.currentStream = result.data.stream;
-            const agoraData = result.data.agora;
-
-            // Store stream info in sessionStorage for reload handling
-            sessionStorage.setItem('activeStream', JSON.stringify({
-                id: this.currentStream.id,
-                title: this.currentStream.title,
-                startedAt: new Date().toISOString()
-            }));
-
-            // Add beforeunload warning
-            this.addBeforeUnloadWarning();
-
-            // Join Agora channel
-            await this.joinChannel(agoraData);
-
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('startStreamModal'));
-            modal.hide();
-
-            // Show active stream section
-            this.showActiveStream();
-
-            // Start tracking
-            this.startTracking();
-
-            alert('Stream started successfully!');
-        } catch (error) {
-            console.error('Failed to start stream:', error);
-            alert('Failed to start stream. Please try again.');
+        fetch(`/api/search?keyword=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            callback(data);
+          })
+          .catch(() => {
+            callback();
+          });
+      },
+      create: false,
+      render: {
+        option: (item, escape) => {
+          return `<div>${escape(item.name)}</div>`;
         }
+      }
+    });
+  }
+
+  async startStream() {
+    try {
+      const title = document.getElementById('stream-title-input').value;
+      const description = document.getElementById('stream-description').value;
+      const productSelect = document.getElementById('stream-products');
+      const productIds = productSelect?.selectize?.getValue() || [];
+
+      if (!title) {
+        alert('Please enter a stream title');
+        return;
+      }
+
+      const token = document.querySelector('meta[name="token"]')?.content;
+
+      const response = await fetch('/api/live-streams', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          product_ids: productIds
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to start stream');
+      }
+
+      const result = await response.json();
+      this.currentStream = result.data.stream;
+      const agoraData = result.data.agora;
+
+      sessionStorage.setItem('activeStream', JSON.stringify({
+        id: this.currentStream.id,
+        title: this.currentStream.title,
+        startedAt: new Date().toISOString()
+      }));
+
+      this.addBeforeUnloadWarning();
+
+      await this.joinChannel(agoraData);
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('startStreamModal'));
+      modal.hide();
+
+      this.showActiveStream();
+      this.connectChat();
+      this.startTracking();
+
+      alert('Stream started successfully!');
+    } catch (error) {
+      console.error('Failed to start stream:', error);
+      alert('Failed to start stream. Please try again.');
+    }
+  }
+
+  addBeforeUnloadWarning() {
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
+  }
+
+  removeBeforeUnloadWarning() {
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+  }
+
+  beforeUnloadHandler(e) {
+    if (this.isLive) {
+      e.preventDefault();
+      e.returnValue = 'You are currently streaming. Are you sure you want to leave? Your stream will be ended.';
+      return e.returnValue;
+    }
+  }
+
+  async joinChannel(agoraData) {
+    try {
+      const cameraSelect = document.getElementById('camera-select');
+      const micSelect = document.getElementById('microphone-select');
+
+      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        cameraId: cameraSelect?.value
+      });
+
+      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+        microphoneId: micSelect?.value
+      });
+
+      await this.agoraClient.join(
+        agoraData.app_id,
+        agoraData.channel_name,
+        agoraData.token,
+        agoraData.uid
+      );
+
+      await this.agoraClient.publish([
+        this.localTracks.videoTrack,
+        this.localTracks.audioTrack
+      ]);
+
+      const preview = document.getElementById('camera-preview');
+      if (preview) {
+        this.localTracks.videoTrack.play(preview);
+      }
+
+      this.isLive = true;
+      console.log('Joined channel successfully');
+    } catch (error) {
+      console.error('Failed to join channel:', error);
+      throw error;
+    }
+  }
+
+  async stopStream() {
+    if (!confirm('Are you sure you want to end this stream?')) {
+      return;
     }
 
-    /**
-     * Add beforeunload warning to prevent accidental page reload
-     */
-    addBeforeUnloadWarning() {
-        window.addEventListener('beforeunload', (e) => {
-            if (this.isLive) {
-                e.preventDefault();
-                e.returnValue = 'You are currently streaming. Are you sure you want to leave? Your stream will be ended.';
-                return e.returnValue;
-            }
-        });
-    }
+    try {
+      this.removeBeforeUnloadWarning();
+      sessionStorage.removeItem('activeStream');
 
-    /**
-     * Remove beforeunload warning
-     */
-    removeBeforeUnloadWarning() {
-        window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-    }
+      const token = document.querySelector('meta[name="token"]')?.content;
 
-    /**
-     * Beforeunload handler
-     */
-    beforeUnloadHandler(e) {
-        if (this.isLive) {
-            e.preventDefault();
-            e.returnValue = 'You are currently streaming. Are you sure you want to leave? Your stream will be ended.';
-            return e.returnValue;
+      const response = await fetch(`/api/live-streams/${this.currentStream.id}/stop`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to stop stream');
+      }
+
+      await this.leaveChannel();
+      this.disconnectChat();
+      this.stopTracking();
+      this.hideActiveStream();
+      await this.loadStreamHistory();
+
+      const result = await response.json();
+      alert(`Stream ended! Duration: ${Math.floor(result.data.duration / 60)} minutes, Peak viewers: ${result.data.peak_viewers}`);
+    } catch (error) {
+      console.error('Failed to stop stream:', error);
+      alert('Failed to stop stream. Please try again.');
     }
+  }
 
-    /**
-     * Join Agora channel as host
-     */
-    async joinChannel(agoraData) {
-        try {
-            const cameraSelect = document.getElementById('camera-select');
-            const micSelect = document.getElementById('microphone-select');
+  async leaveChannel() {
+    try {
+      if (this.localTracks.videoTrack) {
+        this.localTracks.videoTrack.stop();
+        this.localTracks.videoTrack.close();
+      }
+      if (this.localTracks.audioTrack) {
+        this.localTracks.audioTrack.stop();
+        this.localTracks.audioTrack.close();
+      }
 
-            // Create local tracks
-            this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-                cameraId: cameraSelect?.value
-            });
+      if (this.agoraClient) {
+        await this.agoraClient.leave();
+      }
 
-            this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-                microphoneId: micSelect?.value
-            });
-
-            // Join channel
-            await this.agoraClient.join(
-                agoraData.app_id,
-                agoraData.channel_name,
-                agoraData.token,
-                agoraData.uid
-            );
-
-            // Publish tracks
-            await this.agoraClient.publish([
-                this.localTracks.videoTrack,
-                this.localTracks.audioTrack
-            ]);
-
-            // Play video locally
-            const preview = document.getElementById('camera-preview');
-            if (preview) {
-                this.localTracks.videoTrack.play(preview);
-            }
-
-            this.isLive = true;
-            console.log('Joined channel successfully');
-        } catch (error) {
-            console.error('Failed to join channel:', error);
-            throw error;
-        }
+      this.isLive = false;
+      console.log('Left channel successfully');
+    } catch (error) {
+      console.error('Failed to leave channel:', error);
     }
+  }
 
-    /**
-     * Stop the current stream
-     */
-    async stopStream() {
-        if (!confirm('Are you sure you want to end this stream?')) {
-            return;
-        }
+  async toggleCamera() {
+    if (!this.localTracks.videoTrack) return;
 
-        try {
-            // Remove beforeunload warning
-            this.removeBeforeUnloadWarning();
+    const isEnabled = this.localTracks.videoTrack.enabled;
+    await this.localTracks.videoTrack.setEnabled(!isEnabled);
 
-            // Clear session storage
-            sessionStorage.removeItem('activeStream');
-
-            const token = document.querySelector('meta[name="token"]')?.content;
-
-            // Stop stream via API
-            const response = await fetch(`/api/live-streams/${this.currentStream.id}/stop`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to stop stream');
-            }
-
-            // Leave Agora channel
-            await this.leaveChannel();
-
-            // Stop tracking
-            this.stopTracking();
-
-            // Hide active stream section
-            this.hideActiveStream();
-
-            // Reload history
-            await this.loadStreamHistory();
-
-            const result = await response.json();
-            alert(`Stream ended! Duration: ${Math.floor(result.data.duration / 60)} minutes, Peak viewers: ${result.data.peak_viewers}`);
-        } catch (error) {
-            console.error('Failed to stop stream:', error);
-            alert('Failed to stop stream. Please try again.');
-        }
+    const icon = document.getElementById('camera-icon');
+    if (icon) {
+      icon.className = isEnabled ? 'bi bi-camera-video-off' : 'bi bi-camera-video';
     }
+  }
 
-    /**
-     * Leave Agora channel
-     */
-    async leaveChannel() {
-        try {
-            // Stop and close local tracks
-            if (this.localTracks.videoTrack) {
-                this.localTracks.videoTrack.stop();
-                this.localTracks.videoTrack.close();
-            }
-            if (this.localTracks.audioTrack) {
-                this.localTracks.audioTrack.stop();
-                this.localTracks.audioTrack.close();
-            }
+  async toggleMicrophone() {
+    if (!this.localTracks.audioTrack) return;
 
-            // Leave channel
-            if (this.agoraClient) {
-                await this.agoraClient.leave();
-            }
+    const isEnabled = this.localTracks.audioTrack.enabled;
+    await this.localTracks.audioTrack.setEnabled(!isEnabled);
 
-            this.isLive = false;
-            console.log('Left channel successfully');
-        } catch (error) {
-            console.error('Failed to leave channel:', error);
-        }
+    const icon = document.getElementById('mic-icon');
+    if (icon) {
+      icon.className = isEnabled ? 'bi bi-mic-mute' : 'bi bi-mic';
     }
+  }
 
-    /**
-     * Toggle camera on/off
-     */
-    async toggleCamera() {
-        if (!this.localTracks.videoTrack) return;
+  showActiveStream() {
+    const section = document.getElementById('active-stream-section');
+    const titleEl = document.getElementById('stream-title');
 
-        const isEnabled = this.localTracks.videoTrack.enabled;
-        await this.localTracks.videoTrack.setEnabled(!isEnabled);
+    if (section) section.style.display = 'block';
+    if (titleEl) titleEl.textContent = this.currentStream.title;
+  }
 
-        const icon = document.getElementById('camera-icon');
-        if (icon) {
-            icon.className = isEnabled ? 'bi bi-camera-video-off' : 'bi bi-camera-video';
-        }
+  hideActiveStream() {
+    const section = document.getElementById('active-stream-section');
+    if (section) section.style.display = 'none';
+  }
+
+  startTracking() {
+    this.streamStartTime = Date.now();
+
+    this.durationInterval = setInterval(() => {
+      const duration = Math.floor((Date.now() - this.streamStartTime) / 1000);
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+
+      const durationEl = document.getElementById('stream-duration');
+      if (durationEl) {
+        durationEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+    }, 1000);
+
+    this.statsInterval = setInterval(() => {
+      this.updateStats();
+    }, 5000);
+  }
+
+  stopTracking() {
+    if (this.durationInterval) {
+      clearInterval(this.durationInterval);
+      this.durationInterval = null;
     }
-
-    /**
-     * Toggle microphone on/off
-     */
-    async toggleMicrophone() {
-        if (!this.localTracks.audioTrack) return;
-
-        const isEnabled = this.localTracks.audioTrack.enabled;
-        await this.localTracks.audioTrack.setEnabled(!isEnabled);
-
-        const icon = document.getElementById('mic-icon');
-        if (icon) {
-            icon.className = isEnabled ? 'bi bi-mic-mute' : 'bi bi-mic';
-        }
+    if (this.statsInterval) {
+      clearInterval(this.statsInterval);
+      this.statsInterval = null;
     }
+  }
 
-    /**
-     * Show active stream section
-     */
-    showActiveStream() {
-        const section = document.getElementById('active-stream-section');
-        const titleEl = document.getElementById('stream-title');
+  async updateStats() {
+    if (!this.currentStream) return;
 
-        if (section) section.style.display = 'block';
-        if (titleEl) titleEl.textContent = this.currentStream.title;
+    try {
+      const response = await fetch(`/api/live-streams/${this.currentStream.id}/statistics`);
+      const result = await response.json();
+
+      if (result.success) {
+        const stats = result.data;
+
+        const viewerEl = document.getElementById('viewer-count');
+        const peakEl = document.getElementById('peak-viewers');
+
+        if (viewerEl) viewerEl.textContent = stats.current_viewers;
+        if (peakEl) peakEl.textContent = stats.peak_viewers;
+      }
+    } catch (error) {
+      console.error('Failed to update stats:', error);
     }
+  }
 
-    /**
-     * Hide active stream section
-     */
-    hideActiveStream() {
-        const section = document.getElementById('active-stream-section');
-        if (section) section.style.display = 'none';
-    }
-
-    /**
-     * Start tracking duration and stats
-     */
-    startTracking() {
-        this.streamStartTime = Date.now();
-
-        // Update duration every second
-        this.durationInterval = setInterval(() => {
-            const duration = Math.floor((Date.now() - this.streamStartTime) / 1000);
-            const minutes = Math.floor(duration / 60);
-            const seconds = duration % 60;
-
-            const durationEl = document.getElementById('stream-duration');
-            if (durationEl) {
-                durationEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }
-        }, 1000);
-
-        // Update stats every 5 seconds
-        this.statsInterval = setInterval(() => {
-            this.updateStats();
-        }, 5000);
-    }
-
-    /**
-     * Stop tracking
-     */
-    stopTracking() {
-        if (this.durationInterval) {
-            clearInterval(this.durationInterval);
-            this.durationInterval = null;
-        }
-        if (this.statsInterval) {
-            clearInterval(this.statsInterval);
-            this.statsInterval = null;
-        }
-    }
-
-    /**
-     * Update stream statistics
-     */
-    async updateStats() {
-        if (!this.currentStream) return;
-
-        try {
-            const response = await fetch(`/api/live-streams/${this.currentStream.id}/statistics`);
-            const result = await response.json();
-
-            if (result.success) {
-                const stats = result.data;
-
-                const viewerEl = document.getElementById('viewer-count');
-                const peakEl = document.getElementById('peak-viewers');
-
-                if (viewerEl) viewerEl.textContent = stats.current_viewers;
-                if (peakEl) peakEl.textContent = stats.peak_viewers;
-            }
-        } catch (error) {
-            console.error('Failed to update stats:', error);
-        }
-    }
-
-    /**
-     * Load stream history
-     */
-    async loadStreamHistory() {
-        try {
-            const token = document.querySelector('meta[name="token"]')?.content;
-
-            // For now, we'll show a placeholder
-            // In production, you'd create an endpoint to get user's stream history
-            const historyEl = document.getElementById('stream-history');
-            if (historyEl) {
-                historyEl.innerHTML = `
+  async loadStreamHistory() {
+    try {
+      const historyEl = document.getElementById('stream-history');
+      if (historyEl) {
+        historyEl.innerHTML = `
           <div class="text-center text-muted py-5">
             <i class="bi bi-broadcast" style="font-size: 48px;"></i>
             <p class="mt-3">Stream history will appear here</p>
           </div>
         `;
-            }
-        } catch (error) {
-            console.error('Failed to load stream history:', error);
-        }
+      }
+    } catch (error) {
+      console.error('Failed to load stream history:', error);
     }
+  }
 
-    /**
-     * Check if there's an active stream
-     */
-    async checkActiveStream() {
-        // This would check if the user has an active stream
-        // For now, we'll skip this
+  async checkActiveStream() {
+  }
+
+  connectChat() {
+    liveStreamChat.setCurrentStream(this.currentStream.id);
+    liveStreamChat.onMessage((username, message) => this.addChatMessage(username, message));
+    liveStreamChat.onSystem((message) => this.addChatMessage('System', message, true));
+    liveStreamChat.connect();
+  }
+
+  disconnectChat() {
+    liveStreamChat.disconnect();
+  }
+
+  addChatMessage(username, message, isSystem = false) {
+    const chatContainer = document.getElementById('chat-messages');
+    if (!chatContainer) return;
+
+    const messageEl = document.createElement('div');
+    messageEl.className = 'chat-message mb-2';
+    if (isSystem) messageEl.classList.add('text-muted', 'fst-italic');
+
+    messageEl.innerHTML = `
+      <strong>${this.escapeHtml(username)}:</strong> ${this.escapeHtml(message)}
+    `;
+
+    chatContainer.appendChild(messageEl);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    if (!input || !input.value.trim() || !this.currentStream) return;
+
+    const message = input.value.trim();
+    input.value = '';
+
+    const success = await liveStreamChat.sendMessage(message);
+    if (!success) {
+      this.addChatMessage('You', message);
     }
+  }
 }
 
-// Initialize when DOM is ready
 let hostStream;
 
 document.addEventListener('DOMContentLoaded', async function () {
-    hostStream = new LiveStreamHost();
-    await hostStream.init();
+  hostStream = new LiveStreamHost();
+  await hostStream.init();
+
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        hostStream.sendChatMessage();
+      }
+    });
+  }
 });
 
-// Export for global access
 window.hostStream = hostStream;
