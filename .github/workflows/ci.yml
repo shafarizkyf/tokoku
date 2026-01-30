@@ -28,18 +28,23 @@ jobs:
           key: composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: composer-
 
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Run Pint
-        run: pint
-
-      - name: Commit Pint changes (PR only)
-        if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v6
+      - name: Cache vendor
+        uses: actions/cache@v4
         with:
-          commit_message: "chore: fix code style (pint)"
-          branch: ${{ github.head_ref }}
+          path: vendor
+          key: vendor-${{ hashFiles('composer.lock') }}
+          restore-keys: vendor-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run Pint (check only)
+        run: |
+          pint
+          if ! git diff --quiet; then
+            echo "::error::Pint found formatting issues. Run ./vendor/bin/pint locally."
+            exit 1
+          fi
 
   build:
     runs-on: self-hosted
@@ -64,9 +69,16 @@ jobs:
           key: composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: composer-
 
+      - name: Cache vendor
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: vendor-${{ hashFiles('composer.lock') }}
+          restore-keys: vendor-
+
       - name: Install dependencies
         run: |
-          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist --no-progress
 
       - name: Wait for MySQL
         run: |
