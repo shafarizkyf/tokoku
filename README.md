@@ -71,6 +71,7 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
   - [Gmail](https://developers.google.com/workspace/gmail/api/guides): Digunakan untuk mengirim salinan kuitansi kepada kostumer saat pesanan telah dibayar
   - [WhatsApp](https://developers.facebook.com/docs/whatsapp): Digunakan untuk mengirim notifikasi kepada owner ketika mendapatkan pesanan baru
 - **Web Analytics**: [PostHog](posthog.com). Digunakan untuk mendapatkan data pengunjung website
+- **Chatbot**: [N8N](https://n8n.io/)
 
 ### Tech Stack
 - **Framework**: [Laravel](laravel.com)
