@@ -2,76 +2,116 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
-  test-runner:
+  pint:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-    - name: Start services
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml up -d
+      - name: Check PHP version
+        run: php -v
 
-    - name: Setup CI env
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app cp .env.example .env
+      - name: Install Pint
+        run: composer global require laravel/pint
 
-    - name: Cache Composer
-      uses: actions/cache@v4
-      with:
-        path: ~/.composer/cache
-        key: composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          composer-
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
 
-    - name: Install dependencies
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist
+      - name: Cache vendor
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: vendor-${{ hashFiles('composer.lock') }}
+          restore-keys: vendor-
 
-    - name: Wait for MySQL
-      run: |
-        for i in {1..30}; do
-          if docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T mysql \
-            mysqladmin ping -utokoku_ci -ptokoku_ci --silent; then
-            echo "DB ready"
-            exit 0
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run Pint (check only)
+        run: |
+          vendor/bin/pint
+          if ! git diff --quiet; then
+            echo "::error::Pint found formatting issues. Run ./vendor/bin/pint locally."
+            exit 1
           fi
-          sleep 1
-        done
-        exit 1
 
-    - name: Wait for Meilisearch
-      run: |
-        for i in {1..20}; do
-          if docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app \
-            curl -fs http://meilisearch:7700/health > /dev/null; then
-            echo "Meilisearch ready"
-            exit 0
-          fi
-          sleep 1
-        done
-        exit 1
+  build:
+    runs-on: self-hosted
+    needs: pint
 
-    - name: Prepare application
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan key:generate --force
-        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan migrate:fresh --seed
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-    - name: Run tests
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan test --parallel
+      - name: Start services
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml up -d
 
-    - name: Show logs on failure
-      if: failure()
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml logs --tail=200
+      - name: Setup CI env
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app cp .env.example .env
 
-    - name: Cleanup
-      if: always()
-      run: |
-        docker compose -p tokoku_ci -f docker-compose.ci.yml down -v --remove-orphans
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Cache vendor
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: vendor-${{ hashFiles('composer.lock') }}
+          restore-keys: vendor-
+
+      - name: Install dependencies
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T mysql \
+              mysqladmin ping -utokoku_ci -ptokoku_ci --silent; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Wait for Meilisearch
+        run: |
+          for i in {1..20}; do
+            if docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app \
+              curl -fs http://meilisearch:7700/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Prepare application
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan key:generate --force
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan migrate:fresh --seed
+
+      - name: Run tests
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml exec -T app php artisan test --parallel
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose -p tokoku_ci -f docker-compose.ci.yml down -v --remove-orphans
