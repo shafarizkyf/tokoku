@@ -18,7 +18,7 @@ if (-Not (Get-Command docker -ErrorAction SilentlyContinue)) {
 
 # 3. Build & run containers
 Write-Host "Building & starting containers..."
-docker compose --env-file .env.docker.dev -f docker-compose.dev.yml up --build -d
+docker compose --env-file .env.docker.dev -f docker-compose.prod.yml up --build -d
 
 # 4. Generate APP_KEY
 Write-Host "Generating APP_KEY..."
