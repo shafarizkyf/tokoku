@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProductVariationOption extends Model {
+class ProductVariationOption extends Model
+{
+    protected $fillable = [
+        'product_variation_id',
+        'variation_option_id',
+    ];
 
-  protected $fillable = [
-    'product_variation_id',
-    'variation_option_id'
-  ];
+    public $timestamps = false;
 
-  public $timestamps = false;
-
-  public function variationOption() {
-    return $this->belongsTo(VariationOption::class);
-  }
-
+    public function variationOption()
+    {
+        return $this->belongsTo(VariationOption::class);
+    }
 }

@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Models\CheckoutSession;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutSessionMiddleware
@@ -14,7 +13,7 @@ class CheckoutSessionMiddleware
     {
         $publicToken = $request->route('token');
 
-        if (!$publicToken) {
+        if (! $publicToken) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid checkout session',
@@ -23,7 +22,7 @@ class CheckoutSessionMiddleware
 
         $checkoutSession = CheckoutSession::validatePublicToken($publicToken);
 
-        if (!$checkoutSession) {
+        if (! $checkoutSession) {
             return response()->json([
                 'success' => false,
                 'message' => 'Checkout session invalid or expired',

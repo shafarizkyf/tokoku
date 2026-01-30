@@ -2,15 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\User;
-use Illuminate\Container\Attributes\Log;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log as FacadesLog;
+use Tests\TestCase;
 
 class CartTest extends TestCase
 {
@@ -27,14 +26,14 @@ class CartTest extends TestCase
             'product_id' => $product->id,
             'price' => 10000,
             'discount_price' => 8000,
-            'weight' => 500
+            'weight' => 500,
         ]);
 
         $variation2 = ProductVariation::create([
             'product_id' => $product->id,
             'price' => 20000,
             'discount_price' => null,
-            'weight' => 1000
+            'weight' => 1000,
         ]);
 
         CartItem::create([
@@ -43,7 +42,7 @@ class CartTest extends TestCase
             'product_variation_id' => $variation1->id,
             'quantity' => 2,
             'price_at_time' => 10000,
-            'price_discount_at_time' => 8000
+            'price_discount_at_time' => 8000,
         ]);
 
         CartItem::create([
@@ -52,7 +51,7 @@ class CartTest extends TestCase
             'product_variation_id' => $variation2->id,
             'quantity' => 1,
             'price_at_time' => 20000,
-            'price_discount_at_time' => null
+            'price_discount_at_time' => null,
         ]);
 
         $result = Cart::calculateWeightAndValue($user->id);
@@ -64,7 +63,8 @@ class CartTest extends TestCase
         $this->assertEquals(36000, $result['package_value']);
     }
 
-    public function test_calculate_weight_and_value_returns_zero_for_empty_cart() {
+    public function test_calculate_weight_and_value_returns_zero_for_empty_cart()
+    {
         $user = User::factory()->create();
         Cart::create(['user_id' => $user->id]);
         $result = Cart::calculateWeightAndValue($user->id);
@@ -72,7 +72,8 @@ class CartTest extends TestCase
         $this->assertEquals(0, $result['package_value']);
     }
 
-    public function test_calculate_weight_and_value_handles_missing_product_variation() {
+    public function test_calculate_weight_and_value_handles_missing_product_variation()
+    {
         $user = User::factory()->create();
         $cart = Cart::create(['user_id' => $user->id]);
 
@@ -95,7 +96,7 @@ class CartTest extends TestCase
             'product_variation_id' => $variationId,
             'quantity' => 2,
             'price_at_time' => $price,
-            'price_discount_at_time' => null
+            'price_discount_at_time' => null,
         ]);
 
         $result = Cart::calculateWeightAndValue($user->id);

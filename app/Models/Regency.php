@@ -7,24 +7,25 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
 
 #[ScopedBy([OrderByName::class])]
-class Regency extends Model {
+class Regency extends Model
+{
+    protected $table = 'reg_regencies';
 
-  protected $table = 'reg_regencies';
+    protected $fillable = [
+        'id',
+        'province_id',
+        'name',
+    ];
 
-  protected $fillable = [
-    'id',
-    'province_id',
-    'name',
-  ];
+    public $timestamps = false;
 
-  public $timestamps = false;
+    public function districts()
+    {
+        return $this->hasMany(District::class);
+    }
 
-  public function districts() {
-    return $this->hasMany(District::class);
-  }
-
-  public function province() {
-    return $this->belongsTo(Province::class);
-  }
-
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
 }

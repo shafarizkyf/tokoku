@@ -46,7 +46,7 @@ class LiveStreamViewer extends Model
      */
     public function calculateDuration(): int
     {
-        if (!$this->left_at) {
+        if (! $this->left_at) {
             return now()->diffInSeconds($this->joined_at);
         }
 

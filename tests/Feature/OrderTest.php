@@ -26,11 +26,17 @@ class OrderTest extends TestCase
     use RefreshDatabase;
 
     private $user;
+
     private $product;
+
     private $variation;
+
     private $province;
+
     private $regency;
+
     private $district;
+
     private $village;
 
     protected function setUp(): void
@@ -70,12 +76,12 @@ class OrderTest extends TestCase
             'stock' => 10,
             'weight' => 500,
         ]);
-        
+
         $attribute = VariationAttribute::create(['name' => 'Color']);
         $option = VariationOption::create(['variation_attribute_id' => $attribute->id, 'value' => 'Red']);
         ProductVariationOption::create([
             'product_variation_id' => $this->variation->id,
-            'variation_option_id' => $option->id
+            'variation_option_id' => $option->id,
         ]);
 
         // Setup Locations
@@ -93,8 +99,8 @@ class OrderTest extends TestCase
             '*/tariff/api/v1/destination/search*' => Http::response([
                 'status' => true,
                 'data' => [
-                    ['id' => 123, 'label' => 'Test Destination']
-                ]
+                    ['id' => 123, 'label' => 'Test Destination'],
+                ],
             ], 200),
             // Komerce calculate
             '*/tariff/api/v1/calculate*' => Http::response([
@@ -105,16 +111,16 @@ class OrderTest extends TestCase
                             'shipping_name' => 'JNE',
                             'service_name' => 'REG',
                             'shipping_cost' => 10000,
-                            'etd' => '1-2 Days'
-                        ]
-                    ]
-                ]
+                            'etd' => '1-2 Days',
+                        ],
+                    ],
+                ],
             ], 200),
             // Tripay
             '*/transaction/create' => Http::response([
                 'success' => true,
                 'message' => 'Success',
-                'data' => ['reference' => 'REF123', 'total_fee' => 1000]
+                'data' => ['reference' => 'REF123', 'total_fee' => 1000],
             ], 200),
             // WhatsApp
             '*/messages' => Http::response(['success' => true], 200),
@@ -134,8 +140,8 @@ class OrderTest extends TestCase
             'items' => [
                 [
                     'product_variation_id' => $this->variation->id,
-                    'quantity' => 1
-                ]
+                    'quantity' => 1,
+                ],
             ],
             'payment_method' => 'MY_PAYMENT',
             'shipping' => [
@@ -147,12 +153,12 @@ class OrderTest extends TestCase
                 'district_id' => $this->district->id,
                 'village_id' => $this->village->id,
                 'postal_code' => '12345',
-                'note' => 'Test Note'
+                'note' => 'Test Note',
             ],
             'delivery' => [
                 'shipping_name' => 'SICEPAT',
-                'service_name' => 'REG'
-            ]
+                'service_name' => 'REG',
+            ],
         ];
 
         $response = $this->postJson('/api/orders', $payload);
@@ -168,7 +174,7 @@ class OrderTest extends TestCase
         // Stock should decrease
         $this->assertDatabaseHas('product_variations', [
             'id' => $this->variation->id,
-            'stock' => 9
+            'stock' => 9,
         ]);
 
         // Cart should be empty
@@ -178,17 +184,17 @@ class OrderTest extends TestCase
     public function test_create_order_failed_if_no_stock()
     {
         $this->variation->update(['stock' => 0]);
-        
+
         $payload = [
             'items' => [
                 [
                     'product_variation_id' => $this->variation->id,
-                    'quantity' => 1
-                ]
+                    'quantity' => 1,
+                ],
             ],
             // other fields not validated yet because stock check fails in array validation rules
             // but for completeness we add structure
-             'payment_method' => 'MY_PAYMENT',
+            'payment_method' => 'MY_PAYMENT',
             'shipping' => [
                 'receiver_name' => 'John Doe',
                 'phone_number' => '08123456789',
@@ -201,12 +207,12 @@ class OrderTest extends TestCase
             ],
             'delivery' => [
                 'shipping_name' => 'JNE',
-                'service_name' => 'REG'
-            ]
+                'service_name' => 'REG',
+            ],
         ];
-        
+
         $response = $this->postJson('/api/orders', $payload);
-        
+
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['items.0.quantity']);
     }
@@ -238,8 +244,8 @@ class OrderTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    '*' => ['id', 'code', 'grand_total', 'status']
-                ]
+                    '*' => ['id', 'code', 'grand_total', 'status'],
+                ],
             ]);
     }
 
@@ -265,19 +271,19 @@ class OrderTest extends TestCase
             'postal_code' => 12345,
             'payment_response' => json_encode([
                 'data' => [
-                    'total_fee' => 0
-                ]
-            ])
+                    'total_fee' => 0,
+                ],
+            ]),
         ]);
 
         $response = $this->patchJson("/api/orders/{$order->id}/cancel");
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
-            
+
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
-            'status' => 'cancelled'
+            'status' => 'cancelled',
         ]);
     }
 
@@ -307,12 +313,13 @@ class OrderTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson(['success' => false]);
-            
+
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
-            'status' => 'shipped'
+            'status' => 'shipped',
         ]);
     }
+
     public function test_order_fails_with_insufficient_stock()
     {
         $user = User::factory()->create();
@@ -329,8 +336,8 @@ class OrderTest extends TestCase
             'items' => [
                 [
                     'product_variation_id' => $variation->id,
-                    'quantity' => 2
-                ]
+                    'quantity' => 2,
+                ],
             ],
             'payment_method' => 'BNIVA',
             'shipping' => [
@@ -347,7 +354,7 @@ class OrderTest extends TestCase
             'delivery' => [
                 'shipping_name' => 'JNE',
                 'service_name' => 'JNEReg',
-            ]
+            ],
         ];
 
         $response = $this->postJson('/api/orders', $payload);

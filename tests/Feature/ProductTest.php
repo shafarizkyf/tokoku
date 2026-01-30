@@ -7,7 +7,6 @@ use App\Models\ProductVariation;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -16,7 +15,9 @@ class ProductTest extends TestCase
     use RefreshDatabase;
 
     private $admin;
+
     private $user;
+
     private $shop;
 
     protected function setUp(): void
@@ -65,8 +66,8 @@ class ProductTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    '*' => ['id', 'name', 'slug']
-                ]
+                    '*' => ['id', 'name', 'slug'],
+                ],
             ]);
     }
 
@@ -122,7 +123,7 @@ class ProductTest extends TestCase
         $response = $this->postJson('/api/products', $payload);
 
         $response->assertStatus(200)
-             ->assertJson(['success' => true]);
+            ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('products', ['name' => 'New Product']);
         // Verify implicit variation creation
@@ -144,16 +145,16 @@ class ProductTest extends TestCase
                     'stock' => 10,
                     'weight' => 200,
                     'attributes' => [
-                        ['Color' => 'Red']
-                    ]
-                ]
-            ]
+                        ['Color' => 'Red'],
+                    ],
+                ],
+            ],
         ];
 
         $response = $this->postJson('/api/products', $payload);
 
         $response->assertStatus(200)
-             ->assertJson(['success' => true]);
+            ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('products', ['name' => 'Varied Product']);
         $this->assertDatabaseHas('product_variations', ['sku' => 'VAR-1']);
@@ -163,7 +164,7 @@ class ProductTest extends TestCase
 
     public function test_non_admin_cannot_create_product()
     {
-        Sanctum::actingAs($this->user, ['user']); 
+        Sanctum::actingAs($this->user, ['user']);
 
         $payload = [
             'name' => 'Unauthorized Product',
@@ -178,7 +179,7 @@ class ProductTest extends TestCase
 
         $response->assertStatus(403);
     }
-    
+
     public function test_create_product_validation()
     {
         Sanctum::actingAs($this->admin, ['admin']);
@@ -202,13 +203,13 @@ class ProductTest extends TestCase
             'slug' => 'old-name',
             'is_active' => true,
         ]);
-        
-        // Ensure variation exists 
+
+        // Ensure variation exists
         ProductVariation::create([
-             'product_id' => $product->id,
-             'sku' => 'old-name',
-             'price' => 10000,
-             'stock' => 10
+            'product_id' => $product->id,
+            'sku' => 'old-name',
+            'price' => 10000,
+            'stock' => 10,
         ]);
 
         $payload = [
@@ -223,7 +224,7 @@ class ProductTest extends TestCase
         $response = $this->patchJson("/api/products/{$product->id}", $payload);
 
         $response->assertStatus(200)
-             ->assertJson(['success' => true]);
+            ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('products', ['name' => 'Updated Name']);
     }
@@ -246,7 +247,7 @@ class ProductTest extends TestCase
         ]);
 
         $response = $this->patchJson("/api/products/{$product->id}/toggle-active", [
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         $response->assertStatus(200);
@@ -271,7 +272,7 @@ class ProductTest extends TestCase
         ]);
 
         $response = $this->patchJson("/api/products/{$product->id}/toggle-active", [
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response->assertStatus(400);
@@ -289,26 +290,26 @@ class ProductTest extends TestCase
             'slug' => 'delete-product',
             'is_active' => true,
         ]);
-        
+
         ProductVariation::create([
-             'product_id' => $product->id,
-             'sku' => 'delete-product',
-             'price' => 10000,
-             'stock' => 10
+            'product_id' => $product->id,
+            'sku' => 'delete-product',
+            'price' => 10000,
+            'stock' => 10,
         ]);
 
         $response = $this->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(200)
-             ->assertJson(['success' => true]);
-             
+            ->assertJson(['success' => true]);
+
         // Product uses SoftDeletes
         $this->assertSoftDeleted('products', ['id' => $product->id]);
     }
 
     public function test_cannot_view_non_existent_product()
     {
-        $response = $this->getJson("/api/products/99999");
+        $response = $this->getJson('/api/products/99999');
         $response->assertStatus(404);
     }
 
@@ -328,7 +329,7 @@ class ProductTest extends TestCase
             'product_id' => $product1->id,
             'sku' => 'DP-1',
             'price' => 100000,
-            'stock' => 10
+            'stock' => 10,
         ]);
 
         $product2 = Product::create([
@@ -342,14 +343,14 @@ class ProductTest extends TestCase
             'product_id' => $product2->id,
             'sku' => 'DP-2',
             'price' => 200000,
-            'stock' => 10
+            'stock' => 10,
         ]);
 
         // Apply 20% discount
         $payload = [
             'product_ids' => [$product1->id, $product2->id],
             'discount_type' => 'percentage',
-            'discount_value' => 20
+            'discount_value' => 20,
         ];
 
         $response = $this->postJson('/api/products/bulk-discount', $payload);
@@ -360,11 +361,11 @@ class ProductTest extends TestCase
         // Verify databases
         $this->assertDatabaseHas('product_variations', [
             'id' => $variation1->id,
-            'discount_price' => 80000 // 100k - 20%
+            'discount_price' => 80000, // 100k - 20%
         ]);
         $this->assertDatabaseHas('product_variations', [
             'id' => $variation2->id,
-            'discount_price' => 160000 // 200k - 20%
+            'discount_price' => 160000, // 200k - 20%
         ]);
     }
 }

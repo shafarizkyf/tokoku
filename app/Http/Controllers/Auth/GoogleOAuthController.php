@@ -9,47 +9,50 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
-class GoogleOAuthController extends Controller {
+class GoogleOAuthController extends Controller
+{
+    public function redirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
 
-  public function redirect(){
-    return Socialite::driver('google')->redirect();
-  }
+    public function callback()
+    {
+        $googleUser = Socialite::driver('google')->user();
 
-  public function callback(){
-    $googleUser = Socialite::driver('google')->user();
+        Log::channel('oauth')->info('google: ', [$googleUser]);
 
-    Log::channel('oauth')->info('google: ', [$googleUser]);
+        DB::transaction(function () use ($googleUser) {
+            $user = User::updateOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName(),
+                    'email_verified_at' => now(),
+                    'provider' => 'google',
+                ]
+            );
 
-    DB::transaction(function () use ($googleUser) {
-      $user = User::updateOrCreate(
-        ['email' => $googleUser->getEmail()],
-        [
-          'name' => $googleUser->getName(),
-          'email_verified_at' => now(),
-          'provider' => 'google',
-        ]
-      );
+            $adminExists = User::where('user_type', 'admin')
+                ->lockForUpdate()
+                ->exists();
 
-      $adminExists = User::where('user_type', 'admin')
-        ->lockForUpdate()
-        ->exists();
+            if (! $adminExists) {
+                $user->update(['user_type' => 'admin']);
+            }
+        });
 
-      if (!$adminExists) {
-        $user->update(['user_type' => 'admin']);
-      }
-    });
+        $user = User::where('email', $googleUser->getEmail())->first();
+        Auth::login($user);
+        $user->tokens()->delete();
+        $token = $user->createToken('api', [$user->user_type]);
+        session()->put('token', $token->plainTextToken);
 
-    $user = User::where('email', $googleUser->getEmail())->first();
-    Auth::login($user);
-    $user->tokens()->delete();
-    $token = $user->createToken('api', [$user->user_type]);
-    session()->put('token', $token->plainTextToken);
-    return redirect('/');
-  }
+        return redirect('/');
+    }
 
-  // google oauth for web administrator, enabling gmail api
-  public function adminCallback() {
-    return request()->all();
-  }
-
+    // google oauth for web administrator, enabling gmail api
+    public function adminCallback()
+    {
+        return request()->all();
+    }
 }

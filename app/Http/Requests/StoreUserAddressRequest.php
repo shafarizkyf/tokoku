@@ -31,7 +31,7 @@ class StoreUserAddressRequest extends FormRequest
             'district_id' => 'required',
             'village_id' => 'required',
             'postal_code' => 'required|digits:5',
-            'note' => 'nullable|max:150'
+            'note' => 'nullable|max:150',
         ];
     }
 }

@@ -44,6 +44,7 @@ class CheckoutSessionItem extends Model
     public function getSubtotalAttribute(): int
     {
         $price = $this->price_discount_at_time ? $this->price_discount_at_time : $this->price_at_time;
+
         return $price * $this->quantity;
     }
 }
