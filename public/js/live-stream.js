@@ -191,6 +191,7 @@ class LiveStreamUI {
         token = joinData?.data?.agora?.token || null;
         const streamData = joinData?.data?.stream || {};
         this.currentStream.token = token;
+        this.currentStream.session_id = joinData?.data?.session_id || null;
 
         if (streamData.products) {
           this.renderProducts(streamData.products);
@@ -293,13 +294,8 @@ class LiveStreamUI {
     this.disconnectChat();
 
     try {
-      await fetch(`/api/live-streams/${this.currentStream.id}/leave`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({})
+      await $.post(`/api/live-streams/${this.currentStream.id}/leave`, {
+        session_id: this.currentStream.session_id
       });
     } catch (e) {
       console.error('Error leaving stream:', e);
