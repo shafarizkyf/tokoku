@@ -6,6 +6,21 @@ Dengan TokoKu, pelaku usaha:
 - Memiliki kontrol penuh atas infrastruktur dan data, karena aplikasi dijalankan di server milik sendiri.
 - Dapat mengurangi biaya tambahan yang biasanya muncul saat berjualan melalui platform e-commerce.
 
+## Quick Start
+### Linux or Mac
+```bash
+git clone https://github.com/shafarizkyf/tokoku.git
+cd tokoku
+./scripts/setup.sh
+```
+
+### Windows
+```bash
+git clone https://github.com/shafarizkyf/tokoku.git
+cd tokoku
+./scripts/setup.ps1
+```
+
 ### Perbandingan Biaya: Marketplace vs Self-Hosted (TokoKu)
 
 Salah satu alasan utama menggunakan TokoKu (self-hosted) adalah efisiensi biaya jangka panjang. Berikut perbandingan biaya antara berjualan di Tokopedia / Shopee dibandingkan dengan TokoKu. **(simulasi dibuat oleh AI)**
@@ -109,7 +124,7 @@ Biaya aktual dapat berubah sesuai kategori produk, promo, dan kebijakan platform
 - Migrasi Database: `docker exec -it tokoku_app php artisan migrate --seed`
 - Buka webapp di: `host:7890`
 - Buka phpmyadmin di: `host:8081`
-- Login, lalu akses database, buka table `users` ubah `user_type` menjadi `admin` untuk pengguna yang diinginkan. Logout. Login Kembali
+- Login, user pertama akan secara otomatis menjadi Admin
 
 
 ### Troubleshoot
