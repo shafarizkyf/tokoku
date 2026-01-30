@@ -12,9 +12,11 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CheckoutSessionController;
 use App\Http\Middleware\EnsureUserTypeIsValid;
 use App\Http\Controllers\LiveStreamHostController;
+use App\Http\Controllers\IntegrationStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', [HomepageController::class, 'index']);
+Route::get('integration-status', [IntegrationStatusController::class, 'index']);
 Route::get('search', [HomepageController::class, 'search']);
 
 Route::prefix('auth')->group(function(){

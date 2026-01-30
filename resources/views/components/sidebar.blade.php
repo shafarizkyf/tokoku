@@ -40,6 +40,7 @@
       <strong>{{ $user->name }}</strong>
     </a>
     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+      <li><a class="dropdown-item" href="/integration-status">Cek Integrasi</a></li>
       <li><a class="dropdown-item" href="{{ route('logout') }}">Logout</a></li>
     </ul>
   </div>

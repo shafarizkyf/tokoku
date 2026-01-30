@@ -36,6 +36,14 @@
     @endif
 </head>
 
+@if (false)
+<div class="dev-banner py-1 text-center">
+    <div class="dev-banner-text">
+        ⚠️ DEVELOPMENT MODE - This site is still in development and using test mode ⚠️
+    </div>
+</div>
+@endif
+
 <body>
     @if (isset($type) && $type == 'admin')
         <main class="d-flex">
