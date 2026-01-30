@@ -40,7 +40,7 @@ jobs:
 
       - name: Run Pint (check only)
         run: |
-          pint
+          vendor/bin/pint
           if ! git diff --quiet; then
             echo "::error::Pint found formatting issues. Run ./vendor/bin/pint locally."
             exit 1
