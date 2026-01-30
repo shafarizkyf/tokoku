@@ -9,7 +9,8 @@ class Komerce
 {
     public $komerce;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->komerce = Http::baseUrl(env('KOMERCE_URL', 'https://api-sandbox.collaborator.komerce.id'))
             ->withHeader('x-api-key', env('KOMERCE_SHIPPING_DELIVERY_KEY'));
     }
