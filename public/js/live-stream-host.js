@@ -19,6 +19,10 @@ class LiveStreamHost {
             cameras: [],
             microphones: []
         };
+        this.chatMessages = [];
+        this.ably = null;
+        this.ablyChannel = null;
+        this.isAblyConnected = false;
         this.beforeUnloadHandler = this.beforeUnloadHandler.bind(this);
     }
 
@@ -289,6 +293,9 @@ class LiveStreamHost {
             // Show active stream section
             this.showActiveStream();
 
+            // Connect to chat
+            this.connectToChatChannel();
+
             // Start tracking
             this.startTracking();
 
@@ -406,6 +413,9 @@ class LiveStreamHost {
 
             // Leave Agora channel
             await this.leaveChannel();
+
+            // Disconnect from chat
+            this.disconnectFromChat();
 
             // Stop tracking
             this.stopTracking();
@@ -592,6 +602,153 @@ class LiveStreamHost {
         // This would check if the user has an active stream
         // For now, we'll skip this
     }
+
+    /**
+     * Initialize Ably connection for chat
+     */
+    async initAbly() {
+        if (typeof Ably === 'undefined') {
+            console.error('Ably library not loaded. Please include Ably.js in your HTML.');
+            return false;
+        }
+
+        if (this.ably && this.isAblyConnected) {
+            return true;
+        }
+
+        try {
+            this.ably = new Ably.Realtime({
+                authUrl: `/api/live-streams/ably/token?live_stream_id=${this.currentStream.id}`,
+                queryTime: true
+            });
+
+            this.ably.connection.on('connected', () => {
+                console.log('Ably connected successfully');
+                this.isAblyConnected = true;
+            });
+
+            this.ably.connection.on('disconnected', () => {
+                console.log('Ably disconnected');
+                this.isAblyConnected = false;
+            });
+
+            this.ably.connection.on('failed', (err) => {
+                console.error('Ably connection failed:', err);
+                this.isAblyConnected = false;
+            });
+
+            return new Promise((resolve) => {
+                const timeout = setTimeout(() => {
+                    resolve(this.ably.connection.state === 'connected');
+                }, 5000);
+
+                if (this.ably.connection.state === 'connected') {
+                    clearTimeout(timeout);
+                    this.isAblyConnected = true;
+                    resolve(true);
+                }
+            });
+        } catch (e) {
+            console.error('Failed to initialize Ably:', e);
+            return false;
+        }
+    }
+
+    /**
+     * Connect to chat channel
+     */
+    async connectToChatChannel() {
+        if (!this.currentStream) return;
+
+        try {
+            await this.initAbly();
+
+            const channelName = `live-stream:${this.currentStream.id}`;
+            this.ablyChannel = this.ably.channels.get(channelName);
+
+            this.ablyChannel.subscribe('message', (message) => {
+                this.addChatMessage(message.data.username, message.data.message);
+                this.chatMessages.push({
+                    id: message.data.id,
+                    username: message.data.username,
+                    message: message.data.message,
+                    timestamp: new Date(message.data.created_at).getTime()
+                });
+            });
+
+            this.ablyChannel.subscribe('system', (message) => {
+                this.addChatMessage('System', message.data.message, true);
+            });
+
+            console.log('Subscribed to chat channel:', channelName);
+        } catch (e) {
+            console.error('Failed to connect to chat channel:', e);
+        }
+    }
+
+    /**
+     * Disconnect from chat channel
+     */
+    disconnectFromChat() {
+        if (this.ablyChannel) {
+            this.ablyChannel.unsubscribe();
+            this.ablyChannel = null;
+        }
+
+        if (this.ably) {
+            this.ably.close();
+            this.ably = null;
+            this.isAblyConnected = false;
+        }
+    }
+
+    /**
+     * Add chat message to UI
+     */
+    addChatMessage(username, message, isSystem = false) {
+        const chatContainer = document.getElementById('chat-messages');
+        if (!chatContainer) return;
+
+        const messageEl = document.createElement('div');
+        messageEl.className = 'chat-message mb-2';
+        if (isSystem) messageEl.classList.add('text-muted', 'fst-italic');
+
+        messageEl.innerHTML = `
+            <strong>${username}:</strong> ${this.escapeHtml(message)}
+        `;
+
+        chatContainer.appendChild(messageEl);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Send chat message
+     */
+    async sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        if (!input || !input.value.trim() || !this.currentStream) return;
+
+        const message = input.value.trim();
+        input.value = '';
+
+        try {
+            await $.post(`/api/live-streams/${this.currentStream.id}/messages`, {
+                message
+            });
+        } catch (e) {
+            console.error('Error sending message:', e);
+            this.addChatMessage('You', message);
+        }
+    }
 }
 
 // Initialize when DOM is ready
@@ -600,6 +757,16 @@ let hostStream;
 document.addEventListener('DOMContentLoaded', async function () {
     hostStream = new LiveStreamHost();
     await hostStream.init();
+
+    // Setup chat input handler
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                hostStream.sendChatMessage();
+            }
+        });
+    }
 });
 
 // Export for global access
