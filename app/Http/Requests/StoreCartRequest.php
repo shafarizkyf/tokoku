@@ -25,7 +25,7 @@ class StoreCartRequest extends FormRequest
         return [
             'product_id' => 'required',
             'product_variation_id' => 'required',
-            'quantity' => 'required|min:1'
+            'quantity' => 'required|min:1',
         ];
     }
 }

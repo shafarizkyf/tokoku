@@ -14,26 +14,27 @@ trait PostalCodeHelper
             'kodepos' => $village->name,
         ]);
 
-        if (!$response->successful()) {
-            Log::error('postalCode: ' . $response->body());
+        if (! $response->successful()) {
+            Log::error('postalCode: '.$response->body());
+
             return [];
         }
 
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         libxml_use_internal_errors(true);
         $dom->loadHTML($response->body());
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
-        $rows = $xpath->query("//tbody/tr");
+        $rows = $xpath->query('//tbody/tr');
 
         $results = [];
         foreach ($rows as $row) {
-            if (!($row instanceof \DOMElement)) {
+            if (! ($row instanceof \DOMElement)) {
                 continue;
             }
 
-            $cols = $row->getElementsByTagName("td");
+            $cols = $row->getElementsByTagName('td');
             $td = [];
             foreach ($cols as $col) {
                 $td[] = trim($col->textContent);

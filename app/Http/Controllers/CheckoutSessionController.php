@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CheckoutSession;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 
 class CheckoutSessionController extends Controller
 {
@@ -12,7 +10,7 @@ class CheckoutSessionController extends Controller
     {
         $session = CheckoutSession::findBySessionId($sessionId);
 
-        if (!$session) {
+        if (! $session) {
             return redirect('/')->with('error', 'Sesi checkout tidak valid atau sudah kedaluwarsa');
         }
 

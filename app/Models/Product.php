@@ -11,84 +11,92 @@ use Illuminate\Support\Facades\Cache;
 use Laravel\Scout\Searchable;
 
 #[ScopedBy([ProductActive::class])]
-class Product extends Model {
+class Product extends Model
+{
+    use HasFactory, Searchable, SoftDeletes;
 
-  use Searchable, SoftDeletes, HasFactory;
-
-  protected $fillable = [
-    'store_id',
-    'name',
-    'slug',
-    'review_avg',
-    'sold_count',
-    'created_by',
-    'source',
-    'is_active'
-  ];
-
-  protected $hidden = [
-    'source',
-    'deleted_at'
-  ];
-
-  protected static function booted(): void {
-    static::created(function(Product $product){
-      Cache::tags(['products'])->flush();
-    });
-
-    static::saved(function(Product $product){
-      Cache::tags(['products'])->flush();
-    });
-
-    static::updated(function(Product $product){
-      Cache::tags(['products'])->flush();
-      if (!$product->is_active) {
-        CartItem::whereProductId($product->id)->delete();
-        Cache::tags(['cartItems'])->flush();
-      }
-    });
-  }
-
-  public function toSearchableArray() {
-    return [
-      'id' => $this->id,
-      'name' => $this->name,
-      'slug' => $this->slug,
-      'description' => strip_tags($this->description), // Optional, but useful for full text search
-      'condition' => $this->condition,
-      'review_avg' => $this->review_avg,
-      'review_count' => $this->review_count,
-      'sold_count' => $this->sold_count,
+    protected $fillable = [
+        'store_id',
+        'name',
+        'slug',
+        'review_avg',
+        'sold_count',
+        'created_by',
+        'source',
+        'is_active',
     ];
-  }
 
-  public function getDescriptionAttribute($value) {
-    return strip_tags($value);
-  }
+    protected $hidden = [
+        'source',
+        'deleted_at',
+    ];
 
-  public function cheapestVariation() {
-    return $this->hasOne(ProductVariation::class)
-      ->ofMany('price', 'min');
-  }
+    protected static function booted(): void
+    {
+        static::created(function (Product $product) {
+            Cache::tags(['products'])->flush();
+        });
 
-  public function image() {
-    return $this->hasOne(ProductImage::class);
-  }
+        static::saved(function (Product $product) {
+            Cache::tags(['products'])->flush();
+        });
 
-  public function images() {
-    return $this->hasMany(ProductImage::class);
-  }
+        static::updated(function (Product $product) {
+            Cache::tags(['products'])->flush();
+            if (! $product->is_active) {
+                CartItem::whereProductId($product->id)->delete();
+                Cache::tags(['cartItems'])->flush();
+            }
+        });
+    }
 
-  public function variations() {
-    return $this->hasMany(ProductVariation::class);
-  }
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => strip_tags($this->description), // Optional, but useful for full text search
+            'condition' => $this->condition,
+            'review_avg' => $this->review_avg,
+            'review_count' => $this->review_count,
+            'sold_count' => $this->sold_count,
+        ];
+    }
 
-  public function variation() {
-    return $this->hasOne(ProductVariation::class)->orderBy('price');
-  }
+    public function getDescriptionAttribute($value)
+    {
+        return strip_tags($value);
+    }
 
-  public function scopeSearch($query, $value) {
-    return $query->where('name', 'like', "%{$value}%");
-  }
+    public function cheapestVariation()
+    {
+        return $this->hasOne(ProductVariation::class)
+            ->ofMany('price', 'min');
+    }
 
+    public function image()
+    {
+        return $this->hasOne(ProductImage::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function variations()
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
+    public function variation()
+    {
+        return $this->hasOne(ProductVariation::class)->orderBy('price');
+    }
+
+    public function scopeSearch($query, $value)
+    {
+        return $query->where('name', 'like', "%{$value}%");
+    }
 }

@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
-use Illuminate\Http\Request;
 
-class HomepageController extends Controller {
+class HomepageController extends Controller
+{
+    public function index()
+    {
+        $banners = Banner::take(10)->latest()->get();
 
-  public function index() {
-    $banners = Banner::take(10)->latest()->get();
-    return view('homepage.index', compact('banners'));
-  }
+        return view('homepage.index', compact('banners'));
+    }
 
-  public function search() {
-    $keyword = request('q', '');
-    return view('homepage.search', compact('keyword'));
-  }
+    public function search()
+    {
+        $keyword = request('q', '');
 
+        return view('homepage.search', compact('keyword'));
+    }
 }

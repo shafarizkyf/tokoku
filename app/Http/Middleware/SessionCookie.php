@@ -16,8 +16,9 @@ class SessionCookie
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!request()->hasCookie('session_id')) {
+        if (! request()->hasCookie('session_id')) {
             $uuid = Str::uuid()->toString();
+
             return $next($request)->cookie('session_id', $uuid, 60 * 24);
         }
 

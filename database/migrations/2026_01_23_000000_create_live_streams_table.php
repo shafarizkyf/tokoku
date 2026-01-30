@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('viewer_count')->default(0);
             $table->integer('peak_viewer_count')->default(0);
             $table->timestamps();
-            
+
             $table->index('status');
             $table->index('started_at');
         });
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->timestamp('left_at')->nullable();
             $table->integer('watch_duration')->default(0); // in seconds
             $table->timestamps();
-            
+
             $table->index(['live_stream_id', 'session_id']);
         });
 
@@ -52,7 +52,7 @@ return new class extends Migration
             $table->boolean('is_pinned')->default(false);
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-            
+
             $table->index('live_stream_id');
             $table->index('created_at');
         });
@@ -64,7 +64,7 @@ return new class extends Migration
             $table->integer('display_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
-            
+
             $table->unique(['live_stream_id', 'product_id']);
         });
     }

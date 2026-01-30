@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Models\VariationAttribute;
 use App\Models\VariationOption;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -20,7 +19,9 @@ class CartTest extends TestCase
     use RefreshDatabase;
 
     private $user;
+
     private $product;
+
     private $variation;
 
     protected function setUp(): void
@@ -31,7 +32,7 @@ class CartTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
-            'provider' => 'google'
+            'provider' => 'google',
         ]);
         Sanctum::actingAs($this->user);
 
@@ -55,7 +56,7 @@ class CartTest extends TestCase
         $option = VariationOption::create(['variation_attribute_id' => $attribute->id, 'value' => 'Red']);
         ProductVariationOption::create([
             'product_variation_id' => $this->variation->id,
-            'variation_option_id' => $option->id
+            'variation_option_id' => $option->id,
         ]);
     }
 
@@ -79,8 +80,8 @@ class CartTest extends TestCase
                     'product_name',
                     'quantity',
                     'price',
-                    'subtotal'
-                ]
+                    'subtotal',
+                ],
             ]);
 
         $this->assertEquals(2, $response->json()[0]['quantity']);
@@ -91,7 +92,7 @@ class CartTest extends TestCase
         $payload = [
             'product_id' => $this->product->id,
             'product_variation_id' => $this->variation->id,
-            'quantity' => 2
+            'quantity' => 2,
         ];
 
         $response = $this->postJson('/api/carts', $payload);
@@ -102,7 +103,7 @@ class CartTest extends TestCase
         $this->assertDatabaseHas('cart_items', [
             'product_id' => $this->product->id,
             'product_variation_id' => $this->variation->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
     }
 
@@ -111,7 +112,7 @@ class CartTest extends TestCase
         $payload = [
             'product_id' => $this->product->id,
             'product_variation_id' => $this->variation->id,
-            'quantity' => 100 // Exceeds stock of 10
+            'quantity' => 100, // Exceeds stock of 10
         ];
 
         $response = $this->postJson('/api/carts', $payload);
@@ -132,14 +133,14 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->patchJson("/api/carts/items/{$cartItem->id}", [
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('cart_items', [
             'id' => $cartItem->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
     }
 
@@ -176,6 +177,6 @@ class CartTest extends TestCase
         $response = $this->getJson('/api/carts/count');
 
         $response->assertStatus(200)
-             ->assertJson(['items_count' => 1]); // 1 item type
+            ->assertJson(['items_count' => 1]); // 1 item type
     }
 }

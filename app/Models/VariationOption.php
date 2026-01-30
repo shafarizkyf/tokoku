@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class VariationOption extends Model {
+class VariationOption extends Model
+{
+    protected $fillable = [
+        'variation_attribute_id',
+        'value',
+    ];
 
-  protected $fillable = [
-    'variation_attribute_id',
-    'value'
-  ];
+    public $timestamps = false;
 
-  public $timestamps = false;
-
-  public function variationAttribute() {
-    return $this->belongsTo(VariationAttribute::class);
-  }
-
+    public function variationAttribute()
+    {
+        return $this->belongsTo(VariationAttribute::class);
+    }
 }

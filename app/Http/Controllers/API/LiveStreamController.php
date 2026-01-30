@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\LiveStream;
-use App\Models\LiveStreamViewer;
 use App\Models\LiveStreamMessage;
-use App\Services\AgoraTokenService;
+use App\Models\LiveStreamViewer;
 use App\Services\AblyTokenService;
+use App\Services\AgoraTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 class LiveStreamController extends Controller
 {
     protected AgoraTokenService $agoraService;
+
     protected AblyTokenService $ablyService;
 
     public function __construct(AgoraTokenService $agoraService, AblyTokenService $ablyService)
@@ -34,7 +35,7 @@ class LiveStreamController extends Controller
             ->live()
             ->first();
 
-        if (!$stream) {
+        if (! $stream) {
             return response()->json([
                 'success' => true,
                 'data' => null,
@@ -121,9 +122,9 @@ class LiveStreamController extends Controller
 
         $response = null;
 
-        DB::transaction(function () use ($validated, $request, &$response) {
+        DB::transaction(function () use ($validated, &$response) {
             // Generate unique channel name
-            $channelName = 'live-' . Str::random(16);
+            $channelName = 'live-'.Str::random(16);
 
             // Create live stream
             $stream = LiveStream::create([
@@ -136,7 +137,7 @@ class LiveStreamController extends Controller
             ]);
 
             // Attach products if provided
-            if (!empty($validated['product_ids'])) {
+            if (! empty($validated['product_ids'])) {
                 $products = [];
                 foreach ($validated['product_ids'] as $index => $productId) {
                     $products[$productId] = [
@@ -260,7 +261,7 @@ class LiveStreamController extends Controller
     {
         $sessionId = $request->input('session_id');
 
-        if (!$sessionId) {
+        if (! $sessionId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Session ID required',
@@ -375,7 +376,7 @@ class LiveStreamController extends Controller
 
         if ($liveStreamId) {
             $stream = LiveStream::find($liveStreamId);
-            if (!$stream) {
+            if (! $stream) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Live stream not found',
@@ -400,8 +401,8 @@ class LiveStreamController extends Controller
     }
 
     /**
-      * Get viewer statistics
-      */
+     * Get viewer statistics
+     */
     public function statistics($id)
     {
         $stream = LiveStream::findOrFail($id);

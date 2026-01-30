@@ -19,82 +19,82 @@ use App\Http\Controllers\API\TripayController;
 use App\Http\Controllers\API\UserAddressController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->group(function(){
-  Route::prefix('carts')->group(function(){
-    Route::get('', [CartController::class, 'index']);
-    Route::get('count', [CartController::class, 'count']);
-    Route::post('', [CartController::class, 'store']);
-    Route::patch('items/{cart_item}', [CartController::class, 'update']);
-    Route::delete('items/{cart_item}', [CartController::class, 'destroy']);
-  });
-
-  Route::prefix('orders')->group(function(){
-    Route::get('', [OrderController::class, 'index']);
-    Route::post('', [OrderController::class, 'store']);
-    Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber'])->middleware('ability:admin');
-    Route::patch('{order}/cancel', [OrderController::class, 'cancel']);
-  });
-
-  Route::prefix('payments')->group(function(){
-    Route::get('channels', [PaymentController::class, 'channels']);
-  });
-
-  Route::middleware('ability:admin')->group(function(){
-    Route::prefix('banners')->group(function(){
-      Route::post('', [BannerController::class, 'store']);
-      Route::patch('{banner}', [BannerController::class, 'update']);
-      Route::delete('{banner}', [BannerController::class, 'destroy']);
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('carts')->group(function () {
+        Route::get('', [CartController::class, 'index']);
+        Route::get('count', [CartController::class, 'count']);
+        Route::post('', [CartController::class, 'store']);
+        Route::patch('items/{cart_item}', [CartController::class, 'update']);
+        Route::delete('items/{cart_item}', [CartController::class, 'destroy']);
     });
 
-    Route::prefix('products')->group(function(){
-      Route::post('', [ProductController::class, 'store']);
-      Route::post('{product}/images', [ProductImageController::class, 'store']);
-      Route::patch('{productId}/toggle-active', [ProductController::class, 'toggleActive']);
-      Route::patch('{product}', [ProductController::class, 'update']);
-      Route::delete('{product}', [ProductController::class, 'destroy']);
-      Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
-      Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
-      Route::post('bulk-stock', [ProductController::class, 'bulkStock']);
+    Route::prefix('orders')->group(function () {
+        Route::get('', [OrderController::class, 'index']);
+        Route::post('', [OrderController::class, 'store']);
+        Route::patch('{order}/resi-number', [OrderController::class, 'updateResiNumber'])->middleware('ability:admin');
+        Route::patch('{order}/cancel', [OrderController::class, 'cancel']);
     });
 
-    Route::prefix('shop')->group(function(){
-      Route::get('settings', [ShopController::class, 'show']);
-      Route::post('settings', [ShopController::class, 'update']);
+    Route::prefix('payments')->group(function () {
+        Route::get('channels', [PaymentController::class, 'channels']);
     });
-  });
 
-  Route::prefix('region')->group(function(){
-    Route::get('provinces', [RegionController::class, 'provinces']);
-    Route::get('provinces/{province}/regencies', [RegionController::class, 'regencies']);
-    Route::get('provinces/{province}/regencies/{regency}/districts', [RegionController::class, 'districts']);
-    Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [RegionController::class, 'villages']);
-    Route::get('postal-code/{village}', [RegionController::class, 'postalCode']);
-  });
+    Route::middleware('ability:admin')->group(function () {
+        Route::prefix('banners')->group(function () {
+            Route::post('', [BannerController::class, 'store']);
+            Route::patch('{banner}', [BannerController::class, 'update']);
+            Route::delete('{banner}', [BannerController::class, 'destroy']);
+        });
 
-  Route::prefix('shipping')->group(function(){
-    Route::post('calculate', [ShippingController::class, 'calculate']);
-  });
+        Route::prefix('products')->group(function () {
+            Route::post('', [ProductController::class, 'store']);
+            Route::post('{product}/images', [ProductImageController::class, 'store']);
+            Route::patch('{productId}/toggle-active', [ProductController::class, 'toggleActive']);
+            Route::patch('{product}', [ProductController::class, 'update']);
+            Route::delete('{product}', [ProductController::class, 'destroy']);
+            Route::post('import', [ProductController::class, 'saveProductsFromJSON']);
+            Route::post('bulk-discount', [ProductController::class, 'bulkDiscount']);
+            Route::post('bulk-stock', [ProductController::class, 'bulkStock']);
+        });
 
-  Route::prefix('users')->group(function(){
-    Route::apiResource('addresses', UserAddressController::class);
-  });
+        Route::prefix('shop')->group(function () {
+            Route::get('settings', [ShopController::class, 'show']);
+            Route::post('settings', [ShopController::class, 'update']);
+        });
+    });
 
-  Route::prefix('live-streams')->group(function(){
-    Route::get('current', [LiveStreamController::class, 'currentActive']);
-    Route::get('history', [LiveStreamController::class, 'history']);
-    Route::post('', [LiveStreamController::class, 'start']);
-    Route::post('{id}/stop', [LiveStreamController::class, 'stop']);
-    Route::post('{id}/leave', [LiveStreamController::class, 'leave']);
-    Route::post('{id}/messages', [LiveStreamController::class, 'sendMessage']);
-    Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
-    Route::get('{id}/past', [LiveStreamController::class, 'past']);
-  });
+    Route::prefix('region')->group(function () {
+        Route::get('provinces', [RegionController::class, 'provinces']);
+        Route::get('provinces/{province}/regencies', [RegionController::class, 'regencies']);
+        Route::get('provinces/{province}/regencies/{regency}/districts', [RegionController::class, 'districts']);
+        Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [RegionController::class, 'villages']);
+        Route::get('postal-code/{village}', [RegionController::class, 'postalCode']);
+    });
+
+    Route::prefix('shipping')->group(function () {
+        Route::post('calculate', [ShippingController::class, 'calculate']);
+    });
+
+    Route::prefix('users')->group(function () {
+        Route::apiResource('addresses', UserAddressController::class);
+    });
+
+    Route::prefix('live-streams')->group(function () {
+        Route::get('current', [LiveStreamController::class, 'currentActive']);
+        Route::get('history', [LiveStreamController::class, 'history']);
+        Route::post('', [LiveStreamController::class, 'start']);
+        Route::post('{id}/stop', [LiveStreamController::class, 'stop']);
+        Route::post('{id}/leave', [LiveStreamController::class, 'leave']);
+        Route::post('{id}/messages', [LiveStreamController::class, 'sendMessage']);
+        Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
+        Route::get('{id}/past', [LiveStreamController::class, 'past']);
+    });
 });
 
-Route::prefix('products')->group(function(){
-  Route::get('', [ProductController::class, 'index']);
-  Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
-  Route::get('{product}', [ProductController::class, 'show']);
+Route::prefix('products')->group(function () {
+    Route::get('', [ProductController::class, 'index']);
+    Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
+    Route::get('{product}', [ProductController::class, 'show']);
 });
 
 Route::get('health', [HealthCheckController::class, 'index']);
@@ -104,13 +104,13 @@ Route::get('banners', [BannerController::class, 'index']);
 Route::get('search', [ProductController::class, 'search']);
 Route::get('search/all', [ProductController::class, 'searchAll']);
 
-Route::prefix('live-streams')->group(function(){
-  Route::get('active', [LiveStreamController::class, 'active']);
-  Route::post('{id}/join', [LiveStreamController::class, 'join']);
-  Route::get('{id}', [LiveStreamController::class, 'show']);
-  Route::get('{id}/messages', [LiveStreamController::class, 'messages']);
-  Route::get('{id}/statistics', [LiveStreamController::class, 'statistics']);
-  Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
+Route::prefix('live-streams')->group(function () {
+    Route::get('active', [LiveStreamController::class, 'active']);
+    Route::post('{id}/join', [LiveStreamController::class, 'join']);
+    Route::get('{id}', [LiveStreamController::class, 'show']);
+    Route::get('{id}/messages', [LiveStreamController::class, 'messages']);
+    Route::get('{id}/statistics', [LiveStreamController::class, 'statistics']);
+    Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
 });
 
 Route::post('tripay/callback', [TripayController::class, 'callback'])->name('tripay.callback');
@@ -118,25 +118,25 @@ Route::post('test/login/{user}', [AuthController::class, 'loginByUser']);
 
 Route::post('shipping/{sessionId}/calculate', [ShippingController::class, 'calculateForSessionCheckout']);
 
-Route::prefix('checkout')->group(function(){
-  Route::post('create/session', [CheckoutSessionItemController::class, 'init']);
-  Route::get('items', [CheckoutSessionItemController::class, 'index']);
-  Route::get('items/count', [CheckoutSessionItemController::class, 'count']);
-  Route::post('items', [CheckoutSessionItemController::class, 'store']);
-  Route::patch('items/{id}', [CheckoutSessionItemController::class, 'update']);
-  Route::delete('items/{id}', [CheckoutSessionItemController::class, 'destroy']);
-  Route::delete('items', [CheckoutSessionItemController::class, 'clear']);
-  Route::post('process', [CheckoutController::class, 'process']);
+Route::prefix('checkout')->group(function () {
+    Route::post('create/session', [CheckoutSessionItemController::class, 'init']);
+    Route::get('items', [CheckoutSessionItemController::class, 'index']);
+    Route::get('items/count', [CheckoutSessionItemController::class, 'count']);
+    Route::post('items', [CheckoutSessionItemController::class, 'store']);
+    Route::patch('items/{id}', [CheckoutSessionItemController::class, 'update']);
+    Route::delete('items/{id}', [CheckoutSessionItemController::class, 'destroy']);
+    Route::delete('items', [CheckoutSessionItemController::class, 'clear']);
+    Route::post('process', [CheckoutController::class, 'process']);
 });
 
-Route::prefix('checkout/{token}')->middleware(['checkout.session'])->group(function(){
-  Route::prefix('regions')->group(function(){
-    Route::get('provinces', [CheckoutScopedController::class, 'provinces']);
-    Route::get('provinces/{province}/regencies', [CheckoutScopedController::class, 'regencies']);
-    Route::get('provinces/{province}/regencies/{regency}/districts', [CheckoutScopedController::class, 'districts']);
-    Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [CheckoutScopedController::class, 'villages']);
-    Route::get('postal-code/{village}', [CheckoutScopedController::class, 'postalCode']);
-  });
+Route::prefix('checkout/{token}')->middleware(['checkout.session'])->group(function () {
+    Route::prefix('regions')->group(function () {
+        Route::get('provinces', [CheckoutScopedController::class, 'provinces']);
+        Route::get('provinces/{province}/regencies', [CheckoutScopedController::class, 'regencies']);
+        Route::get('provinces/{province}/regencies/{regency}/districts', [CheckoutScopedController::class, 'districts']);
+        Route::get('provinces/{province}/regencies/{regency}/districts/{district}/villages', [CheckoutScopedController::class, 'villages']);
+        Route::get('postal-code/{village}', [CheckoutScopedController::class, 'postalCode']);
+    });
 
-  Route::get('payment-channels', [PaymentController::class, 'channels']);
+    Route::get('payment-channels', [PaymentController::class, 'channels']);
 });

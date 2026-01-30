@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\CheckoutSession;
 use App\Models\CheckoutSessionItem;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CheckoutSessionItemTest extends TestCase
 {

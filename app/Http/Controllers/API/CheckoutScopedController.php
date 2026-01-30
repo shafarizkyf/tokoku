@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\PostalCodeHelper;
 use App\Http\Controllers\Controller;
-use App\Models\CheckoutSession;
 use App\Models\District;
 use App\Models\Province;
 use App\Models\Regency;
 use App\Models\Village;
-use App\Helpers\PostalCodeHelper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class CheckoutScopedController extends Controller
 {
@@ -40,12 +37,14 @@ class CheckoutScopedController extends Controller
     public function postalCode(Request $request, $sessionToken, Village $village)
     {
         $results = self::fetchPostalCode($village);
+
         return response()->json($results);
     }
 
     public function paymentChannels(Request $request)
     {
         $channels = \App\Helpers\Tripay::paymentChannels();
+
         return response()->json($channels['data'] ?? []);
     }
 }

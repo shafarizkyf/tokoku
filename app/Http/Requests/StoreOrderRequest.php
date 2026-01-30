@@ -29,12 +29,12 @@ class StoreOrderRequest extends FormRequest
             'items.*.quantity' => [
                 'required',
                 'numeric',
-                function($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) {
                     $index = explode('.', $attribute)[1];
                     $productVariationId = request()->input("items.$index.product_variation_id");
                     (new EnsureStockExist($productVariationId))
                         ->validate($attribute, $value, $fail);
-                }
+                },
             ],
             'payment_method' => 'required',
             'shipping' => 'required',

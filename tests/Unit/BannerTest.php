@@ -2,15 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Banner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class BannerTest extends TestCase
 {
-
     use RefreshDatabase;
 
     public function test_get_url_attribute_returns_full_url()
@@ -21,11 +20,11 @@ class BannerTest extends TestCase
         Storage::shouldReceive('url')
             ->once()
             ->with($path)
-            ->andReturn('/storage/' . $path);
+            ->andReturn('/storage/'.$path);
 
         $banner = new Banner(['path' => $path]);
 
-        $this->assertEquals(url('/storage/' . $path), $banner->url);
+        $this->assertEquals(url('/storage/'.$path), $banner->url);
     }
 
     public function test_banner_create()
