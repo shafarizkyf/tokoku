@@ -13,6 +13,7 @@ class Order extends Model {
     'user_id',
     'code',
     'recipient_name',
+    'recipient_email',
     'address_detail',
     'province_id',
     'regency_id',
@@ -27,9 +28,11 @@ class Order extends Model {
     'payment_method',
     'payment_status',
     'payment_response',
+    'payment_reference',
     'resi_track_response',
     'grand_total',
-    'recipient_phone'
+    'recipient_phone',
+    'total_discount'
   ];
 
   public $appends = [
