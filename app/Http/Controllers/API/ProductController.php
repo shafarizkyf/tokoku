@@ -72,6 +72,79 @@ class ProductController extends Controller
         });
     }
 
+    public function filter()
+    {
+        $keyword = request('keyword');
+        $conditions = request('condition', []);
+        $minPrice = request('min_price');
+        $maxPrice = request('max_price');
+        $sortBy = request('sort_by', 'latest');
+        $page = request('page', 1);
+        $cacheKey = 'filter.'.md5($keyword.json_encode($conditions).$minPrice.$maxPrice.$sortBy.$page);
+
+        return Cache::tags(['products', 'filter'])->remember($cacheKey, now()->addMinutes(5), function () use ($keyword, $conditions, $minPrice, $maxPrice, $sortBy) {
+            $subQuery = DB::table('product_variations')
+                ->selectRaw('product_id, MIN(COALESCE(discount_price, price)) as min_price')
+                ->groupBy('product_id');
+            $query = DB::table('products as p')
+                ->select(
+                    'p.*',
+                    'pi.path as image_path',
+                    'pv.discount_price',
+                    'pv.price',
+                    'pv.stock',
+                    'sq.min_price'
+                )
+                ->leftJoin('product_images as pi', function ($join) {
+                    $join->on('pi.product_id', '=', 'p.id')
+                        ->whereRaw('pi.id = (SELECT MIN(id) FROM product_images WHERE product_id = p.id)');
+                })
+                ->leftJoin('product_variations as pv', function ($join) {
+                    $join->on('pv.product_id', '=', 'p.id')
+                        ->whereRaw('pv.id = (SELECT id FROM product_variations WHERE product_id = p.id ORDER BY COALESCE(discount_price, price) ASC LIMIT 1)');
+                })
+                ->leftJoin(DB::raw("({$subQuery->toSql()}) as sq"), 'sq.product_id', '=', 'p.id')
+                ->mergeBindings($subQuery)
+                ->where('p.is_active', true)
+                ->whereNull('p.deleted_at');
+            if ($keyword && trim($keyword)) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('p.name', 'like', "%{$keyword}%")
+                        ->orWhere('p.description', 'like', "%{$keyword}%");
+                });
+            }
+            if (! empty($conditions)) {
+                $query->whereIn('p.condition', $conditions);
+            }
+            if ($minPrice !== null && $minPrice !== '') {
+                $query->where('sq.min_price', '>=', $minPrice);
+            }
+            if ($maxPrice !== null && $maxPrice !== '') {
+                $query->where('sq.min_price', '<=', $maxPrice);
+            }
+            switch ($sortBy) {
+                case 'price_asc':
+                    $query->orderBy('sq.min_price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('sq.min_price', 'desc');
+                    break;
+                case 'popular':
+                    $query->orderBy('p.sold_count', 'desc');
+                    break;
+                case 'rating':
+                    $query->orderBy('p.review_avg', 'desc');
+                    break;
+                case 'latest':
+                default:
+                    $query->orderBy('p.created_at', 'desc');
+                    break;
+            }
+
+            return $query->paginate(30);
+        });
+    }
+
     public function show(Product $product)
     {
         $product = $product->load('variations', 'images');
