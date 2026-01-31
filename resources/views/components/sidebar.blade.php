@@ -17,6 +17,11 @@
       </a>
     </li>
     <li class="nav-item">
+      <a href="{{ route('admin.reviews') }}" class="nav-link text-white {{ request()->route()->getName() == 'admin.reviews' ? 'active' : '' }}" aria-current="page">
+        <span class="ml-3">Ulasan</span>
+      </a>
+    </li>
+    <li class="nav-item">
         <a href="{{ route('live-stream.host') }}"
         class="nav-link text-white {{ request()->route()->getName() == 'live-stream.host' ? 'active' : '' }}"
         aria-current="page">

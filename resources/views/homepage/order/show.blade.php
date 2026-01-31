@@ -6,6 +6,10 @@
   <link rel="stylesheet" href="{{ asset('css/order.css') }}">
 @endsection
 
+@section('js')
+  <script src="{{ asset('js/order/index.js') }}"></script>
+@endsection
+
 @section('content')
   <div class="container py-5">
     <h1 class="h3">Rincian Transaksi</h1>
@@ -62,6 +66,113 @@
                 @else
                   <p class="m-0 text-muted">Data belum tersedia</p>
                 @endif
+              </div>
+            </div>
+          @endif
+
+          @if($order->payment_status == 'paid')
+            <div class="card">
+              <div class="card-body">
+                <h6 class="mb-3">Review Saya</h6>
+                <div class="accordion" id="accordionReviews">
+                  @foreach($order->orderDetails as $orderItem)
+                    @php
+                      $existingReview = $orderItem->product->reviews()->where('user_id', auth()->id())->whereNull('deleted_at')->first();
+                    @endphp
+
+                    @if($existingReview)
+                      <div class="accordion-item review-accordion-item">
+                        <h2 class="accordion-header">
+                          <button class="accordion-button collapsed review-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReview{{ $orderItem->id }}">
+                            <div class="d-flex align-items-center gap-3 w-100">
+                              <img src="{{ $orderItem->product->image->url }}" class="img-thumbnail" alt="" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;">
+                              <div class="flex-grow-1">
+                                <p class="m-0 fw-medium text-dark">{{ $orderItem->name_snapshot }}</p>
+                                <div class="d-flex align-items-center gap-2">
+                                  <span class="text-warning">{{ str_repeat('★', $existingReview->rating) }}{{ str_repeat('☆', 5 - $existingReview->rating) }}</span>
+                                  <span class="badge bg-success">Sudah Direview</span>
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        </h2>
+                        <div id="collapseReview{{ $orderItem->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionReviews">
+                          <div class="accordion-body">
+                            @if($existingReview->title)
+                              <p class="fw-medium mb-2">{{ $existingReview->title }}</p>
+                            @endif
+                            @if($existingReview->content)
+                              <p class="text-muted mb-3" style="white-space: pre-wrap;">{{ $existingReview->content }}</p>
+                            @endif
+                            @if($existingReview->images && $existingReview->images->count() > 0)
+                              <div class="d-flex gap-2 flex-wrap">
+                                @foreach($existingReview->images as $image)
+                                  <a href="{{ asset('storage/'.$image->image_path) }}" target="_blank">
+                                    <img src="{{ asset('storage/'.$image->image_path) }}" alt="Review image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                  </a>
+                                @endforeach
+                              </div>
+                            @endif
+                            <p class="text-muted small mt-2 mb-0">Diposting pada {{ $existingReview->created_at->format('d M Y H:i') }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    @else
+                      <form class="review-form review-item" data-product-id="{{ $orderItem->product_id }}">
+                        <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+                        <div class="review-product-info">
+                          <img src="{{ $orderItem->product->image->url }}" class="img-thumbnail" alt="" style="height: 60px; object-fit: cover;">
+                          <div>
+                            <p class="m-0 review-product-name">{{ $orderItem->name_snapshot }}</p>
+                            @if($orderItem->productVariation)
+                              @foreach($orderItem->productVariation()->options()->get() as $option)
+                                <span class="review-product-variation badge rounded-pill text-bg-light">{{ $option->option_name }}</span>
+                              @endforeach
+                            @endif
+                          </div>
+                        </div>
+
+                        <div class="star-rating">
+                          <span class="star" data-rating="1">★</span>
+                          <span class="star" data-rating="2">★</span>
+                          <span class="star" data-rating="3">★</span>
+                          <span class="star" data-rating="4">★</span>
+                          <span class="star" data-rating="5">★</span>
+                          <input type="hidden" name="rating" value="">
+                        </div>
+
+                        <div class="mb-2">
+                          <label class="form-label">Judul Review (Opsional)</label>
+                          <input type="text" class="form-control" name="title" placeholder="Ringkasan pengalaman Anda" maxlength="200">
+                        </div>
+
+                        <div class="mb-2">
+                          <label class="form-label">Komentar</label>
+                          <textarea class="form-control" name="content" rows="3" placeholder="Bagikan pengalaman Anda dengan produk ini..." maxlength="5000"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Foto (Opsional, Max 5)</label>
+                          <div class="image-upload-area">
+                            <input type="file" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" multiple>
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">Klik untuk upload foto (Max 5)</div>
+                          </div>
+                          <div class="image-preview-grid"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark btn-submit-review w-100">
+                          <span class="btn-text">Kirim Review</span>
+                          <span class="btn-loading">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Mengirim...
+                          </span>
+                        </button>
+                      </form>
+                    @endif
+                  @endforeach
+                </div>
               </div>
             </div>
           @endif
@@ -125,24 +236,26 @@
   @component('components.modal', ['title' => 'Panduan Cara Bayar', 'id' => 'howToPay'])
     <div class="modal-body">
       <div class="accordion" id="accordionHowToPay">
-        @foreach($order->payment_response->data->instructions as $index => $instruction)
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button {{ $index == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}" aria-controls="collapse{{ $index }}">
-                {{ $instruction->title }}
-              </button>
-            </h2>
-            <div id="collapse{{ $index }}" class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}" data-bs-parent="#accordionHowToPay">
-              <div class="accordion-body">
-                <ul>
-                  @foreach ($instruction->steps as $step)
-                    <li>{!! $step !!}</li>
-                  @endforeach
-                </ul>
+        @if(isset($order->payment_response->data))
+          @foreach($order->payment_response->data->instructions as $index => $instruction)
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button {{ $index == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}" aria-controls="collapse{{ $index }}">
+                  {{ $instruction->title }}
+                </button>
+              </h2>
+              <div id="collapse{{ $index }}" class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}" data-bs-parent="#accordionHowToPay">
+                <div class="accordion-body">
+                  <ul>
+                    @foreach ($instruction->steps as $step)
+                      <li>{!! $step !!}</li>
+                    @endforeach
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        @endforeach
+          @endforeach
+        @endif
       </div>
     </div>
   @endcomponent

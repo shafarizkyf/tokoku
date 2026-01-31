@@ -99,4 +99,21 @@ class Product extends Model
     {
         return $query->where('name', 'like', "%{$value}%");
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function updateReviewStats(): void
+    {
+        $stats = Review::where('product_id', $this->id)
+            ->selectRaw('COUNT(*) as count, AVG(rating) as average')
+            ->first();
+
+        static::withoutGlobalScope(ProductActive::class)->where('id', $this->id)->update([
+            'review_count' => $stats->count ?? 0,
+            'review_avg' => $stats->average ?? 0,
+        ]);
+    }
 }

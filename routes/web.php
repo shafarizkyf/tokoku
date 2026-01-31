@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminReviewController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
 use App\Http\Controllers\BannerController;
@@ -52,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         });
         Route::get('shop/settings', [ShopController::class, 'settings'])->name('shop.settings');
         Route::get('live-stream', [LiveStreamHostController::class, 'index'])->name('live-stream.host');
+        Route::get('reviews', [AdminReviewController::class, 'page'])->name('admin.reviews');
     });
 });
 
