@@ -6,7 +6,6 @@ use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminUpdateReviewStatusRequest;
 use App\Http\Resources\ReviewResource;
-use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
