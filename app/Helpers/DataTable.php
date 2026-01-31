@@ -28,7 +28,7 @@ class DataTable
     {
         $offset = request('start');
         $take = request('length');
-        $search = request('search')['value'];
+        $search = request('search') ? request('search')['value'] : '';
 
         $search = preg_replace("/[^a-zA-Z0-9\s.@]+/", '', $search);
 
