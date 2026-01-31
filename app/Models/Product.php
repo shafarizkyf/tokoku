@@ -111,7 +111,7 @@ class Product extends Model
             ->selectRaw('COUNT(*) as count, AVG(rating) as average')
             ->first();
 
-        $this->update([
+        static::withoutGlobalScope(ProductActive::class)->where('id', $this->id)->update([
             'review_count' => $stats->count ?? 0,
             'review_avg' => $stats->average ?? 0,
         ]);
