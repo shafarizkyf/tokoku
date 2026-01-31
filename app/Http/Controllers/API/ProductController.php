@@ -165,7 +165,7 @@ class ProductController extends Controller
         DB::transaction(function () use ($productUpdateRequest, &$response) {
             $hasVariations = isset($productUpdateRequest->variations) && count($productUpdateRequest->variations);
 
-            $product = new Product();
+            $product = new Product;
             $product->store_id = 1;
             $product->name = $productUpdateRequest->name;
             $product->slug = Utils::slug(Product::class, $productUpdateRequest->name);
@@ -441,7 +441,7 @@ class ProductController extends Controller
         DB::transaction(function () use ($productRequest, &$response) {
             $source = Utils::getDomainFromUrl($productRequest->origin);
 
-            $product = new Product();
+            $product = new Product;
             $product->store_id = 1;
             $product->name = substr($productRequest->name, 0, 191);
             $product->slug = Str::slug($productRequest->name);
