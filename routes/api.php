@@ -93,6 +93,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('products')->group(function () {
     Route::get('', [ProductController::class, 'index']);
+    Route::get('filter', [ProductController::class, 'filter']);
     Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
     Route::get('{product}', [ProductController::class, 'show']);
 });
