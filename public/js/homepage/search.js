@@ -53,10 +53,13 @@ $(function () {
 
     infiniteScroll.on('load', function (response) {
       const productsEl = response.data.map((product) => {
+        const price = product.price;
+        const discountPrice = product.discount_price;
+
         return ProductCardEl({
-          imageUrl: product.image?.url || '#',
-          discountPrice: product.cheapest_variation.discount_price ? currencyFormat.format(product.cheapest_variation.discount_price) : null,
-          normalPrice: currencyFormat.format(product.cheapest_variation.price),
+          imageUrl: product.image_path.includes('http') ? product.image_path : `/storage/${product.image_path}`,
+          discountPrice: discountPrice ? currencyFormat.format(discountPrice) : null,
+          normalPrice: currencyFormat.format(price),
           title: product.name,
           viewUrl: `/products/${product.slug}`
         })
