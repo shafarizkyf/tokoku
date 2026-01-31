@@ -202,4 +202,251 @@ $(function(){
   if (descriptionHeight >= 250) {
     $('.description-wrapper button').removeClass('d-none');
   }
+
+  // ==================== REVIEWS ====================
+  let currentReviewFilter = 'all';
+  let currentReviewPage = 1;
+
+  // Initialize reviews
+  initReviews();
+
+  function initReviews() {
+    loadReviewSummary();
+    loadReviews();
+
+    // Filter button handlers
+    $(document).on('click', '.filter-btn', function() {
+      const filter = $(this).data('filter');
+      if (filter !== currentReviewFilter) {
+        currentReviewFilter = filter;
+        currentReviewPage = 1;
+        
+        // Update active state
+        $(this).siblings().removeClass('btn-dark active').addClass('btn-outline-dark');
+        $(this).removeClass('btn-outline-dark').addClass('btn-dark active');
+        
+        loadReviews();
+      }
+    });
+  }
+
+  function loadReviewSummary() {
+    $.getJSON(`/api/products/${productId}/reviews/summary`)
+      .then(response => {
+        if (response.success && response.data) {
+          const data = response.data;
+          
+          // Update average score
+          $('#review-avg-score').text(data.average_rating);
+          
+          // Update stars
+          const fullStars = Math.round(data.average_rating);
+          let starsHtml = '';
+          for (let i = 1; i <= 5; i++) {
+            starsHtml += i <= fullStars ? '★' : '☆';
+          }
+          $('#review-stars').text(starsHtml);
+          
+          // Update total count
+          $('#review-total-count').text(`${data.total_reviews} Ulasan`);
+          
+          // Update rating bars
+          const bars = $('#rating-bars .rating-bar-item');
+          bars.each(function() {
+            const rating = $(this).data('rating');
+            const count = data.rating_distribution[rating] || 0;
+            const total = data.total_reviews || 1;
+            const percent = total > 0 ? (count / total) * 100 : 0;
+            
+            $(this).find('.rating-bar-fill').css('width', `${percent}%`);
+            $(this).find('.rating-count').text(count);
+          });
+        }
+      })
+      .catch(() => {
+        console.error('Failed to load review summary');
+      });
+  }
+
+  function loadReviews() {
+    const $container = $('#reviews-container');
+    $container.html(`
+      <div class="text-center py-4">
+        <div class="spinner-border text-dark" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    `);
+
+    let url = `/api/products/${productId}/reviews?page=${currentReviewPage}&sort_by=latest`;
+    
+    if (currentReviewFilter !== 'all') {
+      url += `&rating=${currentReviewFilter}`;
+    }
+
+    $.getJSON(url)
+      .then(response => {
+        renderReviews(response.data);
+        renderPagination(response);
+      })
+      .catch(() => {
+        $container.html(`
+          <div class="review-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+            </svg>
+            <p>Gagal memuat ulasan</p>
+          </div>
+        `);
+      });
+  }
+
+  function renderReviews(reviews) {
+    const $container = $('#reviews-container');
+    
+    if (!reviews || reviews.length === 0) {
+      $container.html(`
+        <div class="review-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M8 4.5a.5.5 0 0 0-1 0V7a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V4.5z"/>
+          </svg>
+          <p>Belum ada ulasan untuk produk ini</p>
+        </div>
+      `);
+      return;
+    }
+
+    let html = '';
+    reviews.forEach(review => {
+      // Generate stars
+      let starsHtml = '';
+      for (let i = 1; i <= 5; i++) {
+        starsHtml += i <= review.rating ? '★' : '☆';
+      }
+
+      // Generate images
+      let imagesHtml = '';
+      if (review.images && review.images.length > 0) {
+        imagesHtml = '<div class="review-images">';
+        review.images.forEach((image, index) => {
+          imagesHtml += `<a href="${image.path}" data-lightbox="review-gallery" data-title="Ulasan produk">`;
+          imagesHtml += `<img src="${image.path}" alt="Review image ${index + 1}">`;
+          imagesHtml += '</a>';
+        });
+        imagesHtml += '</div>';
+      }
+
+      // Get user initial
+      const userInitial = review.user.name.charAt(0).toUpperCase();
+      const formattedDate = new Date(review.created_at).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      html += `
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-user">
+              <div class="review-user-avatar">${userInitial}</div>
+              <div>
+                <div class="review-user-name">${review.user.name}</div>
+                <div class="review-date">${formattedDate}</div>
+              </div>
+            </div>
+            <div class="review-rating">${starsHtml}</div>
+          </div>
+          ${review.title ? `<div class="review-title">${review.title}</div>` : ''}
+          ${review.content ? `<div class="review-content">${review.content}</div>` : ''}
+          ${imagesHtml}
+          ${review.is_verified_purchase ? `
+            <div class="review-verified">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </svg>
+              Pembelian Terverifikasi
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+
+    $container.html(html);
+
+    // Initialize lightbox for new images
+    if (typeof SimpleLightbox !== 'undefined') {
+      const lightbox = new SimpleLightbox('[data-lightbox="review-gallery"]', {
+        captions: true,
+        captionSelector: 'data-title',
+        captionType: 'text',
+        captionsData: 'title',
+        close: true,
+        showCounter: true,
+        nav: true,
+        download: true,
+      });
+    }
+  }
+
+  function renderPagination(response) {
+    const $container = $('#reviews-pagination');
+    
+    if (!response.links || !response.meta) {
+      $container.html('');
+      return;
+    }
+
+    const { links, meta } = response;
+    
+    if (meta.last_page <= 1) {
+      $container.html('');
+      return;
+    }
+
+    let html = '';
+
+    // Previous button
+    if (meta.current_page > 1) {
+      html += `<li class="page-item"><a href="#" class="page-link" data-page="${meta.current_page - 1}">‹</a></li>`;
+    } else {
+      html += `<li class="page-item disabled"><span class="page-link">‹</span></li>`;
+    }
+
+    // Page numbers
+    for (let i = 1; i <= meta.last_page; i++) {
+      if (i === 1 || i === meta.last_page || (i >= meta.current_page - 2 && i <= meta.current_page + 2)) {
+        const activeClass = i === meta.current_page ? 'active' : '';
+        html += `<li class="page-item ${activeClass}"><a href="#" class="page-link" data-page="${i}">${i}</a></li>`;
+      } else if (i === meta.current_page - 3 || i === meta.current_page + 3) {
+        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+      }
+    }
+
+    // Next button
+    if (meta.current_page < meta.last_page) {
+      html += `<li class="page-item"><a href="#" class="page-link" data-page="${meta.current_page + 1}">›</a></li>`;
+    } else {
+      html += `<li class="page-item disabled"><span class="page-link">›</span></li>`;
+    }
+
+    $container.html(`<ul class="pagination">${html}</ul>`);
+
+    // Pagination click handlers
+    $container.find('.page-link[data-page]').on('click', function(e) {
+      e.preventDefault();
+      const page = $(this).data('page');
+      if (page && page !== currentReviewPage) {
+        currentReviewPage = page;
+        loadReviews();
+        // Scroll to reviews
+        $('html, body').animate({
+          scrollTop: $('.review-section').offset().top - 100
+        }, 300);
+      }
+    });
+  }
 });

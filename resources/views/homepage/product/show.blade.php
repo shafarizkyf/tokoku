@@ -19,11 +19,13 @@
 @section('css')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <link rel="stylesheet" href="{{ asset('css/product.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplelightbox@2.7.0/dist/simple-lightbox.min.css" />
 @endsection
 
 @section('js')
   <script src="https://malaman.github.io/js-image-zoom/package/js-image-zoom.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simplelightbox@2.7.0/dist/simple-lightbox.min.js"></script>
   <script src="{{ asset('js/product/shop.js') }}"></script>
 @endsection
 
@@ -101,6 +103,61 @@
             </span>
             <span class="text">Lihat Selengkapnya</span>
           </button>
+        </div>
+
+        <!-- Review Section -->
+        <div class="review-section mt-5">
+          <h6 class="mb-3">Ulasan Produk</h6>
+          
+          <!-- Review Summary Card -->
+          <div class="card review-summary-card mb-4">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-3 text-center review-score">
+                  <div class="review-avg" id="review-avg-score">-</div>
+                  <div class="review-stars text-warning" id="review-stars">
+                    ☆☆☆☆☆
+                  </div>
+                  <p class="text-muted small mb-0" id="review-total-count">0 Ulasan</p>
+                </div>
+                <div class="col-md-9">
+                  <div class="rating-bars" id="rating-bars">
+                    @for($i = 5; $i >= 1; $i--)
+                      <div class="rating-bar-item" data-rating="{{ $i }}">
+                        <span class="rating-label">{{ $i }} ★</span>
+                        <div class="rating-bar">
+                          <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                      </div>
+                    @endfor
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review Filters -->
+          <div class="review-filters mb-3">
+            <button class="btn btn-sm btn-dark filter-btn active" data-filter="all">Semua</button>
+            <button class="btn btn-sm btn-outline-dark filter-btn" data-filter="5">5 ★</button>
+            <button class="btn btn-sm btn-outline-dark filter-btn" data-filter="4">4 ★</button>
+            <button class="btn btn-sm btn-outline-dark filter-btn" data-filter="3">3 ★</button>
+            <button class="btn btn-sm btn-outline-dark filter-btn" data-filter="2">2 ★</button>
+            <button class="btn btn-sm btn-outline-dark filter-btn" data-filter="1">1 ★</button>
+          </div>
+
+          <!-- Reviews Container -->
+          <div id="reviews-container" class="reviews-container">
+            <div class="text-center py-4">
+              <div class="spinner-border text-dark" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div id="reviews-pagination" class="reviews-pagination mt-3"></div>
         </div>
       </div>
       <div class="col-md-3">
