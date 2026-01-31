@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminReviewController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\CartController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductImageController;
 use App\Http\Controllers\API\RegionController;
+use App\Http\Controllers\API\ReviewController;
+use App\Http\Controllers\API\ReviewImageController;
 use App\Http\Controllers\API\ShippingController;
 use App\Http\Controllers\API\ShopController;
 use App\Http\Controllers\API\TripayController;
@@ -89,6 +92,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('ably/token', [LiveStreamController::class, 'ablyToken']);
         Route::get('{id}/past', [LiveStreamController::class, 'past']);
     });
+
+    Route::prefix('products/{product}')->group(function () {
+        Route::post('reviews', [ReviewController::class, 'store']);
+    });
+
+    Route::prefix('reviews/{review}')->group(function () {
+        Route::put('', [ReviewController::class, 'update']);
+        Route::delete('', [ReviewController::class, 'destroy']);
+        Route::post('images', [ReviewImageController::class, 'store']);
+        Route::delete('images/{image}', [ReviewImageController::class, 'destroy']);
+    });
+
+    Route::get('users/me/reviews', [ReviewController::class, 'myReviews']);
+
+    Route::middleware('ability:admin')->group(function () {
+        Route::prefix('admin/reviews')->group(function () {
+            Route::get('', [AdminReviewController::class, 'index']);
+            Route::patch('{review}/status', [AdminReviewController::class, 'updateStatus']);
+            Route::delete('{review}', [AdminReviewController::class, 'destroy']);
+        });
+    });
 });
 
 Route::prefix('products')->group(function () {
@@ -96,7 +120,13 @@ Route::prefix('products')->group(function () {
     Route::get('filter', [ProductController::class, 'filter']);
     Route::get('{productId}/variations', [ProductController::class, 'getProductVariationByOptions']);
     Route::get('{product}', [ProductController::class, 'show']);
+    Route::prefix('{product}')->group(function () {
+        Route::get('reviews', [ReviewController::class, 'index']);
+        Route::get('reviews/summary', [ReviewController::class, 'summary']);
+    });
 });
+
+Route::get('reviews/{review}', [ReviewController::class, 'show']);
 
 Route::get('health', [HealthCheckController::class, 'index']);
 

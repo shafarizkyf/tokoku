@@ -390,6 +390,7 @@ class ReviewTest extends TestCase
     protected function createProduct(): Product
     {
         $user = User::factory()->create();
+
         return Product::create([
             'store_id' => 1,
             'name' => 'Test Product',
