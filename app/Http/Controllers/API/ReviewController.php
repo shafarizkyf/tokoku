@@ -8,9 +8,12 @@ use App\Http\Requests\UpdateReviewRequest;
 use App\Http\Resources\ReviewResource;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\ReviewImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReviewController extends Controller
 {
@@ -134,6 +137,28 @@ class ReviewController extends Controller
                 'is_verified_purchase' => $isVerifiedPurchase,
                 'created_by' => $user->id,
             ]);
+
+            // Save review images
+            if ($request->hasFile('images')) {
+                $sortOrder = 0;
+                foreach ($request->file('images') as $image) {
+                    if ($sortOrder >= 5) {
+                        break;
+                    }
+
+                    $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
+                    $path = $image->storeAs("reviews/{$review->id}", $filename, 'public');
+
+                    ReviewImage::create([
+                        'review_id' => $review->id,
+                        'image_path' => $path,
+                        'sort_order' => $sortOrder,
+                        'created_at' => now(),
+                    ]);
+
+                    $sortOrder++;
+                }
+            }
 
             $product->updateReviewStats();
 
