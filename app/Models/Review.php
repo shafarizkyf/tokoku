@@ -20,6 +20,7 @@ class Review extends Model
         'title',
         'content',
         'is_verified_purchase',
+        'status',
         'created_by',
         'updated_by',
     ];

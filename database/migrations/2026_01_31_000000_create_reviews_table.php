@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title', 200)->nullable();
             $table->text('content')->nullable();
             $table->boolean('is_verified_purchase')->default(false);
+            $table->string('status')->default('pending');
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
